@@ -347,6 +347,7 @@ model CustomPage {
   title       String
   slug        String   @unique
   content     String   @db.Text
+  icon        String?
   published   Boolean  @default(false)
   order       Int      @default(0)
   metaTitle   String?
