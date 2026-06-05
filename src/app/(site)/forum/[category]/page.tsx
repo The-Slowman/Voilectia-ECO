@@ -140,7 +140,7 @@ export default async function ForumCategoryPage({ params, searchParams }: Props)
                           📌
                         </span>
                       )}
-                      {post.closed && <Lock size={11} className="text-[#9AB09A] flex-shrink-0" title="Post fermé" />}
+                      {post.closed && <Lock size={11} className="text-[#9AB09A] flex-shrink-0" aria-label="Post fermé" />}
                       <h3 className="font-semibold text-sm text-[#1A3D2B]
                                      group-hover:text-[#2D6A4F] transition-colors truncate">
                         {post.title}
