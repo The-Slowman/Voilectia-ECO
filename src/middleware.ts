@@ -86,15 +86,7 @@ export async function middleware(req: NextRequest) {
     '127.0.0.1'
 
   // ── 1. Rate limiting ──────────────────────────────────────
-  if (pathname.startsWith('/api/auth/steam')) {
-    if (!rateLimit(ip, STEAM_RATE_LIMIT.limit, STEAM_RATE_LIMIT.windowMs)) {
-      return new NextResponse('Too Many Requests', { status: 429 })
-    }
-  } else if (pathname.startsWith('/api/auth') || pathname === '/admin/login') {
-    if (!rateLimit(ip, AUTH_RATE_LIMIT.limit, AUTH_RATE_LIMIT.windowMs)) {
-      return new NextResponse('Too Many Requests', { status: 429 })
-    }
-  } else if (pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/admin/auth') && !pathname.startsWith('/api/auth')) {
     if (!rateLimit(ip, API_RATE_LIMIT.limit, API_RATE_LIMIT.windowMs)) {
       return new NextResponse('Too Many Requests', { status: 429 })
     }
@@ -102,9 +94,7 @@ export async function middleware(req: NextRequest) {
 
   // ── 2. Protection routes admin ────────────────────────────
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const sessionToken =
-      req.cookies.get('authjs.session-token')?.value ??
-      req.cookies.get('__Secure-authjs.session-token')?.value
+    const sessionToken = req.cookies.get('voilectia_admin_session')?.value
     if (!sessionToken) {
       const loginUrl = new URL('/admin/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
