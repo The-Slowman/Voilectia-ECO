@@ -10,7 +10,7 @@ type ProjectWithRelations = CityProject & {
   participants: CityProjectParticipant[]
   collabFrom:   (CityCollaboration & {
     partnerCity: Pick<PrismaCity, 'name' | 'slug' | 'accentColor'>
-  })[]
+  }) | null
 }
 
 interface Props { params: { slug: string } }
@@ -33,7 +33,7 @@ const PROJECT_STATUS: Record<string, { label: string; color: string; bg: string;
 
 function ProjectCard({ project, accent }: { project: ProjectWithRelations; accent: string }) {
     const st      = PROJECT_STATUS[project.status] ?? PROJECT_STATUS.proposed
-    const collabs = project.collabFrom
+    const collab  = project.collabFrom
 
     return (
       <div className="bg-white border border-[#DBCAA8] rounded-xl p-5">
@@ -45,7 +45,7 @@ function ProjectCard({ project, accent }: { project: ProjectWithRelations; accen
                 <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
                 {st.label}
               </span>
-              {collabs.length > 0 && (
+              {collab != null && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold
                                  bg-[rgba(74,158,196,0.1)] text-[#1A6A8A]
                                  border border-[rgba(74,158,196,0.25)] px-2 py-0.5 rounded-full">
@@ -96,8 +96,8 @@ function ProjectCard({ project, accent }: { project: ProjectWithRelations; accen
                 <div key={i}
                      className="w-6 h-6 rounded-full bg-[#E8D9BF] border border-[#DBCAA8]
                                 flex items-center justify-center text-[9px] font-bold text-[#1A3D2B]"
-                     title={p.playerName}>
-                  {p.playerName.charAt(0).toUpperCase()}
+                     title={p.name}>
+                  {p.name.charAt(0).toUpperCase()}
                 </div>
               ))}
               {project.participants.length > 5 && (
@@ -109,14 +109,14 @@ function ProjectCard({ project, accent }: { project: ProjectWithRelations; accen
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            {collabs.map((c) => (
-              <Link key={c.id} href={`/villes/${c.partnerCity.slug}`}
+            {collab && (
+              <Link href={`/villes/${collab.partnerCity.slug}`}
                     className="text-[10px] font-semibold text-[#1A6A8A]
                                bg-[rgba(74,158,196,0.1)] border border-[rgba(74,158,196,0.25)]
                                px-2.5 py-1 rounded-full hover:bg-[rgba(74,158,196,0.2)] transition-colors">
-                avec {c.partnerCity.name}
+                avec {collab.partnerCity.name}
               </Link>
-            ))}
+            )}
           </div>
         </div>
       </div>
