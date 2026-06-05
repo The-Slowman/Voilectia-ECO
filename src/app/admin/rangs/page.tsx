@@ -15,7 +15,7 @@ interface Rank {
 interface PlayerRank {
   id: string; name: string; color: string; badge: string | null
   description: string | null; order: number
-  _count: { players: number }
+  _count: { users: number }
 }
 
 const PERM_LABELS: { key: keyof Rank; label: string }[] = [
@@ -344,7 +344,7 @@ export default function AdminRangsPage() {
                     </span>
                   </div>
                   <div className="text-xs text-[#9AB09A] mt-0.5 flex items-center gap-3">
-                    <span className="flex items-center gap-1"><Users size={10} /> {r._count.players} joueur{r._count.players !== 1 ? 's' : ''}</span>
+                    <span className="flex items-center gap-1"><Users size={10} /> {r._count.users} joueur{r._count.users !== 1 ? 's' : ''}</span>
                     {r.description && <span className="truncate max-w-[200px]">{r.description}</span>}
                   </div>
                 </div>
