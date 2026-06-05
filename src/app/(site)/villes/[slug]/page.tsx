@@ -418,7 +418,7 @@ export default async function CityHubPage({ params }: Props) {
             </section>
 
             {/* Collaborations inter-villes */}
-            {city.projects.some(p => p.collabFrom.length > 0) && (
+            {city.projects.some(p => p.collabFrom != null) && (
               <section className="bg-white border border-[#DBCAA8] rounded-xl p-5">
                 <h3 className="font-display font-bold text-[#1A3D2B] text-sm mb-3 flex items-center gap-2">
                   <Shield size={14} className="text-[#4A9EC4]" />
@@ -426,7 +426,8 @@ export default async function CityHubPage({ params }: Props) {
                 </h3>
                 <div className="space-y-2">
                   {city.projects
-                    .flatMap(p => p.collabFrom)
+                    .map(p => p.collabFrom)
+                    .filter((c): c is NonNullable<typeof c> => c != null)
                     .filter((c, i, arr) => arr.findIndex(x => x.partnerCityId === c.partnerCityId) === i)
                     .slice(0, 5)
                     .map((c) => (
