@@ -1,0 +1,364 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   VOILECTIA — Design System
+   Palette extraite du logo officiel
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* ══════════════════════════════════════════════════
+     Palette officielle — extraite du logo Voilectia
+     ══════════════════════════════════════════════════ */
+
+  /* Fond crème (identique au fond du logo) */
+  --cream:           #F2E8D5;
+  --cream-mid:       #E8D9BF;
+  --cream-deep:      #DBCAA8;
+  --cream-dark:      #C9B48E;
+
+  /* Vert forêt profond (couleur du texte "VOILECTIA" dans le logo) */
+  --forest-deep:     #1A3D2B;
+  --forest-dark:     #1F4A33;
+  --forest-mid:      #2D6A4F;   /* vert intermédiaire */
+  --forest-leaf:     #3A7A52;   /* feuilles sombres du logo */
+  --forest-light:    #52B878;   /* feuilles claires / réseau */
+  --forest-bright:   #6FCF97;   /* surbrillance */
+
+  /* Or / pièce (identique à la pièce du logo) */
+  --gold:            #D4A820;
+  --gold-light:      #E8C84A;
+  --gold-pale:       #FBF0C8;
+  --gold-dark:       #A07810;
+
+  /* Bleu océan du globe */
+  --ocean:           #4A9EC4;
+
+  /* Ton chair des mains */
+  --skin:            #C9967A;
+
+  /* Couleurs de fond selon les sections */
+  --color-bg-main:   #F2E8D5;   /* sections claires */
+  --color-bg-mid:    #E8D9BF;   /* sections alternées */
+  --color-bg-dark:   #1A3D2B;   /* sections sombres (nav, footer, hero) */
+  --color-bg-card:   #FFFFFF;   /* cartes blanches */
+
+  /* Texte */
+  --color-text:       #1A3D2B;
+  --color-text-mid:   #2D5A3F;
+  --color-text-muted: #6B8C6A;
+  --color-text-faint: #9AB09A;
+
+  /* Borders */
+  --color-border:       rgba(26, 61, 43, 0.12);
+  --color-border-hover: rgba(26, 61, 43, 0.3);
+  --color-border-gold:  rgba(212, 168, 32, 0.35);
+
+  /* Shadows */
+  --shadow-card:       0 2px 16px rgba(26, 61, 43, 0.08);
+  --shadow-card-hover: 0 6px 28px rgba(26, 61, 43, 0.14);
+  --shadow-gold:       0 4px 20px rgba(212, 168, 32, 0.25);
+
+  /* Fonts */
+  --font-inter:  'Inter', system-ui, sans-serif;
+  --font-cinzel: 'Cinzel', Georgia, serif;
+  --font-lora:   'Lora', Georgia, serif;
+}
+
+/* ── Base ─────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--color-text);
+  font-family: var(--font-inter);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--cream-mid); }
+::-webkit-scrollbar-thumb  { background: var(--forest-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--forest-leaf); }
+
+/* ── Sélection ────────────────────────────────────────── */
+::selection {
+  background: rgba(82, 184, 120, 0.25);
+  color: var(--forest-deep);
+}
+
+/* ── Typographie ──────────────────────────────────────── */
+.font-display { font-family: var(--font-cinzel); }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-cinzel);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* ── Composants ───────────────────────────────────────── */
+@layer components {
+
+  /* ── Boutons ──────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm
+           transition-all duration-200 cursor-pointer select-none focus:outline-none
+           focus:ring-2 focus:ring-offset-2;
+  }
+
+  /* Bouton principal — vert forêt → fond crème au hover */
+  .btn-primary {
+    background: var(--forest-deep);
+    color: var(--cream);
+    @apply btn shadow-sm;
+  }
+  .btn-primary:hover {
+    background: var(--forest-mid);
+    box-shadow: 0 4px 16px rgba(26,61,43,0.3);
+  }
+
+  /* Bouton or — signature Voilectia */
+  .btn-gold {
+    background: var(--gold);
+    color: var(--forest-deep);
+    @apply btn font-bold shadow-sm;
+  }
+  .btn-gold:hover {
+    background: var(--gold-light);
+    box-shadow: var(--shadow-gold);
+  }
+
+  /* Bouton contour */
+  .btn-ghost {
+    border: 1.5px solid var(--color-border);
+    color: var(--color-text-muted);
+    @apply btn;
+  }
+  .btn-ghost:hover {
+    border-color: var(--forest-leaf);
+    color: var(--forest-deep);
+    background: rgba(26,61,43,0.05);
+  }
+
+  /* Bouton outline vert */
+  .btn-outline {
+    border: 1.5px solid var(--forest-mid);
+    color: var(--forest-mid);
+    @apply btn;
+  }
+  .btn-outline:hover {
+    background: var(--forest-deep);
+    color: var(--cream);
+  }
+
+  /* Bouton Discord */
+  .btn-discord {
+    @apply btn bg-[#5865F2] text-white hover:bg-[#4752C4] focus:ring-[#5865F2] shadow-sm;
+  }
+
+  .btn-sm  { @apply text-xs px-3.5 py-1.5; }
+  .btn-lg  { @apply text-base px-7 py-3.5; }
+  .btn-xl  { @apply text-lg px-9 py-4; }
+
+  /* ── Cards ────────────────────────────────────────── */
+  /* Carte sur fond clair (sections crème) */
+  .card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--forest-leaf);
+    @apply rounded-xl shadow-sm transition-all duration-300;
+  }
+  .card-hover {
+    @apply card;
+  }
+  .card-hover:hover {
+    border-top-color: var(--gold);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
+
+  /* Carte sur fond sombre (sections vert forêt) */
+  .card-dark {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(242,232,213,0.12);
+    @apply rounded-xl transition-all duration-300;
+  }
+  .card-dark:hover {
+    border-color: rgba(212,168,32,0.35);
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── Badges ───────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .badge-green {
+    background: rgba(58,122,82,0.1);
+    border: 1px solid rgba(58,122,82,0.25);
+    color: var(--forest-leaf);
+    @apply badge;
+  }
+  .badge-gold {
+    background: var(--gold-pale);
+    border: 1px solid rgba(212,168,32,0.3);
+    color: var(--gold-dark);
+    @apply badge;
+  }
+  .badge-red  { @apply badge bg-red-50 text-red-700 border border-red-200; }
+  .badge-blue { @apply badge bg-blue-50 text-blue-700 border border-blue-200; }
+
+  /* ── Input ────────────────────────────────────────── */
+  .input {
+    background: white;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    @apply w-full px-4 py-2.5 rounded-lg text-sm
+           placeholder:text-[var(--color-text-faint)]
+           focus:outline-none focus:ring-1 focus:ring-[var(--forest-leaf)]
+           focus:border-[var(--forest-leaf)]
+           transition-colors duration-200;
+  }
+
+  /* ── Input pour admin (fond sombre) ──────────────── */
+  .input-dark {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(242,232,213,0.15);
+    color: var(--cream);
+    @apply w-full px-4 py-2.5 rounded-lg text-sm
+           placeholder:text-[rgba(242,232,213,0.3)]
+           focus:outline-none focus:ring-1 focus:ring-[var(--forest-light)]
+           focus:border-[var(--forest-light)]
+           transition-colors duration-200;
+  }
+
+  /* ── Titres de sections ───────────────────────────── */
+  .section-title        { @apply font-display text-3xl md:text-4xl font-bold; color: var(--forest-deep); }
+  .section-title-light  { @apply font-display text-3xl md:text-4xl font-bold; color: var(--cream); }
+  .section-subtitle     { font-family: var(--font-lora); color: var(--color-text-muted); @apply text-base md:text-lg leading-relaxed italic; }
+
+  /* ── Séparateurs ──────────────────────────────────── */
+  .divider-gold  { @apply w-16 h-0.5 mx-auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .divider-green { @apply w-16 h-0.5 mx-auto; background: linear-gradient(90deg, transparent, var(--forest-leaf), transparent); }
+
+  /* ── Gradient text ────────────────────────────────── */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--forest-leaf), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── Rich content (TipTap) ────────────────────────── */
+  .rich-content                { color: var(--color-text-mid); @apply leading-relaxed; }
+  .rich-content h2             { font-family: var(--font-cinzel); @apply text-2xl mt-8 mb-4; color: var(--forest-deep); }
+  .rich-content h3             { font-family: var(--font-cinzel); @apply text-xl mt-6 mb-3; color: var(--forest-mid); }
+  .rich-content p              { @apply mb-4; }
+  .rich-content ul             { @apply list-disc list-inside mb-4 space-y-1; }
+  .rich-content ol             { @apply list-decimal list-inside mb-4 space-y-1; }
+  .rich-content li             { color: var(--color-text-muted); }
+  .rich-content strong         { color: var(--forest-deep); @apply font-semibold; }
+  .rich-content a              { color: var(--forest-mid); @apply underline hover:no-underline; }
+  .rich-content blockquote     { border-left: 4px solid var(--forest-leaf); @apply pl-4 italic my-4; color: var(--color-text-muted); }
+  .rich-content code           { background: var(--cream-mid); color: var(--forest-deep); @apply px-1.5 py-0.5 rounded text-sm font-mono; }
+  .rich-content pre            { background: var(--cream-mid); @apply rounded-lg p-4 overflow-x-auto mb-4; }
+  .rich-content hr             { border-color: var(--color-border); @apply my-6; }
+
+  /* ── Rich content version dark (admin) ───────────── */
+  .rich-content-dark           { color: rgba(242,232,213,0.75); @apply leading-relaxed; }
+  .rich-content-dark h2        { font-family: var(--font-cinzel); @apply text-2xl mt-8 mb-4; color: var(--cream); }
+  .rich-content-dark h3        { font-family: var(--font-cinzel); @apply text-xl mt-6 mb-3; color: var(--forest-light); }
+  .rich-content-dark p         { @apply mb-4; }
+  .rich-content-dark strong    { color: var(--cream); @apply font-semibold; }
+  .rich-content-dark a         { color: var(--forest-light); @apply underline; }
+  .rich-content-dark blockquote{ border-left: 4px solid var(--forest-leaf); @apply pl-4 italic my-4; }
+  .rich-content-dark code      { background: rgba(255,255,255,0.08); color: var(--forest-light); @apply px-1.5 py-0.5 rounded text-sm font-mono; }
+  .rich-content-dark pre       { background: rgba(255,255,255,0.06); @apply rounded-lg p-4 overflow-x-auto mb-4; }
+  .rich-content-dark hr        { border-color: rgba(242,232,213,0.1); @apply my-6; }
+}
+
+/* ── Animations & Utilities ───────────────────────────── */
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-12px); }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(90deg,
+      transparent 0%, rgba(212,168,32,0.12) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+
+  /* Fond crème avec légères textures radiales — sections claires */
+  .bg-cream-texture {
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(58,122,82,0.04) 0%, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(212,168,32,0.04) 0%, transparent 45%);
+  }
+
+  /* Fond forêt profond — hero, nav, footer */
+  .bg-forest-texture {
+    background-color: var(--forest-deep);
+    background-image:
+      radial-gradient(ellipse at 30% 40%, rgba(212,168,32,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 70% 70%, rgba(58,122,82,0.06) 0%, transparent 45%);
+  }
+
+  /* Rétrocompatibilité avec bg-particles (zones sombres) */
+  .bg-particles {
+    background-color: var(--forest-deep);
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(212,168,32,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(58,122,82,0.05) 0%, transparent 50%);
+  }
+
+  /* Grille de fond subtile */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(26,61,43,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,61,43,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+}
+
+/* ── Transition de page ──────────────────────────────── */
+.page-enter {
+  animation: pageEnter 0.3s ease-out;
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Fixes ────────────────────────────────────────────── */
+a { color: inherit; text-decoration: none; }
+img, video { max-width: 100%; }
+
+/* Focus visible pour l'accessibilité */
+:focus-visible {
+  outline: 2px solid #52B788;
+  outline-offset: 2px;
+}

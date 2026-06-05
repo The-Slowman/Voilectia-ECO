@@ -1,0 +1,770 @@
+// ============================================================
+// VOILECTIA — Schéma Prisma (MySQL — Hostinger Web Apps)
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Authentification ────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("EDITOR") // SUPER_ADMIN | ADMIN | EDITOR
+  avatar        String?
+  // Rang staff personnalisé (optionnel — remplace le rôle si défini)
+  rankId        String?
+  rank          Rank?     @relation(fields: [rankId], references: [id])
+  // Compte Steam lié
+  steamProfile  SteamProfile?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  articles      Article[]
+  changelogs    Changelog[]
+  guides        Guide[]
+  events        Event[]
+
+  @@map("users")
+}
+
+// ─── Rangs staff (permissions) ────────────────────────────
+
+model Rank {
+  id          String   @id @default(cuid())
+  name        String   @unique        // "Modérateur", "Admin", "Super Admin"
+  color       String   @default("#3A7A52")
+  badge       String?                 // emoji affiché devant le nom
+  level       Int      @default(0)   // hiérarchie : 0=viewer, 1=éditeur, 2=modo, 3=admin, 4=super
+  // Permissions
+  canPublish         Boolean @default(false)
+  canManageArticles  Boolean @default(false)
+  canManageForum     Boolean @default(false)
+  canManageVilles    Boolean @default(false)
+  canManageStaff     Boolean @default(false)
+  canManageRecruitment Boolean @default(false)
+  canManageSurveys   Boolean @default(false)
+  canManageRanks     Boolean @default(false)
+  canManageUsers     Boolean @default(false)
+  isStaff            Boolean @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+
+  @@map("ranks")
+}
+
+// ─── Rangs in-game (décoratifs, affichés sur les profils) ─
+
+model PlayerRank {
+  id          String   @id @default(cuid())
+  name        String   @unique        // "VIP", "Vétéran", "Fondateur"
+  color       String   @default("#D4A820")
+  badge       String?                 // emoji ou préfixe
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  players     SteamProfile[]
+
+  @@map("player_ranks")
+}
+
+// ─── Profils Steam ────────────────────────────────────────
+
+model SteamProfile {
+  id           String      @id @default(cuid())
+  steamId      String      @unique    // Steam64 ID (17 chiffres)
+  username     String
+  avatar       String?                // URL avatar Steam
+  profileUrl   String?
+  // Rang in-game
+  playerRankId String?
+  playerRank   PlayerRank? @relation(fields: [playerRankId], references: [id])
+  // Lien optionnel avec un compte admin
+  userId       String?     @unique
+  user         User?       @relation(fields: [userId], references: [id])
+  // Token de session pour les actions publiques
+  sessionToken String?     @unique
+  lastLoginAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("steam_profiles")
+}
+
+// ─── Articles / Actualités ────────────────────────────────────
+
+model Article {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String? @db.Text
+  content     String @db.Text
+  coverImage  String?
+  category    String    @default("news") // news | announcement | update
+  published   Boolean   @default(false)
+  pinned      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+
+  metaTitle   String?
+  metaDesc    String?
+  ogImage     String?
+
+  @@map("articles")
+}
+
+// ─── Changelog ────────────────────────────────────────────────
+
+model Changelog {
+  id          String    @id @default(cuid())
+  version     String
+  title       String
+  content     String @db.Text
+  season      String    @default("S1")
+  type        String    @default("update") // update | hotfix | major | content
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+
+  @@map("changelogs")
+}
+
+// ─── Guides ──────────────────────────────────────────────────
+
+model Guide {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  excerpt     String? @db.Text
+  content     String @db.Text
+  category    String    @default("debutant") // debutant | metier | economie | ecoGnome | ville
+  coverImage  String?
+  order       Int       @default(0)
+  published   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+
+  metaTitle   String?
+  metaDesc    String?
+
+  @@map("guides")
+}
+
+// ─── Événements ───────────────────────────────────────────────
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  description String
+  content     String? @db.Text
+  coverImage  String?
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?   // "In-game" | "Discord" | "Mixte"
+  type        String    @default("community") // community | build | economy | special
+  status      String    @default("upcoming") // upcoming | ongoing | past
+  published   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+
+  images      EventImage[]
+
+  @@map("events")
+}
+
+model EventImage {
+  id       String @id @default(cuid())
+  url      String
+  alt      String?
+  order    Int    @default(0)
+  eventId  String
+  event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_images")
+}
+
+// ─── Villes ───────────────────────────────────────────────────
+
+model City {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  description   String
+  mayor         String
+  mayorEmail    String?  // pour notifications
+  population    Int?
+  biome         String?
+  coverImage    String?
+  bannerImage   String?
+  coordinates   String?  // "x,y,z"
+  accentColor   String?  // couleur d'accent hex (#3A7A52)
+  motto         String?  // devise de la ville
+  published     Boolean  @default(false)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  images         CityImage[]
+  memberships    CityMembership[]
+  announcements  CityAnnouncement[]
+  projects       CityProject[]
+  collabsAsPartner CityCollaboration[] @relation("CollabPartner")
+  cityVotes      CityVote[]
+
+  @@map("cities")
+}
+
+model CityImage {
+  id     String @id @default(cuid())
+  url    String
+  alt    String?
+  order  Int    @default(0)
+  cityId String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("city_images")
+}
+
+// ─── Staff ────────────────────────────────────────────────────
+
+model StaffMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String   // "Fondateur" | "Admin" | "Modérateur" | "Helper" | etc.
+  description String?
+  avatar      String?
+  discordId   String?
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("staff_members")
+}
+
+// ─── Règlement ────────────────────────────────────────────────
+
+model Rule {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    RuleCategory @relation(fields: [categoryId], references: [id])
+  title       String
+  content     String @db.Text
+  order       Int      @default(0)
+  severity    String   @default("info") // info | warning | danger
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("rules")
+}
+
+model RuleCategory {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?
+  order     Int      @default(0)
+  rules     Rule[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("rule_categories")
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────
+
+model FaqItem {
+  id         String   @id @default(cuid())
+  question   String
+  answer     String
+  categoryId String
+  category   FaqCategory @relation(fields: [categoryId], references: [id])
+  order      Int      @default(0)
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("faq_items")
+}
+
+model FaqCategory {
+  id        String    @id @default(cuid())
+  name      String
+  icon      String?
+  order     Int       @default(0)
+  items     FaqItem[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("faq_categories")
+}
+
+// ─── Médias ───────────────────────────────────────────────────
+
+model Media {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  mimeType  String
+  size      Int
+  alt       String?
+  folder    String   @default("general")
+  createdAt DateTime @default(now())
+
+  @@map("medias")
+}
+
+// ─── Pages personnalisées ─────────────────────────────────────
+
+model CustomPage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  published   Boolean  @default(false)
+  order       Int      @default(0)
+  metaTitle   String?
+  metaDesc    String?
+  ogImage     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("custom_pages")
+}
+
+// ─── Navigation personnalisée ─────────────────────────────────
+
+model NavItem {
+  id        String   @id @default(cuid())
+  label     String
+  url       String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  external  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("nav_items")
+}
+
+// ─── Votes Top-Serveur ────────────────────────────────────────
+
+model TopServeurVote {
+  id         String   @id @default(cuid())
+  voterToken String
+  createdAt  DateTime @default(now())
+
+  @@map("top_serveur_votes")
+}
+
+// ─── Paramètres du site ───────────────────────────────────────
+
+model SiteSettings {
+  id              String  @id @default("singleton")
+  siteName        String  @default("Voilectia ECO")
+  siteDescription String?
+  discordUrl      String?
+  serverIp        String?
+  serverPort      String?
+  tipeeeUrl       String?
+  contactEmail    String?
+  season          String  @default("S1")
+  maintenanceMode Boolean @default(false)
+  heroTitle       String?
+  heroSubtitle    String?
+  ogImage         String?
+
+  @@map("site_settings")
+}
+
+// ─── Messages de contact ──────────────────────────────────────
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+// ─── Forum ────────────────────────────────────────────────────
+
+model ForumCategory {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String?
+  icon        String?     // emoji ou nom d'icône
+  color       String?     // couleur d'accent hex
+  order       Int         @default(0)
+  posts       ForumPost[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("forum_categories")
+}
+
+model ForumPost {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  content     String @db.Text
+  excerpt     String? @db.Text
+  authorName  String
+  authorEmail String?
+  categoryId  String
+  category    ForumCategory @relation(fields: [categoryId], references: [id])
+  pinned      Boolean       @default(false)
+  closed      Boolean       @default(false)  // empêche nouveaux commentaires
+  approved    Boolean       @default(false)
+  views       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  comments    ForumComment[]
+  reactions   ForumReaction[]
+  reports     ForumReport[]
+
+  @@map("forum_posts")
+}
+
+model ForumComment {
+  id          String          @id @default(cuid())
+  content     String @db.Text
+  authorName  String
+  authorEmail String?
+  postId      String
+  post        ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  approved    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  reactions   ForumReaction[]
+  reports     ForumReport[]
+
+  @@map("forum_comments")
+}
+
+// ─── Réactions forum (likes) ──────────────────────────────
+
+model ForumReaction {
+  id          String        @id @default(cuid())
+  emoji       String        // "👍" | "❤️" | "😂" | "🔥" | "👎"
+  voterToken  String        // token anonyme localStorage
+  // L'une ou l'autre des deux FK (pas les deux en même temps)
+  postId      String?
+  post        ForumPost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  comment     ForumComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@unique([postId,    voterToken, emoji])
+  @@unique([commentId, voterToken, emoji])
+  @@map("forum_reactions")
+}
+
+// ─── Signalements forum ───────────────────────────────────
+
+model ForumReport {
+  id          String        @id @default(cuid())
+  reason      String        // "spam" | "harcelement" | "hors-sujet" | "autre"
+  details     String? @db.Text
+  reporterToken String
+  status      String        @default("pending") // pending | reviewed | dismissed
+  // L'une ou l'autre
+  postId      String?
+  post        ForumPost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  comment     ForumComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+
+  @@map("forum_reports")
+}
+
+
+model Suggestion {
+  id          String           @id @default(cuid())
+  title       String
+  content     String @db.Text
+  authorName  String
+  authorEmail String?
+  status      String           @default("pending")
+  upvotes     Int              @default(0)
+  downvotes   Int              @default(0)
+  adminNote   String? @db.Text
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  votes       SuggestionVote[]
+
+  @@map("suggestions")
+}
+
+
+model SuggestionVote {
+  id           String     @id @default(cuid())
+  suggestionId String
+  suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
+  voterToken   String
+  vote         String
+  createdAt    DateTime   @default(now())
+
+  @@unique([suggestionId, voterToken])
+  @@map("suggestion_votes")
+}
+
+// Tutoriels
+
+model Tutorial {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  excerpt    String?  @db.Text
+  content    String   @db.Text
+  category   String   @default("debutant")
+  coverImage String?
+  featured   Boolean  @default(false)
+  order      Int      @default(0)
+  published  Boolean  @default(false)
+  metaTitle  String?
+  metaDesc   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("tutorials")
+}
+
+// Recrutement
+
+model RecruitmentPost {
+  id           String                   @id @default(cuid())
+  title        String
+  description  String                   @db.Text
+  requirements String                   @db.Text
+  perks        String                   @db.Text
+  open         Boolean                  @default(true)
+  order        Int                      @default(0)
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  applications RecruitmentApplication[]
+
+  @@map("recruitment_posts")
+}
+
+model RecruitmentApplication {
+  id           String          @id @default(cuid())
+  postId       String
+  post         RecruitmentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  playerName   String
+  discordTag   String
+  email        String?
+  age          Int?
+  experience   String          @db.Text
+  motivation   String          @db.Text
+  availability String?
+  timezone     String?
+  status       String          @default("pending")
+  adminNote    String?         @db.Text
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@map("recruitment_applications")
+}
+
+// Sondages
+
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?          @db.Text
+  season      String?
+  coverImage  String?
+  endDate     DateTime?
+  published   Boolean          @default(false)
+  open        Boolean          @default(true)
+  order       Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  questions   SurveyQuestion[]
+  answers     SurveyAnswer[]
+
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id        String         @id @default(cuid())
+  surveyId  String
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  question  String
+  type      String         @default("text")
+  options   String?        @db.Text
+  order     Int            @default(0)
+  required  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  answers   SurveyAnswer[]
+
+  @@map("survey_questions")
+}
+
+model SurveyAnswer {
+  id           String         @id @default(cuid())
+  questionId   String
+  question     SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  surveyId     String
+  survey       Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  response     String         @db.Text
+  sessionToken String
+  createdAt    DateTime       @default(now())
+
+  @@map("survey_answers")
+}
+
+// Ville - Membres
+
+model CityMembership {
+  id          String    @id @default(cuid())
+  cityId      String
+  city        City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  playerName  String
+  playerEmail String?
+  discordTag  String?
+  message     String?   @db.Text
+  status      String    @default("pending")
+  role        String?
+  joinedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("city_memberships")
+}
+
+// Ville - Annonces
+
+model CityAnnouncement {
+  id         String        @id @default(cuid())
+  cityId     String
+  city       City          @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  title      String
+  content    String        @db.Text
+  authorName String
+  pinned     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  comments   CityComment[]
+
+  @@map("city_announcements")
+}
+
+model CityComment {
+  id             String           @id @default(cuid())
+  announcementId String
+  announcement   CityAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  authorName     String
+  content        String           @db.Text
+  createdAt      DateTime         @default(now())
+
+  @@map("city_comments")
+}
+
+// Ville - Projets
+
+model CityProject {
+  id           String                   @id @default(cuid())
+  cityId       String
+  city         City                     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  title        String
+  description  String                   @db.Text
+  budget       Int?
+  startDate    DateTime?
+  endDate      DateTime?
+  status       String                   @default("proposed")
+  progress     Int                      @default(0)
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  participants CityProjectParticipant[]
+  collabFrom   CityCollaboration?
+
+  @@map("city_projects")
+}
+
+model CityProjectParticipant {
+  id        String      @id @default(cuid())
+  projectId String
+  project   CityProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  role      String?
+  createdAt DateTime    @default(now())
+
+  @@map("city_project_participants")
+}
+
+model CityCollaboration {
+  id            String      @id @default(cuid())
+  projectId     String      @unique
+  project       CityProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  partnerCityId String
+  partnerCity   City        @relation("CollabPartner", fields: [partnerCityId], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@map("city_collaborations")
+}
+
+// Ville - Votes
+
+model CityVote {
+  id          String             @id @default(cuid())
+  cityId      String
+  city        City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  title       String
+  description String?            @db.Text
+  options     String             @db.Text
+  endDate     DateTime?
+  published   Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  responses   CityVoteResponse[]
+
+  @@map("city_votes")
+}
+
+model CityVoteResponse {
+  id         String   @id @default(cuid())
+  voteId     String
+  vote       CityVote @relation(fields: [voteId], references: [id], onDelete: Cascade)
+  option     String
+  voterToken String
+  createdAt  DateTime @default(now())
+
+  @@unique([voteId, voterToken])
+  @@map("city_vote_responses")
+}
+
+// Pages personnalisees
