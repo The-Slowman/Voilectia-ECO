@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { auth, hasRole } from '@/lib/auth'
 
-// GET — liste publique des métiers actifs
 export async function GET() {
   const jobs = await prisma.job.findMany({
     where:   { active: true },
@@ -11,10 +10,9 @@ export async function GET() {
   return NextResponse.json(jobs)
 }
 
-// POST — créer un métier (admin)
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
+  const session = await auth() as { user?: { role?: string } } | null
+  if (!session?.user || !hasRole(session.user.role ?? '', 'ADMIN')) {
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
   }
 

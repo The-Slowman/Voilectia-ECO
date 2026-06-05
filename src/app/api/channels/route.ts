@@ -12,8 +12,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
+  const session = await auth() as { user?: { role?: string } } | null
+  if (!session?.user || !hasRole(session.user.role ?? '', 'ADMIN')) {
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
   }
 

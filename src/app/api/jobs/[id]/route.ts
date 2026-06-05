@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { auth, hasRole } from '@/lib/auth'
 
-function adminGuard(session: Awaited<ReturnType<typeof auth>>) {
-  return !session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')
+async function checkAdmin() {
+  const session = await auth() as { user?: { role?: string } } | null
+  return session?.user && hasRole(session.user.role ?? '', 'ADMIN')
 }
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (adminGuard(session)) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     const { name, description, icon, color, order, active } = await req.json()
@@ -30,11 +30,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (adminGuard(session)) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
-    // Désassocier les joueurs avant de supprimer
     await prisma.user.updateMany({ where: { jobId: params.id }, data: { jobId: null } })
     await prisma.job.delete({ where: { id: params.id } })
     return NextResponse.json({ ok: true })
