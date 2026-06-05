@@ -348,6 +348,8 @@ model CustomPage {
   slug        String   @unique
   content     String   @db.Text
   icon        String?
+  showInNav   Boolean  @default(false)
+  navSection  String?
   published   Boolean  @default(false)
   order       Int      @default(0)
   metaTitle   String?
@@ -364,7 +366,9 @@ model CustomPage {
 model NavItem {
   id        String   @id @default(cuid())
   label     String
-  url       String
+  href      String   @default("")
+  icon      String?
+  section   String?
   order     Int      @default(0)
   active    Boolean  @default(true)
   external  Boolean  @default(false)
@@ -568,6 +572,8 @@ model Tutorial {
   featured   Boolean  @default(false)
   order      Int      @default(0)
   published  Boolean  @default(false)
+  views      Int      @default(0)
+  authorName String?
   metaTitle  String?
   metaDesc   String?
   createdAt  DateTime @default(now())
@@ -581,10 +587,14 @@ model Tutorial {
 model RecruitmentPost {
   id           String                   @id @default(cuid())
   title        String
+  subtitle     String?
   description  String                   @db.Text
   requirements String                   @db.Text
   perks        String                   @db.Text
+  icon         String?
   color        String?                  @default("#3A7A52")
+  slots        Int?
+  minRank      String?
   open         Boolean                  @default(true)
   order        Int                      @default(0)
   createdAt    DateTime                 @default(now())
