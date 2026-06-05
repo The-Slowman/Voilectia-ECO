@@ -758,6 +758,7 @@ model CityCollaboration {
   project       CityProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   partnerCityId String
   partnerCity   City        @relation("CollabPartner", fields: [partnerCityId], references: [id])
+  status        String      @default("accepted") // accepted | pending
   createdAt     DateTime    @default(now())
 
   @@map("city_collaborations")
