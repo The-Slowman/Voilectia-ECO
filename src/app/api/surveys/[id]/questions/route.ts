@@ -13,7 +13,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const question = await prisma.surveyQuestion.create({
     data: {
       surveyId: params.id,
-      text,
+      question: text,
       type,
       options:  options ? JSON.stringify(options) : null,
       required: required ?? true,
@@ -29,7 +29,8 @@ export async function PATCH(req: NextRequest, _ctx: { params: { id: string } }) 
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
   }
 
-  const { questionId, ...data } = await req.json()
+  const { questionId, text, ...data } = await req.json()
+  if (text !== undefined) data.question = text
   if (data.options) data.options = JSON.stringify(data.options)
 
   const q = await prisma.surveyQuestion.update({ where: { id: questionId }, data })
