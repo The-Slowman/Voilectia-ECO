@@ -386,19 +386,33 @@ model TopServeurVote {
 // ─── Paramètres du site ───────────────────────────────────────
 
 model SiteSettings {
-  id              String  @id @default("singleton")
-  siteName        String  @default("Voilectia ECO")
-  siteDescription String?
-  discordUrl      String?
-  serverIp        String?
-  serverPort      String?
-  tipeeeUrl       String?
-  contactEmail    String?
-  season          String  @default("S1")
-  maintenanceMode Boolean @default(false)
-  heroTitle       String?
-  heroSubtitle    String?
-  ogImage         String?
+  id                 String    @id @default("singleton")
+  siteName           String    @default("Voilectia ECO")
+  siteDescription    String?
+  discordUrl         String?
+  serverIp           String?
+  serverPort         String?
+  tipeeeUrl          String?
+  contactEmail       String?
+  season             String    @default("S1")
+  maintenanceMode    Boolean   @default(false)
+  heroTitle          String?
+  heroSubtitle       String?
+  ogImage            String?
+  // Maintenance avancée
+  maintenanceActive  Boolean   @default(false)
+  maintenanceTitle   String    @default("Saison 2 — Bientôt disponible")
+  maintenanceMessage String    @default("Le serveur se prépare pour une nouvelle aventure.")
+  launchDate         DateTime?
+  allowedSections    String    @default("[\"forum\",\"tutoriels\",\"top-serveur\"]") @db.Text
+  // Carte Eco
+  ecoMapEnabled      Boolean   @default(false)
+  ecoMapUrl          String    @default("")
+  ecoMapTitle        String    @default("Carte du monde")
+  // Liens & config
+  siteDiscordUrl     String?
+  siteServerIp       String?
+  updatedBy          String?
 
   @@map("site_settings")
 }
@@ -569,6 +583,7 @@ model RecruitmentPost {
   description  String                   @db.Text
   requirements String                   @db.Text
   perks        String                   @db.Text
+  color        String?                  @default("#3A7A52")
   open         Boolean                  @default(true)
   order        Int                      @default(0)
   createdAt    DateTime                 @default(now())
