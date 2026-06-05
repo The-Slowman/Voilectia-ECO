@@ -24,7 +24,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth()
-  if (!requireAdmin(session)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (!requireAdmin(session as { user?: { role?: string } } | null)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const data = await req.json()
   const survey = await prisma.survey.update({
@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth()
-  if (!requireAdmin(session)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  if (!requireAdmin(session as { user?: { role?: string } } | null)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   await prisma.survey.delete({ where: { id: params.id } })
   return NextResponse.json({ success: true })
