@@ -63,13 +63,15 @@ export function RichEditor({ value, onChange, placeholder = 'Commencez à écrir
 
   function addLink() {
     const url = window.prompt('URL du lien:')
-    if (url) editor.chain().focus().setLink({ href: url }).run()
+    if (url) editor?.chain().focus().setLink({ href: url }).run()
   }
 
   function addImage() {
     const url = window.prompt('URL de l\'image:')
-    if (url) editor.chain().focus().setImage({ src: url }).run()
+    if (url) editor?.chain().focus().setImage({ src: url }).run()
   }
+
+  if (!editor) return null
 
   return (
     <div className="border border-[rgba(82,183,136,0.2)] rounded-xl overflow-hidden bg-[#0C1F14] focus-within:border-[#52B788] transition-colors">
