@@ -312,13 +312,13 @@ export default async function CityHubPage({ params }: Props) {
                               <span className="text-[10px] text-[#9AB09A] italic">Aucun participant</span>
                             )}
                           </div>
-                          {collabs.map((c) => (
-                            <Link key={c.id} href={`/villes/${c.partnerCity.slug}`}
+                          {collabs && (
+                            <Link href={`/villes/${collabs.partnerCity.slug}`}
                                   className="text-[10px] font-semibold text-[#1A6A8A]
                                              bg-[rgba(74,158,196,0.1)] px-2 py-0.5 rounded-full">
-                              avec {c.partnerCity.name}
+                              avec {collabs.partnerCity.name}
                             </Link>
-                          ))}
+                          )}
                         </div>
                       </div>
                     )
