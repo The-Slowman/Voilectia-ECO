@@ -851,4 +851,19 @@ model CityVoteResponse {
   @@map("city_vote_responses")
 }
 
+// ─── Contenu éditable des pages statiques ────────────────────
+
+model PageContent {
+  id        String   @id @default(cuid())
+  page      String                         // slug de la page : "presentation", "economie"…
+  key       String                         // identifiant du bloc : "hero_title", "intro", "section_1"…
+  value     String   @db.LongText
+  type      String   @default("text")      // "text" | "html" | "markdown"
+  label     String?                        // libellé affiché dans l'admin
+  updatedAt DateTime @updatedAt
+
+  @@unique([page, key])
+  @@map("page_contents")
+}
+
 // Pages personnalisees

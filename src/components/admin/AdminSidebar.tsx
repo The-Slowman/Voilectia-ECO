@@ -35,6 +35,9 @@ const NAV_ITEMS = [
     { label: 'FAQ',           href: '/admin/faq',            icon: <HelpCircle size={16} /> },
     { label: 'Staff',         href: '/admin/staff',          icon: <Users size={16} /> },
   ]},
+  { section: 'Contenu des pages', items: [
+    { label: 'Éditer les pages',  href: '/admin/contenus',      icon: <FileText size={16} /> },
+  ]},
   { section: 'Système', items: [
     { label: 'Médias',        href: '/admin/medias',         icon: <ImageIcon size={16} /> },
     { label: 'Paramètres',    href: '/admin/parametres',     icon: <Settings size={16} /> },
