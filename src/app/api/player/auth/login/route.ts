@@ -16,13 +16,13 @@ export async function POST(req: NextRequest) {
       include: { job: true, playerRank: true },
     })
 
-    if (!user || user.role !== 'PLAYER') {
+    if (!user) {
       return NextResponse.json({ error: 'Identifiants invalides.' }, { status: 401 })
     }
 
     const valid = await bcrypt.compare(password, user.password)
     if (!valid) {
-      return NextResponse.json({ error: 'Identifiants invalides.' }, { status: 401 })
+      return NextResponse.json({ error: 'Mot de passe incorrect.' }, { status: 401 })
     }
 
     const playerToken = generatePlayerToken()
