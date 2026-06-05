@@ -1,4 +1,9 @@
 // @ts-check
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -50,6 +55,10 @@ const nextConfig = {
   },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
+  },
+  webpack(config) {
+    config.resolve.alias['@'] = join(__dirname, 'src')
+    return config
   },
 }
 
