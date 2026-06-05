@@ -28,6 +28,7 @@ const NAV_ITEMS = [
     { label: 'Recrutement',   href: '/admin/recrutement',    icon: <UserPlus size={16} /> },
     { label: 'Sondages',      href: '/admin/sondage',        icon: <ClipboardList size={16} /> },
     { label: 'Tutoriels',     href: '/admin/tutoriels',      icon: <GraduationCap size={16} /> },
+    { label: 'Membres',       href: '/admin/membres',        icon: <Users size={16} /> },
     { label: 'Métiers',       href: '/admin/jobs',           icon: <Briefcase size={16} /> },
     { label: 'Rangs',         href: '/admin/rangs',          icon: <Award size={16} /> },
     { label: 'Pages & Nav',   href: '/admin/pages',          icon: <FileCode size={16} /> },

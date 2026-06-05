@@ -37,7 +37,7 @@ export default function AdminParametresPage() {
     setLoading(true)
     const [settingsRes, sessionRes] = await Promise.all([
       fetch('/api/settings').then(r => r.json()).catch(() => null),
-      fetch('/api/auth/session').then(r => r.json()).catch(() => null),
+      fetch('/api/admin/auth/me').then(r => r.json()).catch(() => null),
     ])
     if (settingsRes) {
       setSettings({
@@ -48,7 +48,7 @@ export default function AdminParametresPage() {
       })
     }
     // Vérifier si SUPER_ADMIN
-    setIsFounder(sessionRes?.user?.role === 'SUPER_ADMIN')
+    setIsFounder(sessionRes?.role === 'SUPER_ADMIN')
     setLoading(false)
   }, [])
 

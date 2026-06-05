@@ -33,6 +33,7 @@ model User {
   playerRank    PlayerRank? @relation(fields: [playerRankId], references: [id], onDelete: SetNull)
   playerToken   String?   @unique            // token cookie session
   lastLoginAt   DateTime?
+  banned        Boolean   @default(false)    // compte banni
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

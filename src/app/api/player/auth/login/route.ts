@@ -25,6 +25,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Mot de passe incorrect.' }, { status: 401 })
     }
 
+    if (user.banned) {
+      return NextResponse.json({ error: 'Compte banni. Contacte un administrateur.' }, { status: 403 })
+    }
+
     const playerToken = generatePlayerToken()
 
     await prisma.user.update({
