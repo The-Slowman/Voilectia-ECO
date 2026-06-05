@@ -13,13 +13,27 @@ async function main() {
     where: { email: 'admin@voilectia.fr' },
     update: {},
     create: {
-      name: 'Administrateur',
+      name: 'Gregory',
       email: 'admin@voilectia.fr',
       password: hashedPassword,
       role: 'SUPER_ADMIN',
     },
   })
   console.log('✅ Admin créé:', admin.email)
+
+  // ─── Profil Steam du fondateur ─────────────────────────────
+  await prisma.steamProfile.upsert({
+    where: { steamId: '76561198063013777' },
+    update: { userId: admin.id },
+    create: {
+      steamId:    '76561198063013777',
+      username:   'Gregory',
+      avatar:     '',
+      profileUrl: 'https://steamcommunity.com/profiles/76561198063013777',
+      userId:     admin.id,
+    },
+  })
+  console.log('✅ Profil Steam fondateur lié')
 
   // ─── Paramètres du site ────────────────────────────────────
   await prisma.siteSettings.upsert({
