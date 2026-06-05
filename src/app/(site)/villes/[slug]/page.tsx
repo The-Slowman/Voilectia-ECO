@@ -299,8 +299,8 @@ export default async function CityHubPage({ params }: Props) {
                               <div key={i}
                                    className="w-6 h-6 rounded-full bg-[#E8D9BF] border border-[#DBCAA8]
                                               flex items-center justify-center text-[9px] font-bold text-[#1A3D2B]"
-                                   title={p.playerName}>
-                                {p.playerName.charAt(0).toUpperCase()}
+                                   title={p.name}>
+                                {p.name.charAt(0).toUpperCase()}
                               </div>
                             ))}
                             {project.participants.length > 4 && (
