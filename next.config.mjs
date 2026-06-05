@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next'
+// @ts-check
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -9,8 +9,6 @@ const CSP = [
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://cdn.discordapp.com https://i.imgur.com https://avatars.steamstatic.com https://steamcdn-a.akamaihd.net https://steamcommunity.com",
   "connect-src 'self'",
-  // La map Eco est servie via iframe depuis l'IP du serveur Eco (port 3001)
-  // On autorise toutes les origins http/https pour la flexibilité (IP variable)
   "frame-src *",
   "object-src 'none'",
   "base-uri 'self'",
@@ -27,7 +25,8 @@ const securityHeaders = [
   ...(!isDev ? [{ key: 'Content-Security-Policy', value: CSP }] : []),
 ]
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
