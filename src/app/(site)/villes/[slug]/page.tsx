@@ -257,7 +257,7 @@ export default async function CityHubPage({ params }: Props) {
                                                text-[10px] font-bold ${st.bg} ${st.color}`}>
                                 {st.label}
                               </span>
-                              {collabs.length > 0 && (
+                              {collabs != null && (
                                 <span className="inline-flex items-center gap-1 text-[10px] font-bold
                                                  bg-[rgba(74,158,196,0.1)] text-[#1A6A8A]
                                                  border border-[rgba(74,158,196,0.25)] px-2 py-0.5 rounded-full">
