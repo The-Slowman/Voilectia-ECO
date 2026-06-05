@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { auth, hasRole } from '@/lib/auth'
 
-function requireAdmin(session: Awaited<ReturnType<typeof auth>>) {
+function requireAdmin(session: { user?: { role?: string } } | null) {
   return session?.user && hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')
 }
 
