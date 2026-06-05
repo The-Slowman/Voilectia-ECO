@@ -47,7 +47,7 @@ export default async function FaqPage({
             <a
               href="/faq"
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                !selectedCat ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+                !selectedCat ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
               }`}
             >
               Tout voir
@@ -57,7 +57,7 @@ export default async function FaqPage({
                 key={cat.id}
                 href={`/faq?category=${cat.id}`}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  selectedCat === cat.id ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+                  selectedCat === cat.id ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
                 }`}
               >
                 {cat.icon && <span className="mr-1">{cat.icon}</span>}
@@ -69,7 +69,7 @@ export default async function FaqPage({
 
         {/* FAQ accordion */}
         {filteredCategories.length === 0 || filteredCategories.every((c) => c.items.length === 0) ? (
-          <div className="card p-8 text-center text-[#5A8A6A]">
+          <div className="card p-8 text-center text-[#3D5F4A]">
             <HelpCircle size={32} className="mx-auto mb-3 opacity-50" />
             <p>Aucune question pour le moment. Posez les vôtres sur Discord !</p>
           </div>
@@ -78,7 +78,7 @@ export default async function FaqPage({
             {filteredCategories.map((cat) => (
               cat.items.length > 0 && (
                 <section key={cat.id}>
-                  <h2 className="font-display text-lg font-bold text-[#E8F5EE] mb-4 flex items-center gap-2">
+                  <h2 className="font-display text-lg font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
                     {cat.icon && <span>{cat.icon}</span>}
                     {cat.name}
                   </h2>
@@ -89,15 +89,15 @@ export default async function FaqPage({
                         className="card group open:border-[rgba(82,183,136,0.25)]"
                       >
                         <summary className="flex items-center justify-between p-5 cursor-pointer list-none select-none">
-                          <span className="font-medium text-[#E8F5EE] text-sm pr-4 group-open:text-[#52B788] transition-colors">
+                          <span className="font-medium text-[#1A3D2B] text-sm pr-4 group-open:text-[#52B788] transition-colors">
                             {item.question}
                           </span>
                           <HelpCircle
                             size={16}
-                            className="text-[#5A8A6A] flex-shrink-0 group-open:text-[#52B788] transition-colors"
+                            className="text-[#3D5F4A] flex-shrink-0 group-open:text-[#52B788] transition-colors"
                           />
                         </summary>
-                        <div className="px-5 pb-5 text-[#9DC4AD] text-sm leading-relaxed border-t border-[rgba(82,183,136,0.1)] pt-4">
+                        <div className="px-5 pb-5 text-[#4A6854] text-sm leading-relaxed border-t border-[rgba(82,183,136,0.1)] pt-4">
                           {item.answer}
                         </div>
                       </details>
@@ -111,7 +111,7 @@ export default async function FaqPage({
 
         {/* Aide supplémentaire */}
         <div className="mt-10 card p-6 text-center">
-          <p className="text-[#9DC4AD] text-sm mb-4">
+          <p className="text-[#4A6854] text-sm mb-4">
             Vous n'avez pas trouvé votre réponse ? Posez votre question directement sur Discord.
           </p>
           <a

@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { LogOut, User } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 interface SteamUser {
   steamId:    string
@@ -17,6 +19,7 @@ export function SteamLoginButton() {
   const [user,    setUser]    = useState<SteamUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [open,    setOpen]    = useState(false)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     fetch('/api/auth/steam/me')
@@ -24,6 +27,21 @@ export function SteamLoginButton() {
       .then(d => { setUser(d); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    const error = searchParams.get('steam_error')
+    if (!error) return
+    const messages: Record<string, string> = {
+      invalid_id:          'ID Steam invalide. Réessayez.',
+      invalid_signature:   'Échec de vérification Steam. Réessayez.',
+      profile_fetch_failed:'Impossible de récupérer votre profil Steam.',
+    }
+    toast.error(messages[error] ?? 'Erreur lors de la connexion Steam.')
+    // Supprimer le param de l'URL sans rechargement
+    const url = new URL(window.location.href)
+    url.searchParams.delete('steam_error')
+    window.history.replaceState({}, '', url.toString())
+  }, [searchParams])
 
   async function handleLogout() {
     await fetch('/api/auth/steam/logout', { method: 'POST' })

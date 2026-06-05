@@ -43,7 +43,7 @@ export default function ContactPage() {
           {/* Infos contact */}
           <div className="lg:col-span-2 space-y-4">
             <div className="card p-5">
-              <h3 className="font-display font-semibold text-[#E8F5EE] mb-4">Nous rejoindre</h3>
+              <h3 className="font-display font-semibold text-[#1A3D2B] mb-4">Nous rejoindre</h3>
               <div className="space-y-3">
                 <a
                   href={process.env.NEXT_PUBLIC_DISCORD_URL || '#'}
@@ -57,10 +57,10 @@ export default function ContactPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-[#E8F5EE] text-sm">Discord communautaire</p>
-                    <p className="text-[#9DC4AD] text-xs">Meilleure façon de nous contacter</p>
+                    <p className="font-semibold text-[#1A3D2B] text-sm">Discord communautaire</p>
+                    <p className="text-[#4A6854] text-xs">Meilleure façon de nous contacter</p>
                   </div>
-                  <ExternalLink size={14} className="text-[#5A8A6A] ml-auto" />
+                  <ExternalLink size={14} className="text-[#3D5F4A] ml-auto" />
                 </a>
 
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-[rgba(82,183,136,0.06)] border border-[rgba(82,183,136,0.1)]">
@@ -68,19 +68,19 @@ export default function ContactPage() {
                     <Mail size={16} />
                   </div>
                   <div>
-                    <p className="font-semibold text-[#E8F5EE] text-sm">Email</p>
-                    <p className="text-[#9DC4AD] text-xs">contact@voilectia.fr</p>
+                    <p className="font-semibold text-[#1A3D2B] text-sm">Email</p>
+                    <p className="text-[#4A6854] text-xs">contact@voilectia.fr</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="card p-5">
-              <h3 className="font-semibold text-[#E8F5EE] text-sm mb-3">Tickets Discord</h3>
-              <p className="text-[#9DC4AD] text-xs leading-relaxed mb-3">
+              <h3 className="font-semibold text-[#1A3D2B] text-sm mb-3">Tickets Discord</h3>
+              <p className="text-[#4A6854] text-xs leading-relaxed mb-3">
                 Pour un signalement, une aide in-game ou une demande officielle, utilisez les tickets Discord :
               </p>
-              <ul className="space-y-1.5 text-xs text-[#9DC4AD]">
+              <ul className="space-y-1.5 text-xs text-[#4A6854]">
                 {['🆘 Support technique', '⚖️ Signalement', '🏛️ Demande Fédération', '🔨 Bug report'].map((t) => (
                   <li key={t} className="flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-[#52B788]" />
@@ -103,11 +103,11 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="card p-6 space-y-4">
-                <h3 className="font-display font-semibold text-[#E8F5EE] mb-2">Envoyer un message</h3>
+                <h3 className="font-display font-semibold text-[#1A3D2B] mb-2">Envoyer un message</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-[#9DC4AD] mb-1.5">Nom *</label>
+                    <label className="block text-xs font-medium text-[#2D5A3F] mb-1.5">Nom *</label>
                     <input
                       type="text" required value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -116,7 +116,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[#9DC4AD] mb-1.5">Email *</label>
+                    <label className="block text-xs font-medium text-[#2D5A3F] mb-1.5">Email *</label>
                     <input
                       type="email" required value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -164,7 +164,7 @@ export default function ContactPage() {
                   )}
                 </button>
 
-                <p className="text-[#5A8A6A] text-xs text-center">
+                <p className="text-[#3D5F4A] text-xs text-center">
                   Pour une réponse plus rapide, préférez le Discord.
                 </p>
               </form>

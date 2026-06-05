@@ -30,8 +30,8 @@ export default async function StaffPage() {
 
         {staffMembers.length === 0 ? (
           <div className="card p-12 text-center">
-            <Users size={40} className="text-[#5A8A6A] mx-auto mb-4" />
-            <p className="text-[#9DC4AD]">L'équipe sera présentée prochainement.</p>
+            <Users size={40} className="text-[#3D5F4A] mx-auto mb-4" />
+            <p className="text-[#4A6854]">L'équipe sera présentée prochainement.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -53,14 +53,14 @@ export default async function StaffPage() {
                     </div>
                   )}
                 </div>
-                <h3 className="font-display font-bold text-[#E8F5EE] text-base mb-1">
+                <h3 className="font-display font-bold text-[#1A3D2B] text-base mb-1">
                   {member.name}
                 </h3>
                 <span className="badge-green text-[10px] mb-3 inline-flex">
                   {member.role}
                 </span>
                 {member.description && (
-                  <p className="text-[#9DC4AD] text-xs leading-relaxed">
+                  <p className="text-[#4A6854] text-xs leading-relaxed">
                     {member.description}
                   </p>
                 )}
@@ -72,10 +72,10 @@ export default async function StaffPage() {
         {/* Recrutement */}
         <div className="card p-8 text-center border border-[rgba(212,160,23,0.2)]">
           <div className="text-4xl mb-4">🌟</div>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-3">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-3">
             Rejoindre le Staff
           </h2>
-          <p className="text-[#9DC4AD] text-sm mb-6 max-w-lg mx-auto leading-relaxed">
+          <p className="text-[#4A6854] text-sm mb-6 max-w-lg mx-auto leading-relaxed">
             Vous souhaitez contribuer à Voilectia en tant que modérateur, helper ou animateur ?
             Nous cherchons régulièrement des membres impliqués et bienveillants.
             Consultez les annonces de recrutement sur notre Discord.

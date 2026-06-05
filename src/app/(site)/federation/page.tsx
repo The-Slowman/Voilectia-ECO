@@ -25,10 +25,10 @@ export default function FederationPage() {
               <Shield size={28} />
             </div>
             <div>
-              <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-3">
+              <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-3">
                 Qu'est-ce que la Fédération ?
               </h2>
-              <p className="text-[#9DC4AD] leading-relaxed">
+              <p className="text-[#4A6854] leading-relaxed">
                 La <strong className="text-[#52B788]">Fédération Voilectia</strong> est l'institution centrale du serveur.
                 Elle représente l'intérêt collectif, garantit le respect des lois fédérales et soutient
                 le développement des villes et des joueurs.
@@ -39,7 +39,7 @@ export default function FederationPage() {
 
         {/* Rôles */}
         <section>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6">
             Les missions de la Fédération
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -56,8 +56,8 @@ export default function FederationPage() {
                   {item.icon}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1.5">{item.title}</h3>
-                  <p className="text-[#9DC4AD] text-xs leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1.5">{item.title}</h3>
+                  <p className="text-[#4A6854] text-xs leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -66,7 +66,7 @@ export default function FederationPage() {
 
         {/* Subventions */}
         <section>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6">
             Subventions disponibles
           </h2>
           <div className="space-y-3">
@@ -81,15 +81,15 @@ export default function FederationPage() {
                   <span className="badge-gold text-[11px]">{sub.amount}</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1">{sub.title}</h3>
-                  <p className="text-[#9DC4AD] text-xs">{sub.desc}</p>
+                  <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1">{sub.title}</h3>
+                  <p className="text-[#4A6854] text-xs">{sub.desc}</p>
                 </div>
               </div>
             ))}
           </div>
           <div className="mt-4 card p-4 flex gap-3 border-[rgba(212,160,23,0.2)]">
             <Coins size={16} className="text-[#D4A017] flex-shrink-0 mt-0.5" />
-            <p className="text-[#9DC4AD] text-xs">
+            <p className="text-[#4A6854] text-xs">
               Pour faire une demande de subvention, ouvrez un ticket sur le Discord Voilectia dans la catégorie "Fédération".
             </p>
           </div>
@@ -98,10 +98,10 @@ export default function FederationPage() {
         {/* Contact Fédération */}
         <section className="card p-8 text-center">
           <Shield size={32} className="text-[#52B788] mx-auto mb-4" />
-          <h2 className="font-display text-xl font-bold text-[#E8F5EE] mb-3">
+          <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-3">
             Contacter la Fédération
           </h2>
-          <p className="text-[#9DC4AD] text-sm mb-6 max-w-md mx-auto">
+          <p className="text-[#4A6854] text-sm mb-6 max-w-md mx-auto">
             Pour toute demande officielle, litige, subvention ou proposition de loi fédérale,
             utilisez les tickets Discord dédiés.
           </p>

@@ -31,11 +31,11 @@ export default async function VillesPage() {
 
         {cities.length === 0 ? (
           <div className="card p-12 text-center">
-            <Building2 size={40} className="text-[#5A8A6A] mx-auto mb-4" />
-            <h3 className="font-display font-bold text-[#E8F5EE] text-xl mb-2">
+            <Building2 size={40} className="text-[#3D5F4A] mx-auto mb-4" />
+            <h3 className="font-display font-bold text-[#1A3D2B] text-xl mb-2">
               Les villes arrivent bientôt !
             </h3>
-            <p className="text-[#9DC4AD] text-sm">
+            <p className="text-[#4A6854] text-sm">
               Les villes du serveur seront présentées ici dès leur création.
               Rejoignez Discord pour être parmi les premiers à fonder votre ville.
             </p>
@@ -71,13 +71,13 @@ export default async function VillesPage() {
 
                     {/* Content */}
                     <div className="p-5 flex-1 flex flex-col">
-                      <h2 className="font-display font-bold text-lg text-[#E8F5EE] mb-1 group-hover:text-[#52B788] transition-colors">
+                      <h2 className="font-display font-bold text-lg text-[#1A3D2B] mb-1 group-hover:text-[#52B788] transition-colors">
                         {city.name}
                       </h2>
-                      <div className="flex items-center gap-4 text-xs text-[#5A8A6A] mb-3">
+                      <div className="flex items-center gap-4 text-xs text-[#3D5F4A] mb-3">
                         <span className="flex items-center gap-1">
                           <Users size={11} />
-                          Maire : <span className="text-[#9DC4AD] ml-1">{city.mayor}</span>
+                          Maire : <span className="text-[#4A6854] ml-1">{city.mayor}</span>
                         </span>
                         {city.population && (
                           <span className="flex items-center gap-1">
@@ -86,7 +86,7 @@ export default async function VillesPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[#9DC4AD] text-sm leading-relaxed line-clamp-3 flex-1">
+                      <p className="text-[#4A6854] text-sm leading-relaxed line-clamp-3 flex-1">
                         {city.description}
                       </p>
                     </div>

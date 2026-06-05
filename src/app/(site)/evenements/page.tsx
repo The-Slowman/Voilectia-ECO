@@ -52,12 +52,12 @@ export default async function EvenementsPage() {
 
         {/* À venir */}
         <section className="mb-14">
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6 flex items-center gap-3">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6 flex items-center gap-3">
             <Calendar className="text-[#52B788]" size={22} />
             Événements à venir
           </h2>
           {upcoming.length === 0 ? (
-            <div className="card p-8 text-center text-[#5A8A6A]">
+            <div className="card p-8 text-center text-[#3D5F4A]">
               Aucun événement prévu pour le moment. Restez connectés sur Discord !
             </div>
           ) : (
@@ -85,11 +85,11 @@ export default async function EvenementsPage() {
                           </span>
                         )}
                       </div>
-                      <h3 className="font-semibold text-[#E8F5EE] mb-1 group-hover:text-[#52B788] transition-colors">
+                      <h3 className="font-semibold text-[#1A3D2B] mb-1 group-hover:text-[#52B788] transition-colors">
                         {event.title}
                       </h3>
-                      <p className="text-[#9DC4AD] text-sm line-clamp-2">{event.description}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-[#5A8A6A]">
+                      <p className="text-[#4A6854] text-sm line-clamp-2">{event.description}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-[#3D5F4A]">
                         {event.location && (
                           <span className="flex items-center gap-1">
                             <MapPin size={11} />
@@ -101,7 +101,7 @@ export default async function EvenementsPage() {
                         )}
                       </div>
                     </div>
-                    <ChevronRight size={16} className="text-[#5A8A6A] group-hover:text-[#52B788] flex-shrink-0 transition-colors mt-1" />
+                    <ChevronRight size={16} className="text-[#3D5F4A] group-hover:text-[#52B788] flex-shrink-0 transition-colors mt-1" />
                   </div>
                 </Link>
               ))}
@@ -112,7 +112,7 @@ export default async function EvenementsPage() {
         {/* Événements passés */}
         {past.length > 0 && (
           <section>
-            <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6">
+            <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6">
               Événements passés
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -130,10 +130,10 @@ export default async function EvenementsPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-[#111F18] to-transparent" />
                       </div>
                       <div className="p-4">
-                        <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1 group-hover:text-[#52B788] transition-colors line-clamp-1">
+                        <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1 group-hover:text-[#52B788] transition-colors line-clamp-1">
                           {event.title}
                         </h3>
-                        <p className="text-[#5A8A6A] text-xs">{formatDate(event.startDate)}</p>
+                        <p className="text-[#3D5F4A] text-xs">{formatDate(event.startDate)}</p>
                       </div>
                     </div>
                   </Link>

@@ -58,10 +58,11 @@ export async function GET(req: NextRequest) {
   })
 
   // 5. Définir le cookie de session Steam
+  const isHttps = origin.startsWith('https://')
   const response = NextResponse.redirect(`${origin}/profil`)
   response.cookies.set(COOKIE_NAME, sessionToken, {
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
+    secure:   isHttps,
     sameSite: 'lax',
     maxAge:   COOKIE_MAX_AGE,
     path:     '/',

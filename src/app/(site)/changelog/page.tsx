@@ -51,7 +51,7 @@ export default async function ChangelogPage({
           <a
             href="/changelog"
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              !season ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+              !season ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
             }`}
           >
             Toutes les saisons
@@ -61,7 +61,7 @@ export default async function ChangelogPage({
               key={s}
               href={`/changelog?season=${s}`}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                season === s ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+                season === s ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
               }`}
             >
               Saison {s}
@@ -71,7 +71,7 @@ export default async function ChangelogPage({
 
         {/* List */}
         {changelogs.length === 0 ? (
-          <div className="card p-8 text-center text-[#5A8A6A]">
+          <div className="card p-8 text-center text-[#3D5F4A]">
             Aucune mise à jour trouvée.
           </div>
         ) : (

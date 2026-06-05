@@ -50,7 +50,7 @@ export default async function GuidesPage({
           <Link
             href="/guides"
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              !category ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+              !category ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
             }`}
           >
             Tous les guides
@@ -60,7 +60,7 @@ export default async function GuidesPage({
               key={key}
               href={`/guides?category=${key}`}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                category === key ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#9DC4AD] border border-[rgba(82,183,136,0.2)] hover:border-[#52B788]'
+                category === key ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
               }`}
             >
               {val.icon} {val.label}
@@ -70,7 +70,7 @@ export default async function GuidesPage({
 
         {/* Guides grouped */}
         {Object.keys(grouped).length === 0 ? (
-          <div className="card p-8 text-center text-[#5A8A6A]">
+          <div className="card p-8 text-center text-[#3D5F4A]">
             Aucun guide disponible pour le moment. Revenez bientôt !
           </div>
         ) : (
@@ -79,7 +79,7 @@ export default async function GuidesPage({
               const catInfo = GUIDE_CATEGORIES[cat] ?? { label: cat, icon: '📄' }
               return (
                 <section key={cat}>
-                  <h2 className="font-display text-xl font-bold text-[#E8F5EE] mb-5 flex items-center gap-3">
+                  <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-5 flex items-center gap-3">
                     <span className="text-2xl">{catInfo.icon}</span>
                     {catInfo.label}
                   </h2>
@@ -91,14 +91,14 @@ export default async function GuidesPage({
                             {catInfo.icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1 group-hover:text-[#52B788] transition-colors line-clamp-1">
+                            <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1 group-hover:text-[#52B788] transition-colors line-clamp-1">
                               {guide.title}
                             </h3>
                             {guide.excerpt && (
-                              <p className="text-[#9DC4AD] text-xs line-clamp-2">{guide.excerpt}</p>
+                              <p className="text-[#4A6854] text-xs line-clamp-2">{guide.excerpt}</p>
                             )}
                           </div>
-                          <ChevronRight size={14} className="text-[#5A8A6A] group-hover:text-[#52B788] flex-shrink-0 transition-colors" />
+                          <ChevronRight size={14} className="text-[#3D5F4A] group-hover:text-[#52B788] flex-shrink-0 transition-colors" />
                         </div>
                       </Link>
                     ))}

@@ -26,10 +26,10 @@ export default function EconomiePage() {
                 <Coins size={28} />
               </div>
               <div>
-                <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-3">
+                <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-3">
                   La monnaie VLC
                 </h2>
-                <p className="text-[#9DC4AD] leading-relaxed mb-4">
+                <p className="text-[#4A6854] leading-relaxed mb-4">
                   Le <strong className="text-[#E9C46A]">VLC (VoiLeCtion)</strong> est la monnaie officielle et unique du serveur Voilectia.
                   Toutes les transactions commerciales, les salaires et les échanges se font en VLC.
                 </p>
@@ -44,7 +44,7 @@ export default function EconomiePage() {
                         {f.icon}
                         <span className="font-semibold text-sm">{f.label}</span>
                       </div>
-                      <p className="text-[#9DC4AD] text-xs">{f.desc}</p>
+                      <p className="text-[#4A6854] text-xs">{f.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -55,13 +55,13 @@ export default function EconomiePage() {
 
         {/* EcoGnome */}
         <section>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6 flex items-center gap-3">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6 flex items-center gap-3">
             <ShoppingCart className="text-[#52B788]" size={24} />
             Le système EcoGnome
           </h2>
           <div className="space-y-4">
             <div className="card p-6">
-              <p className="text-[#9DC4AD] leading-relaxed">
+              <p className="text-[#4A6854] leading-relaxed">
                 <strong className="text-[#52B788]">EcoGnome</strong> est le système de boutiques et d'échanges du serveur.
                 Il permet à chaque joueur de créer et gérer des points de vente in-game, d'afficher ses prix
                 et de commercer avec toute la communauté.
@@ -76,7 +76,7 @@ export default function EconomiePage() {
               ].map((item) => (
                 <div key={item.title} className="card-hover p-5">
                   <h3 className="font-semibold text-[#52B788] text-sm mb-2">{item.title}</h3>
-                  <p className="text-[#9DC4AD] text-xs leading-relaxed">{item.desc}</p>
+                  <p className="text-[#4A6854] text-xs leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -85,19 +85,19 @@ export default function EconomiePage() {
 
         {/* Prix minimums */}
         <section>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-4 flex items-center gap-3">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-4 flex items-center gap-3">
             <Scale className="text-[#52B788]" size={24} />
             Prix minimums
           </h2>
           <div className="card p-5 flex gap-4 border border-[rgba(82,183,136,0.2)]">
             <Info size={20} className="text-[#52B788] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-[#9DC4AD] text-sm leading-relaxed mb-3">
-                La Fédération fixe des <strong className="text-[#E8F5EE]">prix planchers</strong> pour les ressources de base
+              <p className="text-[#4A6854] text-sm leading-relaxed mb-3">
+                La Fédération fixe des <strong className="text-[#1A3D2B]">prix planchers</strong> pour les ressources de base
                 afin d'éviter la dévaluation et d'assurer un revenu décent à tous les producteurs.
                 Ces prix sont affichés et mis à jour régulièrement.
               </p>
-              <p className="text-[#9DC4AD] text-sm">
+              <p className="text-[#4A6854] text-sm">
                 Consultez les prix en vigueur sur notre Discord dans le canal dédié à l'économie.
               </p>
             </div>
@@ -106,7 +106,7 @@ export default function EconomiePage() {
 
         {/* La Fédération économique */}
         <section>
-          <h2 className="font-display text-2xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6">
             Rôle économique de la Fédération
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -119,8 +119,8 @@ export default function EconomiePage() {
               <div key={item.title} className="card-hover p-5 flex gap-4">
                 <span className="text-2xl">{item.emoji}</span>
                 <div>
-                  <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1">{item.title}</h3>
-                  <p className="text-[#9DC4AD] text-xs leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1">{item.title}</h3>
+                  <p className="text-[#4A6854] text-xs leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
