@@ -15,6 +15,9 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? `https://${req.headers.get('host')}`
 
+  console.log('[Steam callback] origin:', origin)
+  console.log('[Steam callback] return_to reçu:', searchParams.get('openid.return_to'))
+
   // 1. Vérifier que Steam est bien la source (claimed_id valide)
   const claimedId = searchParams.get('openid.claimed_id') ?? ''
   const steamId   = extractSteamId(claimedId)

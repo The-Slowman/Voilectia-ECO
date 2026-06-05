@@ -50,10 +50,18 @@ export async function verifySteamCallback(params: URLSearchParams): Promise<bool
       method:  'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body:    verifyParams.toString(),
+      signal:  AbortSignal.timeout(10_000),
     })
     const text = await response.text()
-    return text.includes('is_valid:true')
-  } catch {
+    const valid = text.includes('is_valid:true')
+    if (!valid) {
+      console.error('[Steam] check_authentication échoué. Réponse Steam:', text.slice(0, 200))
+      console.error('[Steam] openid.return_to:', params.get('openid.return_to'))
+      console.error('[Steam] openid.realm (dans return_to):', params.get('openid.realm'))
+    }
+    return valid
+  } catch (err) {
+    console.error('[Steam] Erreur lors de la vérification OpenID:', err)
     return false
   }
 }

@@ -29,19 +29,19 @@ export default function PresentationPage() {
 
         {/* Histoire */}
         <section className="mb-16">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#E8F5EE] mb-6 flex items-center gap-3">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#1A3D2B] mb-6 flex items-center gap-3">
             <Leaf className="text-[#52B788]" size={24} />
             L'histoire de Voilectia
           </h2>
-          <div className="card p-6 md:p-8 space-y-4 text-[#9DC4AD] leading-relaxed">
+          <div className="card p-6 md:p-8 space-y-4 text-[#4A6854] leading-relaxed">
             <p>
               Voilectia est né de la volonté de créer un espace de jeu Eco francophone qui privilégie
-              la <strong className="text-[#E8F5EE]">qualité des interactions</strong> sur la compétition.
+              la <strong className="text-[#1A3D2B]">qualité des interactions</strong> sur la compétition.
               Trop souvent, les serveurs Eco deviennent des courses à l'efficacité où la coopération
               passe au second plan.
             </p>
             <p>
-              Notre approche est différente : ici, la <strong className="text-[#E8F5EE]">progression est équilibrée</strong>,
+              Notre approche est différente : ici, la <strong className="text-[#1A3D2B]">progression est équilibrée</strong>,
               l'économie est régulée par la Fédération et les villes sont construites avec soin et cohérence architecturale.
             </p>
             <p>
@@ -53,7 +53,7 @@ export default function PresentationPage() {
 
         {/* Philosophie */}
         <section className="mb-16">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#1A3D2B] mb-6">
             Notre philosophie
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -63,8 +63,8 @@ export default function PresentationPage() {
                   {p.icon}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#E8F5EE] text-sm mb-1.5">{p.title}</h3>
-                  <p className="text-[#9DC4AD] text-xs leading-relaxed">{p.desc}</p>
+                  <h3 className="font-semibold text-[#1A3D2B] text-sm mb-1.5">{p.title}</h3>
+                  <p className="text-[#4A6854] text-xs leading-relaxed">{p.desc}</p>
                 </div>
               </div>
             ))}
@@ -73,7 +73,7 @@ export default function PresentationPage() {
 
         {/* Valeurs */}
         <section className="mb-16">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#1A3D2B] mb-6">
             Nos valeurs communautaires
           </h2>
           <div className="card p-6 md:p-8">
@@ -95,7 +95,7 @@ export default function PresentationPage() {
 
         {/* Fonctionnement */}
         <section>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#E8F5EE] mb-6">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-[#1A3D2B] mb-6">
             Comment fonctionne le serveur ?
           </h2>
           <div className="space-y-4">
@@ -111,8 +111,8 @@ export default function PresentationPage() {
                   {step.num}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#E8F5EE] mb-1">{step.title}</h3>
-                  <p className="text-[#9DC4AD] text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="font-semibold text-[#1A3D2B] mb-1">{step.title}</h3>
+                  <p className="text-[#4A6854] text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}
