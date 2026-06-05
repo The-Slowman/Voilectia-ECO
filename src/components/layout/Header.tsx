@@ -19,6 +19,8 @@ const NAV_LINKS = [
       { label: 'Guides',     href: '/guides',      icon: '📖' },
       { label: 'Changelog',  href: '/changelog',   icon: '🔄' },
       { label: 'Économie',   href: '/economie',    icon: '💰' },
+      { label: 'Carte',      href: '/carte',       icon: '🗺️' },
+      { label: 'Fédération', href: '/federation',  icon: '🏛️' },
     ],
   },
   {
@@ -26,20 +28,19 @@ const NAV_LINKS = [
     href: '#',
     children: [
       { label: 'Forum',        href: '/forum',        icon: '💬' },
+      { label: 'Villes',       href: '/villes',       icon: '🏙️' },
+      { label: 'Événements',   href: '/evenements',   icon: '🎉' },
+      { label: 'Tutoriels',    href: '/tutoriels',    icon: '🎓' },
       { label: 'Suggestions',  href: '/suggestions',  icon: '💡' },
       { label: 'Sondages',     href: '/sondage',      icon: '📋' },
-      { label: 'Tutoriels',    href: '/tutoriels',    icon: '🎓' },
-      { label: 'Villes',       href: '/villes',       icon: '🏙️' },
-      { label: 'Carte',        href: '/carte',        icon: '🗺️' },
-      { label: 'Fédération',   href: '/federation',   icon: '🏛️' },
-      { label: 'Événements',   href: '/evenements',   icon: '🎉' },
-      { label: 'Staff',        href: '/staff',        icon: '👥' },
       { label: 'Recrutement',  href: '/recrutement',  icon: '🛡️' },
+      { label: 'Staff',        href: '/staff',        icon: '👥' },
+      { label: 'Contact',      href: '/contact',      icon: '✉️' },
+      { label: 'Soutenir',     href: '/soutenir',     icon: '❤️' },
     ],
   },
   { label: 'FAQ',         href: '/faq' },
   { label: 'Top-Serveur', href: '/top-serveur', badge: '🏆' },
-  { label: 'Soutenir',    href: '/soutenir' },
 ]
 
 export function Header() {
@@ -165,12 +166,6 @@ export function Header() {
             <div className="hidden md:block">
               <SteamLoginButton />
             </div>
-            <Link
-              href="/contact"
-              className="hidden md:flex btn-ghost text-xs px-3 py-2 rounded-lg"
-            >
-              Contact
-            </Link>
             <a
               href={process.env.NEXT_PUBLIC_DISCORD_URL || 'https://discord.gg/voilectia'}
               target="_blank"
