@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -44,10 +44,11 @@ const NAV_LINKS = [
 ]
 
 export function Header() {
-  const [scrolled,     setScrolled]     = useState(false)
-  const [mobileOpen,   setMobileOpen]   = useState(false)
+  const [scrolled,       setScrolled]       = useState(false)
+  const [mobileOpen,     setMobileOpen]     = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const pathname = usePathname()
+  const navRef   = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -55,10 +56,26 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Ferme le dropdown au changement de page
   useEffect(() => {
     setMobileOpen(false)
     setActiveDropdown(null)
   }, [pathname])
+
+  // Ferme le dropdown en cliquant en dehors
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  function toggleDropdown(label: string) {
+    setActiveDropdown(prev => prev === label ? null : label)
+  }
 
   return (
     <header
@@ -93,17 +110,13 @@ export function Header() {
             </div>
           </Link>
 
-          {/* Nav desktop */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Nav desktop — click-based dropdowns */}
+          <nav ref={navRef} className="hidden lg:flex items-center gap-1">
             {NAV_LINKS.map((link) =>
               link.children ? (
-                <div
-                  key={link.label}
-                  className="relative"
-                  onMouseEnter={() => setActiveDropdown(link.label)}
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
+                <div key={link.label} className="relative">
                   <button
+                    onClick={() => toggleDropdown(link.label)}
                     className={cn(
                       'flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                       activeDropdown === link.label
@@ -114,24 +127,22 @@ export function Header() {
                     {link.label}
                     <ChevronDown
                       size={14}
-                      className={cn(
-                        'transition-transform duration-200',
-                        activeDropdown === link.label ? 'rotate-180' : ''
-                      )}
+                      className={cn('transition-transform duration-200', activeDropdown === link.label ? 'rotate-180' : '')}
                     />
                   </button>
 
                   {activeDropdown === link.label && (
-                    <div className="absolute top-full left-0 mt-1 w-48 bg-[#1A3D2B] border border-[rgba(212,168,32,0.2)] rounded-xl shadow-[0_8px_40px_rgba(26,61,43,0.5)] overflow-hidden">
+                    <div className="absolute top-full left-0 z-50 mt-1 w-52 bg-[#1A3D2B] border border-[rgba(212,168,32,0.2)] rounded-xl shadow-[0_8px_40px_rgba(26,61,43,0.6)] overflow-hidden">
                       {link.children.map((child) => (
                         <Link
                           key={child.href}
                           href={child.href}
+                          onClick={() => setActiveDropdown(null)}
                           className={cn(
                             'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors',
                             pathname === child.href
                               ? 'bg-[rgba(82,183,136,0.12)] text-[#52B788]'
-                              : 'text-[rgba(242,232,213,0.65)] hover:bg-[rgba(242,232,213,0.08)] hover:text-[#F2E8D5]'
+                              : 'text-[rgba(242,232,213,0.8)] hover:bg-[rgba(242,232,213,0.1)] hover:text-[#F2E8D5]'
                           )}
                         >
                           <span>{child.icon}</span>
@@ -198,7 +209,7 @@ export function Header() {
               link.children ? (
                 <div key={link.label}>
                   <button
-                    onClick={() => setActiveDropdown(activeDropdown === link.label ? null : link.label)}
+                    onClick={() => toggleDropdown(link.label)}
                     className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-[rgba(242,232,213,0.65)] hover:text-[#F2E8D5]"
                   >
                     {link.label}
@@ -213,7 +224,7 @@ export function Header() {
                         <Link
                           key={child.href}
                           href={child.href}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[rgba(242,232,213,0.65)] hover:text-[#F2E8D5]"
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[rgba(242,232,213,0.8)] hover:text-[#F2E8D5]"
                         >
                           <span>{child.icon}</span>
                           {child.label}
