@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function SondagePage() {
-  const surveys = await prisma.survey.findMany({
+  const rawSurveys = await prisma.survey.findMany({
     where:   { published: true },
     orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
     include: {
@@ -24,6 +24,16 @@ export default async function SondagePage() {
       },
     },
   })
+
+  // Sérialisation : Date → string, question → text
+  const surveys = rawSurveys.map(s => ({
+    ...s,
+    endDate:   s.endDate?.toISOString() ?? null,
+    questions: s.questions.map(q => ({
+      ...q,
+      text: q.question,
+    })),
+  }))
 
   const open   = surveys.filter(s => s.open && (!s.endDate || new Date(s.endDate) > new Date()))
   const closed = surveys.filter(s => !s.open || (s.endDate && new Date(s.endDate) <= new Date()))
