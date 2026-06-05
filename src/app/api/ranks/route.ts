@@ -5,7 +5,7 @@ import { auth, hasRole } from '@/lib/auth'
 export async function GET() {
   const [ranks, playerRanks] = await Promise.all([
     prisma.rank.findMany({ orderBy: { level: 'desc' }, include: { _count: { select: { users: true } } } }),
-    prisma.playerRank.findMany({ orderBy: { order: 'asc' }, include: { _count: { select: { players: true } } } }),
+    prisma.playerRank.findMany({ orderBy: { order: 'asc' }, include: { _count: { select: { users: true } } } }),
   ])
   return NextResponse.json({ ranks, playerRanks })
 }
