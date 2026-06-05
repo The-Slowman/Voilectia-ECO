@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import { AdminSidebar } from '@/components/admin/AdminSidebar'
@@ -9,14 +8,21 @@ export const dynamic = 'force-dynamic'
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const tok = cookies().get('voilectia_admin_session')?.value
 
-  if (!tok) redirect('/admin/login')
+  // Pas de cookie → le middleware gère la redirection vers /admin/login.
+  // Si on est déjà sur /admin/login, on rend juste le children (la page de login).
+  if (!tok) {
+    return <>{children}</>
+  }
 
   const user = await prisma.user.findFirst({
     where:   { playerToken: tok, role: { not: 'PLAYER' } },
     include: { rank: true },
-  })
+  }).catch(() => null)
 
-  if (!user) redirect('/admin/login')
+  // Token invalide → rend juste le children (le middleware redirigera)
+  if (!user) {
+    return <>{children}</>
+  }
 
   const sessionUser = { name: user.name, email: user.email, role: user.role }
 
