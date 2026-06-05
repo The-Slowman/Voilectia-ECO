@@ -360,7 +360,7 @@ export default async function CityHubPage({ params }: Props) {
                   {city.cityVotes.map((v) => (
                     <CityVoteWidget
                       key={v.id}
-                      vote={{ ...v, options: JSON.parse(v.options) as string[] }}
+                      vote={{ ...v, options: JSON.parse(v.options) as string[], endDate: v.endDate?.toISOString() ?? null }}
                       accentColor={accent}
                     />
                   ))}
