@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SteamLoginButton } from '@/components/ui/SteamLoginButton'
+import { PlayerAuthButton } from '@/components/ui/PlayerAuthButton'
 
 const NAV_LINKS = [
   { label: 'Accueil',      href: '/' },
@@ -31,6 +31,7 @@ const NAV_LINKS = [
       { label: 'Villes',       href: '/villes',       icon: '🏙️' },
       { label: 'Événements',   href: '/evenements',   icon: '🎉' },
       { label: 'Tutoriels',    href: '/tutoriels',    icon: '🎓' },
+      { label: 'Messagerie',   href: '/messagerie',   icon: '✉️' },
       { label: 'Suggestions',  href: '/suggestions',  icon: '💡' },
       { label: 'Sondages',     href: '/sondage',      icon: '📋' },
       { label: 'Recrutement',  href: '/recrutement',  icon: '🛡️' },
@@ -175,7 +176,7 @@ export function Header() {
           {/* CTA + Mobile toggle */}
           <div className="flex items-center gap-3">
             <div className="hidden md:block">
-              <SteamLoginButton />
+              <PlayerAuthButton />
             </div>
             <a
               href={process.env.NEXT_PUBLIC_DISCORD_URL || 'https://discord.gg/voilectia'}

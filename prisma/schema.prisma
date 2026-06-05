@@ -18,13 +18,21 @@ model User {
   name          String
   email         String    @unique
   password      String
-  role          String    @default("EDITOR") // SUPER_ADMIN | ADMIN | EDITOR
+  role          String    @default("EDITOR") // SUPER_ADMIN | ADMIN | EDITOR | PLAYER
   avatar        String?
   // Rang staff personnalisé (optionnel — remplace le rôle si défini)
   rankId        String?
   rank          Rank?     @relation(fields: [rankId], references: [id])
-  // Compte Steam lié
-  steamProfile  SteamProfile?
+  // Champs joueur
+  discordTag    String?
+  ecoName       String?                      // pseudo in-game
+  bio           String?   @db.Text
+  jobId         String?
+  job           Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  playerRankId  String?
+  playerRank    PlayerRank? @relation(fields: [playerRankId], references: [id], onDelete: SetNull)
+  playerToken   String?   @unique            // token cookie session
+  lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -32,6 +40,13 @@ model User {
   changelogs    Changelog[]
   guides        Guide[]
   events        Event[]
+
+  sentMessages      DirectMessage[]  @relation("Sender")
+  receivedMessages  DirectMessage[]  @relation("Receiver")
+  channelMessages   ChannelMessage[]
+
+  forumPosts     ForumPost[]    @relation("ForumPostAuthor")
+  forumComments  ForumComment[] @relation("ForumCommentAuthor")
 
   @@map("users")
 }
@@ -76,32 +91,70 @@ model PlayerRank {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  players     SteamProfile[]
+  users       User[]
 
   @@map("player_ranks")
 }
 
-// ─── Profils Steam ────────────────────────────────────────
+// ─── Métiers in-game ──────────────────────────────────────
 
-model SteamProfile {
-  id           String      @id @default(cuid())
-  steamId      String      @unique    // Steam64 ID (17 chiffres)
-  username     String
-  avatar       String?                // URL avatar Steam
-  profileUrl   String?
-  // Rang in-game
-  playerRankId String?
-  playerRank   PlayerRank? @relation(fields: [playerRankId], references: [id])
-  // Lien optionnel avec un compte admin
-  userId       String?     @unique
-  user         User?       @relation(fields: [userId], references: [id])
-  // Token de session pour les actions publiques
-  sessionToken String?     @unique
-  lastLoginAt  DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+model Job {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  icon        String?                 // emoji
+  color       String   @default("#3A7A52")
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
 
-  @@map("steam_profiles")
+  @@map("jobs")
+}
+
+// ─── Messagerie directe ───────────────────────────────────
+
+model DirectMessage {
+  id         String   @id @default(cuid())
+  senderId   String
+  sender     User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("direct_messages")
+}
+
+// ─── Canaux de discussion ─────────────────────────────────
+
+model Channel {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  icon        String?          // emoji
+  color       String           @default("#3A7A52")
+  isPublic    Boolean          @default(true)
+  order       Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  messages    ChannelMessage[]
+
+  @@map("channels")
+}
+
+model ChannelMessage {
+  id        String   @id @default(cuid())
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("channel_messages")
 }
 
 // ─── Articles / Actualités ────────────────────────────────────
@@ -454,40 +507,44 @@ model ForumCategory {
 }
 
 model ForumPost {
-  id          String        @id @default(cuid())
-  title       String
-  slug        String        @unique
-  content     String @db.Text
-  excerpt     String? @db.Text
-  authorName  String
-  authorEmail String?
-  categoryId  String
-  category    ForumCategory @relation(fields: [categoryId], references: [id])
-  pinned      Boolean       @default(false)
-  closed      Boolean       @default(false)  // empêche nouveaux commentaires
-  approved    Boolean       @default(false)
-  views       Int           @default(0)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  comments    ForumComment[]
-  reactions   ForumReaction[]
-  reports     ForumReport[]
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  content       String @db.Text
+  excerpt       String? @db.Text
+  authorName    String
+  authorEmail   String?
+  authorUserId  String?
+  authorUser    User?         @relation("ForumPostAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  categoryId    String
+  category      ForumCategory @relation(fields: [categoryId], references: [id])
+  pinned        Boolean       @default(false)
+  closed        Boolean       @default(false)  // empêche nouveaux commentaires
+  approved      Boolean       @default(false)
+  views         Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  comments      ForumComment[]
+  reactions     ForumReaction[]
+  reports       ForumReport[]
 
   @@map("forum_posts")
 }
 
 model ForumComment {
-  id          String          @id @default(cuid())
-  content     String @db.Text
-  authorName  String
-  authorEmail String?
-  postId      String
-  post        ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  approved    Boolean         @default(false)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  reactions   ForumReaction[]
-  reports     ForumReport[]
+  id            String          @id @default(cuid())
+  content       String @db.Text
+  authorName    String
+  authorEmail   String?
+  authorUserId  String?
+  authorUser    User?           @relation("ForumCommentAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
+  postId        String
+  post          ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  approved      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  reactions     ForumReaction[]
+  reports       ForumReport[]
 
   @@map("forum_comments")
 }

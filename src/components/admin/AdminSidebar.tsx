@@ -7,7 +7,7 @@ import {
   LayoutDashboard, FileText, RefreshCw, BookOpen, Calendar,
   Building2, Shield, HelpCircle, Users, Image as ImageIcon,
   Settings, ChevronRight, MessageSquare, Lightbulb, ClipboardList,
-  UserPlus, Award, FileCode, GraduationCap
+  UserPlus, Award, FileCode, GraduationCap, Briefcase
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +28,7 @@ const NAV_ITEMS = [
     { label: 'Recrutement',   href: '/admin/recrutement',    icon: <UserPlus size={16} /> },
     { label: 'Sondages',      href: '/admin/sondage',        icon: <ClipboardList size={16} /> },
     { label: 'Tutoriels',     href: '/admin/tutoriels',      icon: <GraduationCap size={16} /> },
+    { label: 'Métiers',       href: '/admin/jobs',           icon: <Briefcase size={16} /> },
     { label: 'Rangs',         href: '/admin/rangs',          icon: <Award size={16} /> },
     { label: 'Pages & Nav',   href: '/admin/pages',          icon: <FileCode size={16} /> },
     { label: 'Règlement',     href: '/admin/reglement',      icon: <Shield size={16} /> },
