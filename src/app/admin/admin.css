@@ -188,6 +188,36 @@
 }
 .adm-stat-card:hover::before { opacity: 1; }
 
+/* Mini stat card (dashboard secondary row) */
+.adm-mini-stat {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.15s, transform 0.15s;
+  text-decoration: none;
+  display: block;
+}
+.adm-mini-stat:hover {
+  border-color: var(--adm-accent);
+  transform: translateY(-1px);
+}
+
+/* Activity card inner link */
+.adm-activity-link:hover { opacity: 0.7; }
+
+/* Activity item edit link */
+.adm-activity-edit {
+  color: var(--adm-text-4);
+  flex-shrink: 0;
+  line-height: 0;
+  transition: color 0.15s;
+}
+.adm-activity-edit:hover { color: var(--adm-accent); }
+
 /* ═══════════════════════════════════════════════════════════
    INPUTS
    ═══════════════════════════════════════════════════════════ */

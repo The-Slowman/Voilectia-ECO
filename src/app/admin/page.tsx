@@ -105,16 +105,8 @@ function MiniStat({ label, value, icon, href, color }: {
   label: string; value: number; icon: React.ReactNode; href: string; color: string
 }) {
   return (
-    <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
-      <div style={{
-        background: 'var(--adm-surface)', border: '1px solid var(--adm-border)',
-        borderRadius: 8, padding: '12px 14px',
-        display: 'flex', alignItems: 'center', gap: 12,
-        transition: 'border-color 0.15s, transform 0.15s',
-      }}
-        onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--adm-accent)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-1px)' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'var(--adm-border)'; (e.currentTarget as HTMLDivElement).style.transform = 'none' }}
-      >
+    <Link href={href} className="adm-mini-stat">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{ color, flexShrink: 0 }}>{icon}</div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--adm-text-1)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
@@ -147,9 +139,8 @@ function ActivityCard({
         </div>
         <Link
           href={href}
+          className="adm-activity-link"
           style={{ fontSize: 11, color: 'var(--adm-accent)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3, fontWeight: 500 }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
         >
           {linkLabel} <ArrowRight size={11} />
         </Link>
@@ -351,12 +342,7 @@ export default async function AdminDashboard() {
                       {a.author.name} · {formatRelative(a.createdAt)}
                     </div>
                   </div>
-                  <Link
-                    href={`/admin/articles/${a.id}`}
-                    style={{ color: 'var(--adm-text-4)', flexShrink: 0, lineHeight: 0, transition: 'color 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--adm-accent)')}
-                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--adm-text-4)')}
-                  >
+                  <Link href={`/admin/articles/${a.id}`} className="adm-activity-edit">
                     <ArrowUpRight size={12} />
                   </Link>
                 </div>
