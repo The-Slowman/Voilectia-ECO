@@ -31,7 +31,8 @@ model User {
   job           Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
   playerRankId  String?
   playerRank    PlayerRank? @relation(fields: [playerRankId], references: [id], onDelete: SetNull)
-  playerToken   String?   @unique            // token cookie session
+  playerToken   String?   @unique            // token cookie session joueur
+  adminToken    String?   @unique            // token cookie session admin (séparé)
   lastLoginAt   DateTime?
   banned        Boolean   @default(false)    // compte banni
   createdAt     DateTime  @default(now())

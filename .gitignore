@@ -26,6 +26,16 @@ prisma/*.db-journal
 public/uploads/*
 !public/uploads/.gitkeep
 
+# Archives et fichiers temporaires
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.bak
+*.old
+*.tmp
+
 # Misc
 .DS_Store
 *.pem

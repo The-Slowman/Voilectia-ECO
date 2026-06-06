@@ -5,8 +5,9 @@ export async function GET(req: NextRequest) {
   const tok = req.cookies.get('voilectia_admin_session')?.value
   if (!tok) return NextResponse.json(null)
 
+  // Utilise adminToken uniquement
   const user = await prisma.user.findFirst({
-    where:   { playerToken: tok, role: { not: 'PLAYER' } },
+    where:   { adminToken: tok, role: { not: 'PLAYER' } },
     include: { rank: true },
   })
   if (!user) return NextResponse.json(null)
