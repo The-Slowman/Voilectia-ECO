@@ -26,7 +26,7 @@ async function getDashboardData() {
     prisma.contactMessage.count({ where: { read: false } }),
     prisma.suggestion.count({ where: { status: 'pending' } }),
     prisma.forumPost.count({ where: { approved: true } }),
-    prisma.giveaway.count({ where: { status: 'active' } }),
+    prisma.giveaway.count({ where: { published: true, ended: false } }),
     prisma.event.count({ where: { published: true } }),
     prisma.article.findMany({
       take: 4, orderBy: { createdAt: 'desc' },

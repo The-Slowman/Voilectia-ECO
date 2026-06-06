@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ChevronLeft, MessageSquare, User, Calendar, Send, Eye, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { ForumReactions } from '@/components/forum/ForumReactions'
@@ -19,12 +19,15 @@ interface Comment {
   id: string; content: string; authorName: string; createdAt: string
   _count?: { reactions: number }
 }
+interface PlayerMe { id: string; username: string; email: string; avatar: string | null }
 
 export default function ForumPostPage() {
   const params = useParams()
+  const router = useRouter()
   const [post,    setPost]    = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
-  const [form,    setForm]    = useState({ authorName: '', authorEmail: '', content: '' })
+  const [player,  setPlayer]  = useState<PlayerMe | null>(null)
+  const [content, setContent] = useState('')
   const [sending, setSending] = useState(false)
   const [sent,    setSent]    = useState(false)
 
@@ -33,18 +36,32 @@ export default function ForumPostPage() {
       .then(r => r.json())
       .then(data => { setPost(data); setLoading(false) })
       .catch(() => setLoading(false))
+
+    fetch('/api/player/auth/me')
+      .then(r => r.json())
+      .then(data => { if (data) setPlayer(data) })
+      .catch(() => {})
   }, [params.slug])
 
   async function handleComment(e: React.FormEvent) {
     e.preventDefault()
     if (!post) return
+    if (!player) {
+      router.push(`/connexion?redirect=/forum/${post.category.slug}/${params.slug}`)
+      return
+    }
     setSending(true)
     try {
       const res = await fetch('/api/forum/comments', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ ...form, postId: post.id }),
+        body:    JSON.stringify({ postId: post.id, content }),
       })
+      if (res.status === 401) {
+        toast.error('Session expirée. Reconnectez-vous.')
+        router.push(`/connexion?redirect=/forum/${post.category.slug}/${params.slug}`)
+        return
+      }
       if (res.status === 403) {
         toast.error('Ce post est fermé aux nouveaux commentaires.')
         return
@@ -52,7 +69,7 @@ export default function ForumPostPage() {
       if (!res.ok) throw new Error()
       setSent(true)
       toast.success('Commentaire soumis — il sera visible après modération.')
-      setForm({ authorName: '', authorEmail: '', content: '' })
+      setContent('')
     } catch {
       toast.error('Erreur lors de l\'envoi.')
     } finally {
@@ -181,13 +198,25 @@ export default function ForumPostPage() {
           )}
         </div>
 
-        {/* Formulaire commentaire — masqué si post fermé */}
+        {/* Formulaire commentaire */}
         {!post.closed && (
           <div className="bg-white border border-[#DBCAA8] rounded-xl p-6"
                style={{ borderTop: `3px solid ${accentColor}` }}>
             <h3 className="font-display font-bold text-[#1A3D2B] mb-4">Laisser un commentaire</h3>
 
-            {sent ? (
+            {!player ? (
+              /* Pas connecté */
+              <div className="text-center py-6">
+                <p className="text-[#6B8C6A] text-sm mb-4">
+                  Vous devez être connecté pour laisser un commentaire.
+                </p>
+                <Link
+                  href={`/connexion?redirect=/forum/${post.category.slug}/${params.slug}`}
+                  className="btn-primary inline-flex items-center gap-2">
+                  <User size={15} /> Se connecter
+                </Link>
+              </div>
+            ) : sent ? (
               <div className="text-center py-4">
                 <p className="text-[#3A7A52] font-semibold mb-1">✅ Commentaire envoyé !</p>
                 <p className="text-[#6B8C6A] text-sm">Il sera visible après validation par un modérateur.</p>
@@ -197,27 +226,26 @@ export default function ForumPostPage() {
               </div>
             ) : (
               <form onSubmit={handleComment} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-[#6B8C6A] mb-1.5">Pseudo *</label>
-                    <input type="text" required value={form.authorName}
-                           onChange={e => setForm({ ...form, authorName: e.target.value })}
-                           placeholder="VotreNom" className="input" maxLength={60} />
+                {/* Bandeau joueur connecté */}
+                <div className="bg-[#EAF4EC] border border-[rgba(58,122,82,0.3)] rounded-lg p-3
+                                flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-[#3A7A52] flex items-center justify-center
+                                  text-white font-bold text-xs flex-shrink-0">
+                    {player.username.charAt(0).toUpperCase()}
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[#6B8C6A] mb-1.5">Email (non affiché)</label>
-                    <input type="email" value={form.authorEmail}
-                           onChange={e => setForm({ ...form, authorEmail: e.target.value })}
-                           placeholder="votre@email.fr" className="input" />
-                  </div>
+                  <span className="text-xs text-[#4A8A62]">
+                    Vous commentez en tant que{' '}
+                    <span className="font-semibold text-[#1A3D2B]">{player.username}</span>
+                  </span>
                 </div>
+
                 <div>
                   <label className="block text-xs font-medium text-[#6B8C6A] mb-1.5">Commentaire *</label>
-                  <textarea required rows={4} value={form.content}
-                            onChange={e => setForm({ ...form, content: e.target.value })}
+                  <textarea required rows={4} value={content}
+                            onChange={e => setContent(e.target.value)}
                             placeholder="Votre commentaire…" className="input resize-none"
                             maxLength={2000} />
-                  <div className="text-right text-[10px] text-[#9AB09A] mt-1">{form.content.length}/2000</div>
+                  <div className="text-right text-[10px] text-[#9AB09A] mt-1">{content.length}/2000</div>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] text-[#9AB09A] italic">

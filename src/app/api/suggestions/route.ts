@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getPlayerFromRequest } from '@/lib/player-auth'
 import { z } from 'zod'
 
 const schema = z.object({
-  title:       z.string().min(5).max(150),
-  content:     z.string().min(10).max(2000),
-  authorName:  z.string().min(2).max(60),
-  authorEmail: z.string().email().optional().or(z.literal('')),
+  title:   z.string().min(5).max(150),
+  content: z.string().min(10).max(2000),
 })
 
 export async function GET(req: NextRequest) {
@@ -27,17 +26,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getPlayerFromRequest(req)
+  if (!user) return NextResponse.json({ error: 'Connexion requise pour déposer une suggestion.' }, { status: 401 })
+
   const body   = await req.json()
   const parsed = schema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const suggestion = await prisma.suggestion.create({
     data: {
-      title:       parsed.data.title,
-      content:     parsed.data.content,
-      authorName:  parsed.data.authorName,
-      authorEmail: parsed.data.authorEmail || null,
-      status:      'pending',
+      title:        parsed.data.title,
+      content:      parsed.data.content,
+      authorName:   user.name,
+      authorEmail:  user.email,
+      authorUserId: user.id,
+      status:       'pending',
     },
   })
 
