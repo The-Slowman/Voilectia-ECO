@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
   Users, FileText, RefreshCw, BookOpen, Building2, MessageSquare,
-  Lightbulb, Gift, ArrowUpRight, ArrowRight, Calendar,
+  Lightbulb, Gift, ArrowUpRight, ArrowRight, Calendar, Clock,
   Shield, HelpCircle, Mail, AlertTriangle, TrendingUp,
   Zap, Plus,
 } from 'lucide-react'
@@ -15,7 +15,7 @@ async function getDashboardData() {
     playerCount, articleCount, changelogCount, guideCount,
     cityCount, staffCount, faqCount, messageCount,
     suggestionCount, forumPostCount, giveawayCount, eventCount,
-    recentArticles, recentMessages, recentPlayers, pendingForumPosts,
+    recentArticles, recentMessages, recentPlayers, pendingForumPosts, recentLogins,
   ] = await Promise.all([
     prisma.user.count({ where: { role: 'PLAYER' } }),
     prisma.article.count({ where: { published: true } }),
@@ -41,6 +41,11 @@ async function getDashboardData() {
       select: { id: true, name: true, createdAt: true, email: true },
     }),
     prisma.forumPost.count({ where: { approved: false } }),
+    prisma.user.findMany({
+      take: 6, where: { role: 'PLAYER', lastLoginAt: { not: null } },
+      orderBy: { lastLoginAt: 'desc' },
+      select: { id: true, name: true, lastLoginAt: true, banned: true },
+    }),
   ])
 
   return {
@@ -50,7 +55,7 @@ async function getDashboardData() {
       suggestionCount, forumPostCount, giveawayCount, eventCount,
       pendingForumPosts,
     },
-    recentArticles, recentMessages, recentPlayers,
+    recentArticles, recentMessages, recentPlayers, recentLogins,
   }
 }
 
@@ -156,7 +161,7 @@ function ActivityCard({
    DASHBOARD PAGE
    ═══════════════════════════════════════════════════════════ */
 export default async function AdminDashboard() {
-  const { stats, recentArticles, recentMessages, recentPlayers } = await getDashboardData()
+  const { stats, recentArticles, recentMessages, recentPlayers, recentLogins } = await getDashboardData()
   const hasAlerts = stats.messageCount > 0 || stats.suggestionCount > 0 || stats.pendingForumPosts > 0
   const now = new Date()
   const hour = now.getHours()
@@ -182,6 +187,32 @@ export default async function AdminDashboard() {
           <TrendingUp size={12} />
           Activité
         </Link>
+      </div>
+
+      {/* ── Actions rapides ──────────────────────────────── */}
+      <div className="adm-card" style={{ padding: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <Zap size={14} style={{ color: 'var(--adm-gold)' }} />
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--adm-text-1)' }}>Actions rapides</span>
+        </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {[
+            { label: 'Nouvel article',    href: '/admin/articles',       emoji: '📰' },
+            { label: 'Nouveau changelog', href: '/admin/changelog',      emoji: '📜' },
+            { label: 'Nouveau guide',     href: '/admin/guides',         emoji: '📚' },
+            { label: 'Nouvelle ville',    href: '/admin/villes/nouveau', emoji: '🌍' },
+            { label: 'Nouvel événement',  href: '/admin/evenements',     emoji: '🎉' },
+            { label: 'Nouveau giveaway',  href: '/admin/giveaways',      emoji: '🎁' },
+            { label: 'Nouveau membre',    href: '/admin/membres',        emoji: '👤' },
+            { label: 'Page CMS',          href: '/admin/contenus',       emoji: '📄' },
+          ].map((a) => (
+            <Link key={a.href} href={a.href} className="adm-quick-action">
+              <Plus size={11} style={{ opacity: 0.6 }} />
+              <span>{a.emoji}</span>
+              <span>{a.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* ── Alertes ──────────────────────────────────────── */}
@@ -351,6 +382,45 @@ export default async function AdminDashboard() {
           )}
         </ActivityCard>
 
+        {/* Dernières connexions */}
+        <ActivityCard
+          title="Dernières connexions"
+          icon={<Clock size={14} />} color="var(--adm-purple)"
+          href="/admin/membres" linkLabel="Voir tous"
+        >
+          {recentLogins.length === 0 ? (
+            <div style={{ padding: '20px 18px', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>
+              Aucune connexion récente
+            </div>
+          ) : (
+            <div>
+              {recentLogins.map((p, i) => (
+                <div
+                  key={p.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '7px 18px',
+                    borderTop: i > 0 ? '1px solid var(--adm-border-muted)' : 'none',
+                  }}
+                >
+                  <div style={{
+                    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                    background: p.banned ? 'var(--adm-red)' : 'var(--adm-accent)',
+                  }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.name}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--adm-text-4)', marginTop: 1 }}>
+                      {formatRelative(p.lastLoginAt!)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </ActivityCard>
+
         {/* Messages non lus */}
         <ActivityCard
           title={<>Messages {stats.messageCount > 0 && <span className="adm-notif-dot" style={{ fontSize: 9 }}>{stats.messageCount}</span>}</>}
@@ -392,31 +462,6 @@ export default async function AdminDashboard() {
         </ActivityCard>
       </div>
 
-      {/* ── Actions rapides ───────────────────────────────── */}
-      <div className="adm-card" style={{ padding: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <Zap size={14} style={{ color: 'var(--adm-gold)' }} />
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--adm-text-1)' }}>Actions rapides</span>
-        </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {[
-            { label: 'Nouvel article',    href: '/admin/articles',       emoji: '📰' },
-            { label: 'Nouveau changelog', href: '/admin/changelog',      emoji: '📜' },
-            { label: 'Nouveau guide',     href: '/admin/guides',         emoji: '📚' },
-            { label: 'Nouvelle ville',    href: '/admin/villes/nouveau', emoji: '🏘️' },
-            { label: 'Nouvel événement',  href: '/admin/evenements',     emoji: '🎉' },
-            { label: 'Nouveau giveaway',  href: '/admin/giveaways',      emoji: '🎁' },
-            { label: 'Nouveau membre',    href: '/admin/membres',        emoji: '👤' },
-            { label: 'Page CMS',          href: '/admin/contenus',       emoji: '📄' },
-          ].map((a) => (
-            <Link key={a.href} href={a.href} className="adm-quick-action">
-              <Plus size={11} style={{ opacity: 0.6 }} />
-              <span>{a.emoji}</span>
-              <span>{a.label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
 
     </div>
   )

@@ -14,31 +14,44 @@ const VARIANTS: Record<BadgeVariant, string> = {
   gray:   'adm-badge-gray',
 }
 
-/* ── Role → variant ─────────────────────────── */
+/* ── Rôles — palette uniforme ──────────────────
+   🔵 Fondateur (SUPER_ADMIN) → gold
+   🟣 Administrateur          → purple
+   🟠 Modérateur              → orange
+   🟡 Animateur               → gold (teinte claire)
+   🔵 Dev / Éditeur           → cyan / blue
+   ⚪ Membre (PLAYER)         → gray
+   ─────────────────────────────────────────── */
 export const ROLE_VARIANT: Record<string, { label: string; variant: BadgeVariant }> = {
-  SUPER_ADMIN: { label: '👑 Super Admin', variant: 'gold'   },
-  ADMIN:       { label: '🔴 Admin',       variant: 'red'    },
-  MODERATOR:   { label: '🟣 Modérateur',  variant: 'purple' },
-  ANIMATOR:    { label: '🟠 Animateur',   variant: 'orange' },
+  SUPER_ADMIN: { label: '🔵 Fondateur',   variant: 'gold'   },
+  ADMIN:       { label: '🟣 Admin',       variant: 'purple' },
+  MODERATOR:   { label: '🟠 Modérateur',  variant: 'orange' },
+  ANIMATOR:    { label: '🟡 Animateur',   variant: 'gold'   },
   DEVELOPER:   { label: '🔵 Dev',         variant: 'cyan'   },
   EDITOR:      { label: '🔵 Éditeur',     variant: 'blue'   },
-  PLAYER:      { label: '⚪ Joueur',      variant: 'gray'   },
+  PLAYER:      { label: '⚪ Membre',      variant: 'gray'   },
 }
 
-/* ── Status → variant ───────────────────────── */
+/* ── Statuts — palette uniforme ────────────────
+   🟢 Actif      → green
+   💤 Inactif    → gray
+   🔴 Banni      → red
+   🟠 En attente → orange
+   ─────────────────────────────────────────── */
 export const STATUS_VARIANT: Record<string, { label: string; variant: BadgeVariant }> = {
-  active:    { label: '🟢 Actif',       variant: 'green'  },
-  banned:    { label: '🔴 Banni',       variant: 'red'    },
-  pending:   { label: '🟠 En attente',  variant: 'orange' },
-  published: { label: '🟢 Publié',      variant: 'green'  },
-  draft:     { label: '⚪ Brouillon',   variant: 'gray'   },
-  open:      { label: '🟢 Ouvert',      variant: 'green'  },
-  closed:    { label: '⚪ Fermé',       variant: 'gray'   },
-  approved:  { label: '✅ Approuvé',    variant: 'green'  },
-  rejected:  { label: '❌ Refusé',      variant: 'red'    },
-  in_progress: { label: '🔵 En cours',  variant: 'blue'   },
-  planned:   { label: '🟣 Planifié',   variant: 'purple' },
-  done:      { label: '✅ Terminé',     variant: 'cyan'   },
+  active:      { label: '🟢 Actif',       variant: 'green'  },
+  inactive:    { label: '💤 Inactif',     variant: 'gray'   },
+  banned:      { label: '🔴 Banni',       variant: 'red'    },
+  pending:     { label: '🟠 En attente',  variant: 'orange' },
+  published:   { label: '🟢 Publié',      variant: 'green'  },
+  draft:       { label: '⚪ Brouillon',   variant: 'gray'   },
+  open:        { label: '🟢 Ouvert',      variant: 'green'  },
+  closed:      { label: '⚪ Fermé',       variant: 'gray'   },
+  approved:    { label: '✅ Approuvé',    variant: 'green'  },
+  rejected:    { label: '❌ Refusé',      variant: 'red'    },
+  in_progress: { label: '🔵 En cours',    variant: 'blue'   },
+  planned:     { label: '🟣 Planifié',    variant: 'purple' },
+  done:        { label: '✅ Terminé',     variant: 'cyan'   },
 }
 
 interface AdminBadgeProps {
@@ -60,34 +73,41 @@ export function AdminBadge({ variant = 'gray', children, dot, className, style }
   )
 }
 
-/** Role badge */
+/** Rôle badge — utilise la palette ROLE_VARIANT */
 export function RoleBadge({ role }: { role: string }) {
   const meta = ROLE_VARIANT[role] ?? { label: role, variant: 'gray' as const }
   return <AdminBadge variant={meta.variant}>{meta.label}</AdminBadge>
 }
 
-/** Published / Draft */
+/** Publié / Brouillon */
 export function PublishedBadge({ published, labels }: { published: boolean; labels?: [string, string] }) {
   return published
     ? <AdminBadge variant="green" dot>{labels?.[0] ?? 'Publié'}</AdminBadge>
     : <AdminBadge variant="gray"  dot>{labels?.[1] ?? 'Brouillon'}</AdminBadge>
 }
 
-/** Active / Inactive */
+/** 🟢 Actif / 💤 Inactif */
 export function ActiveBadge({ active }: { active: boolean }) {
   return active
     ? <AdminBadge variant="green" dot>Actif</AdminBadge>
     : <AdminBadge variant="gray"  dot>Inactif</AdminBadge>
 }
 
-/** Banned / Active */
-export function BannedBadge({ banned }: { banned: boolean }) {
-  return banned
-    ? <AdminBadge variant="red" dot>Banni</AdminBadge>
-    : <AdminBadge variant="green" dot>Actif</AdminBadge>
+/** 🔴 Banni / 🟢 Actif / 💤 Inactif (tri-état) */
+export function MemberStatusBadge({ banned, inactive }: { banned: boolean; inactive?: boolean }) {
+  if (banned)   return <AdminBadge variant="red"   dot>🔴 Banni</AdminBadge>
+  if (inactive) return <AdminBadge variant="gray"  dot>💤 Inactif</AdminBadge>
+  return              <AdminBadge variant="green" dot>🟢 Actif</AdminBadge>
 }
 
-/** Pending count pill */
+/** Alias rétrocompat */
+export function BannedBadge({ banned }: { banned: boolean }) {
+  return banned
+    ? <AdminBadge variant="red"   dot>🔴 Banni</AdminBadge>
+    : <AdminBadge variant="green" dot>🟢 Actif</AdminBadge>
+}
+
+/** Compteur de notifications en attente */
 export function PendingCount({ count }: { count: number }) {
   if (count <= 0) return null
   return (

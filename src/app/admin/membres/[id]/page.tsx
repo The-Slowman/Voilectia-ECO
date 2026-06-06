@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft, Shield, Ban, CheckCircle, Trash2, Edit3,
-  User, Calendar, Clock, Hash, MessageSquare, FileText,
-  BookOpen, ScrollText, AlertTriangle, Save, X
+  Calendar, Clock, Hash, MessageSquare, FileText,
+  BookOpen, ScrollText, AlertTriangle, Save, X,
+  Lightbulb, Mail, ThumbsUp, Eye,
 } from 'lucide-react'
 
 /* ─── Types ─────────────────────────────────────────────── */
@@ -22,7 +23,16 @@ interface AuditEntry {
   id: string; action: string; resource: string; resourceId: string | null
   detail: string | null; ip: string | null; createdAt: string
 }
-interface Stats { articles: number; guides: number; changelogs: number }
+interface Stats {
+  articles: number; guides: number; changelogs: number
+  forumPostCount: number; suggestionCount: number; dmSentCount: number
+}
+interface ForumPostItem {
+  id: string; title: string; approved: boolean; views: number; createdAt: string
+}
+interface SuggestionItem {
+  id: string; title: string; status: string; upvotes: number; createdAt: string
+}
 
 /* ─── Constantes ─────────────────────────────────────────── */
 const ROLE_META: Record<string, { label: string; color: string }> = {
@@ -147,14 +157,16 @@ export default function MembreFichePage() {
   const { id } = useParams<{ id: string }>()
   const router  = useRouter()
 
-  const [user,      setUser]      = useState<UserDetail | null>(null)
-  const [stats,     setStats]     = useState<Stats>({ articles: 0, guides: 0, changelogs: 0 })
-  const [logs,      setLogs]      = useState<AuditEntry[]>([])
-  const [loading,   setLoading]   = useState(true)
-  const [showDel,   setShowDel]   = useState(false)
-  const [editMode,  setEditMode]  = useState(false)
-  const [saving,    setSaving]    = useState(false)
-  const [editForm,  setEditForm]  = useState({ ecoName: '', discordTag: '', bio: '' })
+  const [user,             setUser]             = useState<UserDetail | null>(null)
+  const [stats,            setStats]            = useState<Stats>({ articles: 0, guides: 0, changelogs: 0, forumPostCount: 0, suggestionCount: 0, dmSentCount: 0 })
+  const [logs,             setLogs]             = useState<AuditEntry[]>([])
+  const [recentForumPosts, setRecentForumPosts] = useState<ForumPostItem[]>([])
+  const [recentSuggestions,setRecentSuggestions]= useState<SuggestionItem[]>([])
+  const [loading,          setLoading]          = useState(true)
+  const [showDel,          setShowDel]          = useState(false)
+  const [editMode,         setEditMode]         = useState(false)
+  const [saving,           setSaving]           = useState(false)
+  const [editForm,         setEditForm]         = useState({ ecoName: '', discordTag: '', bio: '' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -163,6 +175,8 @@ export default function MembreFichePage() {
       setUser(data.user)
       setStats(data.stats)
       setLogs(data.auditLogs ?? [])
+      setRecentForumPosts(data.recentForumPosts ?? [])
+      setRecentSuggestions(data.recentSuggestions ?? [])
       setEditForm({
         ecoName:    data.user.ecoName    ?? '',
         discordTag: data.user.discordTag ?? '',
@@ -371,11 +385,62 @@ export default function MembreFichePage() {
         {/* Colonne droite */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 12 }}>
-            <StatCard icon={<FileText size={16} />} label="Articles" value={stats.articles} color="var(--adm-blue)" />
-            <StatCard icon={<BookOpen size={16} />} label="Guides" value={stats.guides} color="var(--adm-purple)" />
-            <StatCard icon={<ScrollText size={16} />} label="Changelogs" value={stats.changelogs} color="var(--adm-accent)" />
+          {/* Stats — contenu */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            <StatCard icon={<FileText size={16} />}    label="Articles"     value={stats.articles}        color="var(--adm-blue)"   />
+            <StatCard icon={<BookOpen size={16} />}    label="Guides"       value={stats.guides}          color="var(--adm-purple)" />
+            <StatCard icon={<ScrollText size={16} />}  label="Changelogs"   value={stats.changelogs}      color="var(--adm-accent)" />
+            <StatCard icon={<MessageSquare size={16}/>} label="Forum"       value={stats.forumPostCount}  color="var(--adm-cyan)"   />
+            <StatCard icon={<Lightbulb size={16} />}   label="Suggestions"  value={stats.suggestionCount} color="var(--adm-gold)"   />
+            <StatCard icon={<Mail size={16} />}        label="Messages"     value={stats.dmSentCount}     color="var(--adm-orange)" />
+          </div>
+
+          {/* Activité forum */}
+          <div className="adm-card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--adm-border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MessageSquare size={11} /> Derniers sujets forum
+            </div>
+            {recentForumPosts.length === 0 ? (
+              <div style={{ padding: '12px 0', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>Aucun sujet posté.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {recentForumPosts.map((post, i) => (
+                  <div key={post.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: i < recentForumPosts.length - 1 ? '1px solid var(--adm-border-muted)' : 'none' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0, background: post.approved ? 'var(--adm-accent)' : 'var(--adm-text-4)' }} />
+                    <span style={{ flex: 1, fontSize: 12, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.title}</span>
+                    <span style={{ fontSize: 11, color: 'var(--adm-text-4)', display: 'flex', alignItems: 'center', gap: 3 }}><Eye size={10} />{post.views}</span>
+                    <span style={{ fontSize: 11, color: 'var(--adm-text-4)', whiteSpace: 'nowrap' }}>{fmtRelative(post.createdAt)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Activité suggestions */}
+          <div className="adm-card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--adm-border)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Lightbulb size={11} /> Dernières suggestions
+            </div>
+            {recentSuggestions.length === 0 ? (
+              <div style={{ padding: '12px 0', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>Aucune suggestion soumise.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {recentSuggestions.map((s, i) => (
+                  <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 0', borderBottom: i < recentSuggestions.length - 1 ? '1px solid var(--adm-border-muted)' : 'none' }}>
+                    <span className="adm-badge" style={{
+                      fontSize: 10, padding: '2px 7px', flexShrink: 0,
+                      background: s.status === 'approved' ? 'var(--adm-accent-sub)' : s.status === 'rejected' ? 'var(--adm-red-sub)' : 'var(--adm-surface-3)',
+                      color: s.status === 'approved' ? 'var(--adm-accent)' : s.status === 'rejected' ? 'var(--adm-red)' : 'var(--adm-text-3)',
+                    }}>
+                      {s.status === 'approved' ? '✅' : s.status === 'rejected' ? '❌' : '⏳'}
+                    </span>
+                    <span style={{ flex: 1, fontSize: 12, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title}</span>
+                    <span style={{ fontSize: 11, color: 'var(--adm-text-4)', display: 'flex', alignItems: 'center', gap: 3 }}><ThumbsUp size={10} />{s.upvotes}</span>
+                    <span style={{ fontSize: 11, color: 'var(--adm-text-4)', whiteSpace: 'nowrap' }}>{fmtRelative(s.createdAt)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Journal d'activité */}

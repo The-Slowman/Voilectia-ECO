@@ -4,7 +4,7 @@ import Link from 'next/link'
 import NextImage from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  LayoutDashboard, Users, Shield, Award, FileText, RefreshCw,
+  LayoutDashboard, Users, UserX, Shield, Award, FileText, RefreshCw,
   BookOpen, HelpCircle, FileCode, Building2, TrendingUp, Coins,
   Settings, Calendar, Gift, MessageSquare, Lightbulb, Mail,
   ScrollText, Image as MediaIcon, Briefcase, GraduationCap,
@@ -24,11 +24,12 @@ const NAV_SECTIONS = [
   {
     id: 'community', label: 'Communauté', emoji: '👥',
     items: [
-      { label: 'Membres',     href: '/admin/membres',     icon: Users },
-      { label: 'Staff',       href: '/admin/staff',       icon: Shield },
-      { label: 'Rôles',       href: '/admin/rangs',       icon: Award },
-      { label: 'Métiers',     href: '/admin/jobs',        icon: Briefcase },
-      { label: 'Recrutement', href: '/admin/recrutement', icon: UserPlus },
+      { label: 'Membres',     href: '/admin/membres',            icon: Users },
+      { label: 'Inactifs',    href: '/admin/membres/inactifs',   icon: UserX },
+      { label: 'Staff',       href: '/admin/staff',              icon: Shield },
+      { label: 'Rôles',       href: '/admin/rangs',              icon: Award },
+      { label: 'Métiers',     href: '/admin/jobs',               icon: Briefcase },
+      { label: 'Recrutement', href: '/admin/recrutement',        icon: UserPlus },
     ],
   },
   {
@@ -44,7 +45,7 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    id: 'server', label: 'Serveur', emoji: '🏘️',
+    id: 'server', label: 'Serveur', emoji: '🌍',
     items: [
       { label: 'Villes',        href: '/admin/villes',      icon: Building2 },
       { label: 'Progression',   href: '/admin/progression', icon: TrendingUp },
@@ -53,7 +54,7 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    id: 'animation', label: 'Animation', emoji: '🎁',
+    id: 'events', label: 'Événements', emoji: '🎉',
     items: [
       { label: 'Événements', href: '/admin/evenements', icon: Calendar },
       { label: 'Giveaways',  href: '/admin/giveaways',  icon: Gift },

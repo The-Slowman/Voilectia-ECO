@@ -8,7 +8,11 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
-  const [user, articles, guides, changelogs, auditLogs] = await Promise.all([
+  const [
+    user, articles, guides, changelogs, auditLogs,
+    forumPostCount, suggestionCount, dmSentCount,
+    recentForumPosts, recentSuggestions,
+  ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: params.id },
       select: {
@@ -28,11 +32,32 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
       orderBy: { createdAt: 'desc' },
       take: 10,
     }),
+    prisma.forumPost.count({ where: { authorUserId: params.id } }),
+    prisma.suggestion.count({ where: { authorUserId: params.id } }),
+    prisma.directMessage.count({ where: { senderId: params.id } }),
+    prisma.forumPost.findMany({
+      where: { authorUserId: params.id },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, title: true, approved: true, createdAt: true, views: true },
+    }),
+    prisma.suggestion.findMany({
+      where: { authorUserId: params.id },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, title: true, status: true, createdAt: true, upvotes: true },
+    }),
   ])
 
   if (!user) return NextResponse.json({ error: 'Introuvable.' }, { status: 404 })
 
-  return NextResponse.json({ user, stats: { articles, guides, changelogs }, auditLogs })
+  return NextResponse.json({
+    user,
+    stats: { articles, guides, changelogs, forumPostCount, suggestionCount, dmSentCount },
+    auditLogs,
+    recentForumPosts,
+    recentSuggestions,
+  })
 }
 
 // PATCH — modifier un membre (métier, rang, ban, etc.)
