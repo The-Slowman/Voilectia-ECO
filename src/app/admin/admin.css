@@ -1,12 +1,15 @@
 /* ============================================================
    VOILECTIA ADMIN — Design System v3
-   Scoped to .admin-panel
-   Dark mode default · Light mode via .adm-light
+   Tokens → :root (disponibles même sans .admin-panel)
+   Theme overrides → .admin-panel.adm-light
+   Dark mode est le défaut (valeurs :root)
    Inspired by: Linear, Vercel, Supabase, Stripe, Filament
    ============================================================ */
 
-/* ── Design Tokens — Dark (default) ─────────────────────── */
-.admin-panel {
+/* ── Design Tokens — Dark (default) sur :root ───────────── */
+/* Placés sur :root pour garantir la résolution des var()    */
+/* même si .admin-panel est absent (erreur DB, fallback)     */
+:root {
   /* Backgrounds */
   --adm-bg:           #0F1117;
   --adm-sidebar:      #13161E;
@@ -191,6 +194,7 @@
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
   border-radius: var(--adm-radius-md);
+  padding: 16px 18px;
 }
 .adm-card-hover {
   background: var(--adm-surface);
@@ -802,6 +806,8 @@
   color: var(--adm-accent);
   flex-shrink: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE — col-lg hidden on tablet/mobile
