@@ -10,23 +10,39 @@ cp .env.example .env.local
 # 2. Installer les dépendances
 npm install
 
-# 3. Appliquer les migrations (crée toutes les tables)
-npm run db:migrate:deploy
-
-# 4. Peupler les données initiales (optionnel)
-npm run db:seed
-
-# 5. Builder le projet
+# 3. Builder le projet (applique les migrations + build Next.js)
 npm run build
 ```
 
-## Déploiement en production (Hostinger)
+## Déploiement en production (Hostinger — base de données existante)
 
-Le script `build` exécute automatiquement `prisma migrate deploy` avant le build Next.js.
+Le script `build` gère automatiquement les deux cas :
 
 ```bash
 npm run build
-# Équivalent à : prisma migrate deploy && next build
+# Équivalent à :
+# prisma migrate resolve --applied 0001_initial 2>/dev/null
+# prisma migrate deploy
+# next build
+```
+
+**Explication :**
+- `prisma migrate resolve --applied 0001_initial` marque la migration initiale comme déjà
+  appliquée (pour les BDD existantes qui ont des tables mais pas d'historique Prisma).
+  Si la migration est déjà enregistrée, cette commande échoue silencieusement.
+- `prisma migrate deploy` applique ensuite toutes les migrations en attente (0 au premier
+  déploiement si la BDD était déjà à jour).
+
+## Erreur P3005 — The database schema is not empty
+
+Cette erreur survient quand Prisma voit des tables existantes sans historique de migrations.
+Le script `build` la gère automatiquement via `migrate resolve`. Si vous la rencontrez
+manuellement, exécutez :
+
+```bash
+npm run db:baseline
+# puis
+npm run build
 ```
 
 ## Ajouter une migration après un changement de schéma
@@ -35,25 +51,22 @@ npm run build
 ```bash
 # Après modification de prisma/schema.prisma
 npm run db:migrate
-# Saisir un nom pour la migration (ex: "add_adminToken_to_users")
+# Saisir un nom (ex: "add_adminToken_to_users")
 ```
 
 **En production :**
 ```bash
-npm run db:migrate:deploy
-# Applique les migrations en attente sans risque de perte de données
+npm run build
+# prisma migrate deploy applique automatiquement les nouvelles migrations
 ```
 
 ## ⚠️ À NE JAMAIS UTILISER EN PRODUCTION
 
 ```bash
-# INTERDIT en production — peut supprimer des données
+# INTERDIT — peut supprimer des données
 prisma db push --accept-data-loss
 ```
 
 ## Variables d'environnement requises
 
 Voir `.env.example` pour la liste complète.
-
-Variable ajoutée récemment :
-- `NEXT_PUBLIC_SITE_URL` — URL publique du site (ex: `https://voilectia.fr`)
