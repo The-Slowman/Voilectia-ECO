@@ -808,13 +808,25 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   LAYOUT SHELL — sidebar desktop/mobile
+   ═══════════════════════════════════════════════════════════ */
+
+/* Desktop sidebar — visible sur écrans ≥ 1024px */
+.adm-sidebar-desktop { display: flex; }
+
+/* Bouton fermeture sidebar — visible uniquement en mobile */
+.adm-sidebar-close-btn { display: none; }
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE — col-lg hidden on tablet/mobile
    ═══════════════════════════════════════════════════════════ */
-@media (max-width: 1024px) {
+@media (max-width: 1023px) {
+  /* Masquer la sidebar desktop (le drawer mobile est géré via JSX) */
+  .adm-sidebar-desktop { display: none !important; }
+  /* Afficher le bouton fermeture dans le drawer mobile */
+  .adm-sidebar-close-btn { display: flex; }
+  /* Masquer colonnes larges dans les tableaux */
   .adm-col-lg { display: none !important; }
-  :root { --adm-sidebar-width: 0px; }
 }
 @media (max-width: 640px) {
   .adm-modal { max-width: calc(100vw - 32px); }

@@ -232,7 +232,7 @@ function SidebarInner({ user, onMobileClose }: { user: Props['user']; onMobileCl
         </Link>
         <button
           onClick={onMobileClose}
-          className="lg:hidden"
+          className="adm-sidebar-close-btn"
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--adm-text-3)', padding: 4, borderRadius: 4, flexShrink: 0 }}
           aria-label="Fermer"
         >
@@ -304,14 +304,20 @@ function SidebarInner({ user, onMobileClose }: { user: Props['user']; onMobileCl
 export function AdminSidebar({ user, mobileOpen, onMobileClose }: Props) {
   return (
     <>
-      {/* Desktop */}
-      <div className="hidden lg:flex" style={{ flexShrink: 0 }}>
+      {/* Desktop — toujours dans le flow, masqué via CSS sous 1024px */}
+      <div className="adm-sidebar-desktop" style={{ flexShrink: 0 }}>
         <SidebarInner user={user} onMobileClose={onMobileClose} />
       </div>
-      {/* Mobile drawer */}
-      <div className={'lg:hidden fixed inset-y-0 left-0 z-50 flex' + (mobileOpen ? ' adm-slide-in' : ' hidden')}>
-        <SidebarInner user={user} onMobileClose={onMobileClose} />
-      </div>
+
+      {/* Mobile drawer — fixed overlay, conditionnel via JSX */}
+      {mobileOpen && (
+        <div
+          className="adm-slide-in"
+          style={{ position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50, display: 'flex' }}
+        >
+          <SidebarInner user={user} onMobileClose={onMobileClose} />
+        </div>
+      )}
     </>
   )
 }

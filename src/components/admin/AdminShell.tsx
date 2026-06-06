@@ -49,13 +49,20 @@ export function AdminShell({ user, children }: AdminShellProps) {
 
   return (
     <div
-      className={`admin-panel${theme === 'light' ? ' adm-light' : ''} min-h-screen flex`}
-      style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.1s' }}
+      className={`admin-panel${theme === 'light' ? ' adm-light' : ''}`}
+      style={{
+        opacity: mounted ? 1 : 0,
+        transition: 'opacity 0.1s',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+        background: 'var(--adm-bg)',
+      }}
     >
       {/* Overlay mobile */}
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(2px)' }}
           onClick={() => setMobileSidebarOpen(false)}
           aria-hidden
         />
@@ -69,18 +76,15 @@ export function AdminShell({ user, children }: AdminShellProps) {
       />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
         <AdminHeader
           user={user}
           theme={theme}
           onToggleTheme={toggleTheme}
           onToggleMobileSidebar={() => setMobileSidebarOpen(p => !p)}
         />
-        <main
-          className="flex-1 overflow-auto"
-          style={{ background: 'var(--adm-bg)', padding: '28px 28px 40px' }}
-        >
-          <div className="max-w-[1500px] mx-auto adm-fade-in">
+        <main style={{ flex: 1, overflow: 'auto', background: 'var(--adm-bg)', padding: '28px 28px 40px' }}>
+          <div className="adm-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
             {children}
           </div>
         </main>
