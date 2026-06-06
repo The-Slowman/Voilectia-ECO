@@ -305,7 +305,7 @@ export function AdminSidebar({ user, mobileOpen, onMobileClose }: Props) {
   return (
     <>
       {/* Desktop — toujours dans le flow, masqué via CSS sous 1024px */}
-      <div className="adm-sidebar-desktop" style={{ flexShrink: 0 }}>
+      <div className="admin-sidebar adm-sidebar-desktop">
         <SidebarInner user={user} onMobileClose={onMobileClose} />
       </div>
 

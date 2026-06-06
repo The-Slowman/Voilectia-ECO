@@ -808,8 +808,45 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LAYOUT SHELL — sidebar desktop/mobile
+   LAYOUT SHELL — structure principale
    ═══════════════════════════════════════════════════════════ */
+
+/* Shell racine */
+.admin-shell {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  background: var(--adm-bg);
+}
+
+/* Sidebar — colonne gauche fixe */
+.admin-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+/* Zone principale — droite de la sidebar */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Zone scrollable du contenu */
+.admin-content {
+  flex: 1;
+  overflow: auto;
+  padding: 28px 28px 48px;
+  background: var(--adm-bg);
+}
+
+/* Conteneur centré avec max-width */
+.admin-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
 
 /* Desktop sidebar — visible sur écrans ≥ 1024px */
 .adm-sidebar-desktop { display: flex; }

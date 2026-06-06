@@ -49,15 +49,8 @@ export function AdminShell({ user, children }: AdminShellProps) {
 
   return (
     <div
-      className={`admin-panel${theme === 'light' ? ' adm-light' : ''}`}
-      style={{
-        opacity: mounted ? 1 : 0,
-        transition: 'opacity 0.1s',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'row',
-        background: 'var(--adm-bg)',
-      }}
+      className={`admin-panel admin-shell${theme === 'light' ? ' adm-light' : ''}`}
+      style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.1s' }}
     >
       {/* Overlay mobile */}
       {mobileSidebarOpen && (
@@ -75,19 +68,19 @@ export function AdminShell({ user, children }: AdminShellProps) {
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
 
-      {/* Main content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
+      {/* Zone principale */}
+      <div className="admin-main">
         <AdminHeader
           user={user}
           theme={theme}
           onToggleTheme={toggleTheme}
           onToggleMobileSidebar={() => setMobileSidebarOpen(p => !p)}
         />
-        <main style={{ flex: 1, overflow: 'auto', background: 'var(--adm-bg)', padding: '28px 28px 40px' }}>
-          <div className="adm-fade-in" style={{ maxWidth: 1500, margin: '0 auto' }}>
+        <div className="admin-content">
+          <div className="admin-container adm-fade-in">
             {children}
           </div>
-        </main>
+        </div>
       </div>
     </div>
   )
