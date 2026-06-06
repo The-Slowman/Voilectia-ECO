@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Edit, Trash2, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatDate } from '@/lib/utils'
 import dynamic from 'next/dynamic'
+import { PublishedBadge, AdminBadge } from '@/components/admin/AdminBadge'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 
 const RichEditor = dynamic(
   () => import('@/components/admin/RichEditor').then(m => m.RichEditor),
-  { ssr: false, loading: () => <div className="input min-h-[200px] animate-pulse" /> }
+  { ssr: false, loading: () => <div className="adm-skeleton" style={{ minHeight: 200, borderRadius: 6 }} /> }
 )
 
 interface Changelog {
@@ -17,8 +19,12 @@ interface Changelog {
   createdAt: string; author: { name: string }
 }
 
+const TYPE_VARIANT: Record<string, 'blue' | 'red' | 'purple' | 'cyan'> = {
+  update: 'blue', hotfix: 'red', major: 'purple', content: 'cyan',
+}
+
 const TYPES = ['update', 'hotfix', 'major', 'content']
-const INIT = { version: '', title: '', content: '', season: 'S1', type: 'update', published: false }
+const INIT  = { version: '', title: '', content: '', season: 'S1', type: 'update', published: false }
 
 export default function AdminChangelogPage() {
   const [entries,  setEntries]  = useState<Changelog[]>([])
@@ -40,17 +46,20 @@ export default function AdminChangelogPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const url    = editing ? `/api/changelog/${editing}` : '/api/changelog'
-    const method = editing ? 'PATCH' : 'POST'
+    const url = editing ? `/api/changelog/${editing}` : '/api/changelog'
     const res = await fetch(url, {
-      method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
+      method: editing ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
     })
-    if (res.ok) { toast.success(editing ? 'Mis à jour' : 'Créé'); setShowForm(false); setEditing(null); setForm(INIT); load() }
-    else toast.error('Erreur')
+    if (res.ok) {
+      toast.success(editing ? 'Mis à jour' : 'Créé')
+      setShowForm(false); setEditing(null); setForm(INIT); load()
+    } else toast.error('Erreur')
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ?')) return
+    if (!confirm('Supprimer cette entrée ?')) return
     await fetch(`/api/changelog/${id}`, { method: 'DELETE' })
     toast.success('Supprimé'); load()
   }
@@ -69,92 +78,118 @@ export default function AdminChangelogPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display font-bold text-2xl text-[#E8F5EE] flex items-center gap-2">
-          <RefreshCw size={22} /> Changelog
-        </h1>
+    <div>
+      <div className="adm-page-header">
+        <div>
+          <h1 className="adm-page-title">Changelog</h1>
+          <p className="adm-page-subtitle">{entries.length} entrée{entries.length !== 1 ? 's' : ''}</p>
+        </div>
         <button onClick={() => { setShowForm(true); setEditing(null); setForm(INIT) }}
-                className="flex items-center gap-2 bg-[#3A7A52] hover:bg-[#2D6A4F] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
-          <Plus size={16} /> Nouvelle entrée
+                className="adm-btn adm-btn-primary">
+          <Plus size={13} /> Nouvelle entrée
         </button>
       </div>
 
+      {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[#111F18] border border-[rgba(82,183,136,0.15)] rounded-xl p-6 space-y-4">
-          <h2 className="font-semibold text-[#E8F5EE]">{editing ? 'Modifier' : 'Nouvelle entrée'}</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="adm-card" style={{ padding: 20, marginBottom: 20 }}>
+          <div style={{ fontWeight: 600, color: 'var(--adm-text-1)', marginBottom: 16 }}>
+            {editing ? 'Modifier l\'entrée' : 'Nouvelle entrée changelog'}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Version</label>
-              <input className="input w-full" value={form.version} onChange={e => f('version', e.target.value)} placeholder="1.2.3" required />
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Version</label>
+              <input className="adm-input" value={form.version} onChange={e => f('version', e.target.value)} placeholder="1.2.3" required />
             </div>
             <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Saison</label>
-              <input className="input w-full" value={form.season} onChange={e => f('season', e.target.value)} placeholder="S1" />
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Saison</label>
+              <input className="adm-input" value={form.season} onChange={e => f('season', e.target.value)} placeholder="S1" />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Type</label>
+              <select className="adm-input" value={form.type} onChange={e => f('type', e.target.value)}>
+                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
           </div>
-          <div>
-            <label className="text-xs text-[#9DC4AD] mb-1 block">Titre</label>
-            <input className="input w-full" value={form.title} onChange={e => f('title', e.target.value)} required />
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Titre</label>
+            <input className="adm-input" value={form.title} onChange={e => f('title', e.target.value)} required />
           </div>
-          <div>
-            <label className="text-xs text-[#9DC4AD] mb-1 block">Type</label>
-            <select className="input w-full" value={form.type} onChange={e => f('type', e.target.value)}>
-              {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-[#9DC4AD] mb-1 block">Contenu</label>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Contenu</label>
             <RichEditor value={form.content} onChange={v => f('content', v)} />
           </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="pub" checked={form.published} onChange={e => f('published', e.target.checked)} />
-            <label htmlFor="pub" className="text-sm text-[#9DC4AD]">Publier</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <input type="checkbox" id="pub" checked={form.published} onChange={e => f('published', e.target.checked)}
+                   style={{ accentColor: 'var(--adm-accent)' }} />
+            <label htmlFor="pub" style={{ fontSize: 13, color: 'var(--adm-text-2)', cursor: 'pointer' }}>Publier immédiatement</label>
           </div>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-[#3A7A52] text-white px-6 py-2 rounded-xl text-sm font-semibold">
-              {editing ? 'Mettre à jour' : 'Créer'}
-            </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" className="adm-btn adm-btn-primary">{editing ? 'Mettre à jour' : 'Créer'}</button>
             <button type="button" onClick={() => { setShowForm(false); setEditing(null) }}
-                    className="text-[#9DC4AD] hover:text-[#E8F5EE] px-4 py-2 text-sm">
-              Annuler
-            </button>
+                    className="adm-btn adm-btn-ghost">Annuler</button>
           </div>
         </form>
       )}
 
       {loading ? (
-        <div className="text-[#9DC4AD] text-center py-8">Chargement…</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[1, 2, 3].map(i => <div key={i} className="adm-skeleton" style={{ height: 60, borderRadius: 8 }} />)}
+        </div>
       ) : entries.length === 0 ? (
-        <div className="text-center text-[#9DC4AD] py-12">Aucune entrée changelog.</div>
+        <AdminEmptyState
+          icon="📋"
+          title="Aucune entrée changelog"
+          desc="Documentez les mises à jour du serveur."
+          action={{ label: 'Créer une entrée', onClick: () => setShowForm(true) }}
+        />
       ) : (
-        <div className="space-y-3">
-          {entries.map(entry => (
-            <div key={entry.id} className="bg-[#111F18] border border-[rgba(82,183,136,0.1)] rounded-xl p-4 flex items-center gap-4">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-xs text-[#52B788] bg-[rgba(82,183,136,0.1)] px-2 py-0.5 rounded">v{entry.version}</span>
-                  <span className="text-xs text-[#5A8A6A]">{entry.type} · {entry.season}</span>
-                  {entry.published
-                    ? <span className="text-[10px] bg-[rgba(58,122,82,0.2)] text-[#52B788] px-2 py-0.5 rounded-full">Publié</span>
-                    : <span className="text-[10px] bg-[rgba(255,255,255,0.05)] text-[#5A8A6A] px-2 py-0.5 rounded-full">Brouillon</span>}
-                </div>
-                <p className="text-sm font-semibold text-[#E8F5EE] truncate">{entry.title}</p>
-                <p className="text-xs text-[#5A8A6A]">{formatDate(entry.createdAt)}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={() => togglePublish(entry)} className="p-2 text-[#5A8A6A] hover:text-[#52B788] transition-colors">
-                  {entry.published ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-                <button onClick={() => startEdit(entry)} className="p-2 text-[#5A8A6A] hover:text-[#52B788] transition-colors">
-                  <Edit size={16} />
-                </button>
-                <button onClick={() => handleDelete(entry.id)} className="p-2 text-[#5A8A6A] hover:text-red-400 transition-colors">
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="adm-table-wrap">
+          <table className="adm-table">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Titre</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th style={{ width: 110 }} />
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map(entry => (
+                <tr key={entry.id}>
+                  <td>
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, background: 'var(--adm-accent-sub)', color: 'var(--adm-accent)', padding: '2px 7px', borderRadius: 4 }}>
+                      v{entry.version}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--adm-text-3)', marginLeft: 6 }}>{entry.season}</span>
+                  </td>
+                  <td style={{ fontWeight: 500, color: 'var(--adm-text-1)' }}>{entry.title}</td>
+                  <td>
+                    <AdminBadge variant={TYPE_VARIANT[entry.type] ?? 'gray'}>{entry.type}</AdminBadge>
+                  </td>
+                  <td style={{ color: 'var(--adm-text-3)', fontSize: 12 }}>{formatDate(entry.createdAt)}</td>
+                  <td><PublishedBadge published={entry.published} /></td>
+                  <td>
+                    <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                      <button onClick={() => togglePublish(entry)} className="adm-btn adm-btn-ghost adm-btn-sm"
+                              title={entry.published ? 'Masquer' : 'Publier'}>
+                        {entry.published ? <EyeOff size={12} /> : <Eye size={12} />}
+                      </button>
+                      <button onClick={() => startEdit(entry)} className="adm-btn adm-btn-ghost adm-btn-sm">
+                        <Edit size={12} />
+                      </button>
+                      <button onClick={() => handleDelete(entry.id)} className="adm-btn adm-btn-danger adm-btn-sm">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

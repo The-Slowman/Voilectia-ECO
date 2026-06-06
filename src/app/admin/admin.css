@@ -1,0 +1,398 @@
+/* ============================================================
+   VOILECTIA ADMIN — Design System
+   Scoped to .admin-panel — Dark mode default, Light mode toggle
+   ============================================================ */
+
+/* ── Design Tokens — Dark (default) ─────────────────────── */
+.admin-panel {
+  --adm-bg:           #0D1117;
+  --adm-sidebar:      #161B22;
+  --adm-surface:      #161B22;
+  --adm-surface-2:    #21262D;
+  --adm-surface-3:    #2D333B;
+  --adm-border:       #30363D;
+  --adm-border-muted: #21262D;
+
+  --adm-text-1:       #E6EDF3;
+  --adm-text-2:       #8B949E;
+  --adm-text-3:       #484F58;
+
+  --adm-accent:       #3FB950;
+  --adm-accent-dim:   #238636;
+  --adm-accent-sub:   rgba(63, 185, 80, 0.12);
+  --adm-accent-xsub:  rgba(63, 185, 80, 0.05);
+
+  --adm-gold:         #E3B341;
+  --adm-gold-sub:     rgba(227, 179, 65, 0.12);
+
+  --adm-red:          #F85149;
+  --adm-red-sub:      rgba(248, 81, 73, 0.12);
+
+  --adm-orange:       #F0883E;
+  --adm-orange-sub:   rgba(240, 136, 62, 0.12);
+
+  --adm-blue:         #58A6FF;
+  --adm-blue-sub:     rgba(88, 166, 255, 0.12);
+
+  --adm-purple:       #BC8CFF;
+  --adm-purple-sub:   rgba(188, 140, 255, 0.12);
+
+  --adm-cyan:         #39C5CF;
+  --adm-cyan-sub:     rgba(57, 197, 207, 0.12);
+
+  --adm-shadow-sm:    0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --adm-shadow-md:    0 4px 12px rgba(0,0,0,0.5);
+  --adm-shadow-lg:    0 12px 32px rgba(0,0,0,0.6);
+}
+
+/* ── Design Tokens — Light mode ─────────────────────────── */
+.admin-panel.adm-light {
+  --adm-bg:           #F6F8FA;
+  --adm-sidebar:      #FFFFFF;
+  --adm-surface:      #FFFFFF;
+  --adm-surface-2:    #F6F8FA;
+  --adm-surface-3:    #EFF1F3;
+  --adm-border:       #D0D7DE;
+  --adm-border-muted: #EFF1F3;
+
+  --adm-text-1:       #24292F;
+  --adm-text-2:       #57606A;
+  --adm-text-3:       #8C959F;
+
+  --adm-accent:       #1A7F37;
+  --adm-accent-dim:   #116329;
+  --adm-accent-sub:   rgba(26, 127, 55, 0.08);
+  --adm-accent-xsub:  rgba(26, 127, 55, 0.04);
+
+  --adm-gold:         #9A6700;
+  --adm-gold-sub:     rgba(154, 103, 0, 0.10);
+
+  --adm-red:          #CF222E;
+  --adm-red-sub:      rgba(207, 34, 46, 0.08);
+
+  --adm-orange:       #BC4C00;
+  --adm-orange-sub:   rgba(188, 76, 0, 0.08);
+
+  --adm-blue:         #0969DA;
+  --adm-blue-sub:     rgba(9, 105, 218, 0.08);
+
+  --adm-purple:       #8250DF;
+  --adm-purple-sub:   rgba(130, 80, 223, 0.08);
+
+  --adm-cyan:         #1B7C83;
+  --adm-cyan-sub:     rgba(27, 124, 131, 0.08);
+
+  --adm-shadow-sm:    0 1px 3px rgba(31,35,40,0.08), 0 1px 2px rgba(31,35,40,0.06);
+  --adm-shadow-md:    0 4px 12px rgba(31,35,40,0.12);
+  --adm-shadow-lg:    0 12px 32px rgba(31,35,40,0.16);
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+.admin-panel {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  background: var(--adm-bg);
+  color: var(--adm-text-1);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+.admin-panel ::-webkit-scrollbar       { width: 5px; height: 5px; }
+.admin-panel ::-webkit-scrollbar-track { background: transparent; }
+.admin-panel ::-webkit-scrollbar-thumb { background: var(--adm-border); border-radius: 3px; }
+.admin-panel ::-webkit-scrollbar-thumb:hover { background: var(--adm-text-3); }
+
+/* ── Selection ───────────────────────────────────────────── */
+.admin-panel ::selection {
+  background: var(--adm-accent-sub);
+  color: var(--adm-accent);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.adm-card {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+}
+
+.adm-card-hover {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+}
+.adm-card-hover:hover {
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 0 1px var(--adm-accent-sub), var(--adm-shadow-sm);
+}
+
+/* ── Input ───────────────────────────────────────────────── */
+.adm-input {
+  background: var(--adm-surface-2);
+  border: 1px solid var(--adm-border);
+  border-radius: 6px;
+  color: var(--adm-text-1);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.adm-input:focus {
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 0 3px var(--adm-accent-sub);
+}
+.adm-input::placeholder { color: var(--adm-text-3); }
+.adm-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.adm-btn-primary {
+  background: var(--adm-accent);
+  color: #fff;
+  border: 1px solid transparent;
+}
+.adm-btn-primary:hover  { opacity: 0.85; }
+.adm-btn-primary:active { transform: scale(0.98); }
+
+.adm-btn-ghost {
+  background: transparent;
+  color: var(--adm-text-2);
+  border: 1px solid var(--adm-border);
+}
+.adm-btn-ghost:hover {
+  background: var(--adm-surface-2);
+  color: var(--adm-text-1);
+  border-color: var(--adm-text-3);
+}
+
+.adm-btn-danger {
+  background: var(--adm-red-sub);
+  color: var(--adm-red);
+  border: 1px solid transparent;
+}
+.adm-btn-danger:hover { background: var(--adm-red); color: #fff; }
+
+.adm-btn-sm { font-size: 12px; padding: 4px 10px; }
+.adm-btn-lg { font-size: 14px; padding: 8px 18px; }
+
+/* ── Badge ───────────────────────────────────────────────── */
+.adm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.adm-badge-green  { background: var(--adm-accent-sub);  color: var(--adm-accent);  }
+.adm-badge-red    { background: var(--adm-red-sub);     color: var(--adm-red);     }
+.adm-badge-orange { background: var(--adm-orange-sub);  color: var(--adm-orange);  }
+.adm-badge-blue   { background: var(--adm-blue-sub);    color: var(--adm-blue);    }
+.adm-badge-purple { background: var(--adm-purple-sub);  color: var(--adm-purple);  }
+.adm-badge-gold   { background: var(--adm-gold-sub);    color: var(--adm-gold);    }
+.adm-badge-cyan   { background: var(--adm-cyan-sub);    color: var(--adm-cyan);    }
+.adm-badge-gray   { background: var(--adm-surface-3);   color: var(--adm-text-2);  }
+
+/* ── Table ───────────────────────────────────────────────── */
+.adm-table-wrap {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.adm-table thead tr {
+  background: var(--adm-surface-2);
+  border-bottom: 1px solid var(--adm-border);
+}
+.adm-table thead th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--adm-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.adm-table tbody tr {
+  border-bottom: 1px solid var(--adm-border-muted);
+  transition: background 0.1s;
+}
+.adm-table tbody tr:last-child { border-bottom: none; }
+.adm-table tbody tr:hover { background: var(--adm-surface-2); }
+.adm-table tbody td {
+  padding: 10px 14px;
+  color: var(--adm-text-1);
+  vertical-align: middle;
+}
+
+/* ── Stat card ───────────────────────────────────────────── */
+.adm-stat-card {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.adm-stat-card:hover {
+  border-color: var(--adm-accent);
+  box-shadow: 0 0 0 1px var(--adm-accent-sub), var(--adm-shadow-sm);
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.adm-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--adm-text-3);
+}
+.adm-empty-icon { font-size: 28px; margin-bottom: 12px; opacity: 0.5; }
+.adm-empty-title { font-size: 14px; font-weight: 600; color: var(--adm-text-2); margin-bottom: 6px; }
+.adm-empty-desc  { font-size: 12px; color: var(--adm-text-3); }
+
+/* ── Sidebar nav item ────────────────────────────────────── */
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 450;
+  color: var(--adm-text-2);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+}
+.adm-nav-item:hover {
+  background: var(--adm-surface-2);
+  color: var(--adm-text-1);
+}
+.adm-nav-item.active {
+  background: var(--adm-accent-sub);
+  color: var(--adm-accent);
+  font-weight: 500;
+}
+.adm-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--adm-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Divider ─────────────────────────────────────────────── */
+.adm-divider {
+  height: 1px;
+  background: var(--adm-border-muted);
+  margin: 4px 0;
+}
+
+/* ── Page header ─────────────────────────────────────────── */
+.adm-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.adm-page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--adm-text-1);
+  line-height: 1.2;
+  font-family: inherit;
+}
+.adm-page-subtitle {
+  font-size: 13px;
+  color: var(--adm-text-2);
+  margin-top: 2px;
+}
+
+/* ── Tooltip (data-tooltip) ───────────────────────────────��� */
+[data-adm-tooltip] {
+  position: relative;
+}
+[data-adm-tooltip]::after {
+  content: attr(data-adm-tooltip);
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--adm-surface-3);
+  color: var(--adm-text-1);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  border: 1px solid var(--adm-border);
+  z-index: 100;
+  box-shadow: var(--adm-shadow-md);
+}
+[data-adm-tooltip]:hover::after { opacity: 1; }
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes adm-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.adm-fade-in { animation: adm-fade-in 0.18s ease-out; }
+
+@keyframes adm-slide-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+.adm-slide-in { animation: adm-slide-in 0.22s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* ── Skeleton loader ─────────────────────────────────────── */
+@keyframes adm-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.adm-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--adm-surface-2) 25%,
+    var(--adm-surface-3) 50%,
+    var(--adm-surface-2) 75%
+  );
+  background-size: 800px 100%;
+  animation: adm-shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}

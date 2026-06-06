@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Pencil, Trash2, Check, X, Shield, Star, Users } from 'lucide-react'
+import { Plus, Pencil, Trash2, Check, X, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 
 interface Rank {
   id: string; name: string; color: string; badge: string | null; level: number
@@ -19,24 +20,24 @@ interface PlayerRank {
 }
 
 const PERM_LABELS: { key: keyof Rank; label: string }[] = [
-  { key: 'canPublish',          label: 'Publier contenu' },
-  { key: 'canManageArticles',   label: 'Articles & Guides' },
-  { key: 'canManageForum',      label: 'Modération forum' },
-  { key: 'canManageVilles',     label: 'Gestion villes' },
-  { key: 'canManageRecruitment',label: 'Recrutement' },
-  { key: 'canManageSurveys',    label: 'Sondages' },
-  { key: 'canManageStaff',      label: 'Gestion staff' },
-  { key: 'canManageRanks',      label: 'Gestion rangs' },
-  { key: 'canManageUsers',      label: 'Gestion utilisateurs' },
+  { key: 'canPublish',           label: 'Publier contenu'       },
+  { key: 'canManageArticles',    label: 'Articles & Guides'     },
+  { key: 'canManageForum',       label: 'Modération forum'      },
+  { key: 'canManageVilles',      label: 'Gestion villes'        },
+  { key: 'canManageRecruitment', label: 'Recrutement'           },
+  { key: 'canManageSurveys',     label: 'Sondages'              },
+  { key: 'canManageStaff',       label: 'Gestion staff'         },
+  { key: 'canManageRanks',       label: 'Gestion rangs'         },
+  { key: 'canManageUsers',       label: 'Gestion utilisateurs'  },
 ]
 
 const STAFF_INIT = {
-  name: '', color: '#3A7A52', badge: '', level: 1, isStaff: true,
+  name: '', color: '#3FB950', badge: '', level: 1, isStaff: true,
   canPublish: false, canManageArticles: false, canManageForum: false,
   canManageVilles: false, canManageStaff: false, canManageRecruitment: false,
   canManageSurveys: false, canManageRanks: false, canManageUsers: false,
 }
-const PLAYER_INIT = { name: '', color: '#D4A820', badge: '', description: '', order: 0 }
+const PLAYER_INIT = { name: '', color: '#E3B341', badge: '', description: '', order: 0 }
 
 export default function AdminRangsPage() {
   const [ranks,       setRanks]       = useState<Rank[]>([])
@@ -56,311 +57,259 @@ export default function AdminRangsPage() {
 
   useEffect(() => { load() }, [load])
 
-  // ── Staff ranks ──────────────────────────────────────────
   function startEditStaff(r?: Rank) {
     setEditingS(r?.id ?? 'new')
     if (r) {
       setFormS({
-        name: r.name, color: r.color, badge: r.badge ?? '', level: r.level,
-        isStaff: r.isStaff,
-        canPublish: r.canPublish, canManageArticles: r.canManageArticles,
-        canManageForum: r.canManageForum, canManageVilles: r.canManageVilles,
-        canManageStaff: r.canManageStaff, canManageRecruitment: r.canManageRecruitment,
-        canManageSurveys: r.canManageSurveys, canManageRanks: r.canManageRanks,
-        canManageUsers: r.canManageUsers,
+        name: r.name, color: r.color, badge: r.badge ?? '', level: r.level, isStaff: r.isStaff,
+        canPublish: r.canPublish, canManageArticles: r.canManageArticles, canManageForum: r.canManageForum,
+        canManageVilles: r.canManageVilles, canManageStaff: r.canManageStaff,
+        canManageRecruitment: r.canManageRecruitment, canManageSurveys: r.canManageSurveys,
+        canManageRanks: r.canManageRanks, canManageUsers: r.canManageUsers,
       })
-    } else {
-      setFormS(STAFF_INIT)
-    }
+    } else setFormS(STAFF_INIT)
   }
 
   async function saveStaffRank() {
     if (!formS.name.trim()) { toast.error('Nom requis'); return }
     setSaving(true)
     try {
-      if (editingS === 'new') {
-        await fetch('/api/ranks', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body:   JSON.stringify({ type: 'staff', ...formS }),
-        })
-        toast.success('Rang créé')
-      } else {
-        await fetch(`/api/ranks/${editingS}`, {
-          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-          body:   JSON.stringify({ type: 'staff', ...formS }),
-        })
-        toast.success('Rang mis à jour')
-      }
-      setEditingS(null)
-      setFormS(STAFF_INIT)
-      load()
+      const url    = editingS === 'new' ? '/api/ranks' : `/api/ranks/${editingS}`
+      const method = editingS === 'new' ? 'POST' : 'PATCH'
+      await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'staff', ...formS }) })
+      toast.success(editingS === 'new' ? 'Rang créé' : 'Rang mis à jour')
+      setEditingS(null); setFormS(STAFF_INIT); load()
     } catch { toast.error('Erreur') } finally { setSaving(false) }
   }
 
   async function deleteRank(id: string, type: 'staff' | 'player') {
     if (!confirm('Supprimer ce rang ?')) return
-    await fetch(`/api/ranks/${id}?type=${type === 'player' ? 'player' : 'staff'}`, { method: 'DELETE' })
-    toast.success('Rang supprimé')
-    load()
+    await fetch(`/api/ranks/${id}?type=${type}`, { method: 'DELETE' })
+    toast.success('Rang supprimé'); load()
   }
 
-  // ── Player ranks ─────────────────────────────────────────
   function startEditPlayer(r?: PlayerRank) {
     setEditingP(r?.id ?? 'new')
-    if (r) {
-      setFormP({ name: r.name, color: r.color, badge: r.badge ?? '', description: r.description ?? '', order: r.order })
-    } else {
-      setFormP(PLAYER_INIT)
-    }
+    if (r) setFormP({ name: r.name, color: r.color, badge: r.badge ?? '', description: r.description ?? '', order: r.order })
+    else setFormP(PLAYER_INIT)
   }
 
   async function savePlayerRank() {
     if (!formP.name.trim()) { toast.error('Nom requis'); return }
     setSaving(true)
     try {
-      if (editingP === 'new') {
-        await fetch('/api/ranks', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body:   JSON.stringify({ type: 'player', ...formP }),
-        })
-        toast.success('Rang créé')
-      } else {
-        await fetch(`/api/ranks/${editingP}`, {
-          method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-          body:   JSON.stringify({ type: 'player', ...formP }),
-        })
-        toast.success('Rang mis à jour')
-      }
-      setEditingP(null)
-      setFormP(PLAYER_INIT)
-      load()
+      const url    = editingP === 'new' ? '/api/ranks' : `/api/ranks/${editingP}`
+      const method = editingP === 'new' ? 'POST' : 'PATCH'
+      await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'player', ...formP }) })
+      toast.success(editingP === 'new' ? 'Rang créé' : 'Rang mis à jour')
+      setEditingP(null); setFormP(PLAYER_INIT); load()
     } catch { toast.error('Erreur') } finally { setSaving(false) }
   }
 
+  const TABS = [
+    { key: 'staff',  label: `🛡️ Staff`,   count: ranks.length      },
+    { key: 'ingame', label: `⭐ In-game`, count: playerRanks.length },
+  ] as const
+
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="adm-page-header">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#1A3D2B]">Rangs</h1>
-          <p className="text-[#6B8C6A] text-sm">
+          <h1 className="adm-page-title">Rangs</h1>
+          <p className="adm-page-subtitle">
             {ranks.length} rang{ranks.length !== 1 ? 's' : ''} staff · {playerRanks.length} rang{playerRanks.length !== 1 ? 's' : ''} in-game
           </p>
         </div>
-        <button
-          onClick={() => tab === 'staff' ? startEditStaff() : startEditPlayer()}
-          className="btn-primary flex items-center gap-2 text-sm"
-        >
-          <Plus size={15} /> Nouveau rang
+        <button onClick={() => tab === 'staff' ? startEditStaff() : startEditPlayer()}
+                className="adm-btn adm-btn-primary">
+          <Plus size={13} /> Nouveau rang
         </button>
       </div>
 
-      {/* Onglets */}
-      <div className="flex gap-1 border-b border-[#DBCAA8]">
-        {[
-          { key: 'staff',  label: `🛡️ Staff (${ranks.length})`,         icon: <Shield size={14} /> },
-          { key: 'ingame', label: `⭐ In-game (${playerRanks.length})`,  icon: <Star size={14} /> },
-        ].map(t => (
-          <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
-                  className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                    tab === t.key ? 'border-[#1A3D2B] text-[#1A3D2B]' : 'border-transparent text-[#6B8C6A] hover:text-[#1A3D2B]'
-                  }`}>
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: 2, borderBottom: '1px solid var(--adm-border)', marginBottom: 20 }}>
+        {TABS.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+                  style={{
+                    padding: '8px 14px', fontSize: 13, fontWeight: 500,
+                    border: 'none', background: 'none', cursor: 'pointer',
+                    borderBottom: `2px solid ${tab === t.key ? 'var(--adm-accent)' : 'transparent'}`,
+                    color: tab === t.key ? 'var(--adm-text-1)' : 'var(--adm-text-2)',
+                    marginBottom: -1, display: 'flex', alignItems: 'center', gap: 6, transition: 'color 0.12s',
+                  }}>
             {t.label}
+            <span style={{ fontSize: 11, color: 'var(--adm-text-3)', background: 'var(--adm-surface-2)', padding: '1px 6px', borderRadius: 10 }}>
+              {t.count}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* ── Rangs Staff ── */}
+      {/* ── STAFF RANKS ── */}
       {tab === 'staff' && (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {editingS && (
-            <div className="bg-white border border-[#DBCAA8] rounded-xl p-6 space-y-5">
-              <h2 className="font-display font-bold text-[#1A3D2B] text-base">
+            <div className="adm-card" style={{ padding: 20 }}>
+              <div style={{ fontWeight: 600, color: 'var(--adm-text-1)', marginBottom: 16 }}>
                 {editingS === 'new' ? 'Nouveau rang staff' : 'Modifier le rang'}
-              </h2>
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-1">
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Nom *</label>
-                  <input className="input w-full" value={formS.name}
-                         onChange={e => setFormS(p => ({ ...p, name: e.target.value }))}
-                         placeholder="Modérateur" />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Nom *</label>
+                  <input className="adm-input" value={formS.name} onChange={e => setFormS(p => ({ ...p, name: e.target.value }))} placeholder="Modérateur" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Badge emoji</label>
-                  <input className="input w-full text-xl" value={formS.badge}
-                         onChange={e => setFormS(p => ({ ...p, badge: e.target.value }))}
-                         placeholder="🛡️" maxLength={4} />
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Badge emoji</label>
+                  <input className="adm-input" style={{ fontSize: 18 }} value={formS.badge} onChange={e => setFormS(p => ({ ...p, badge: e.target.value }))} placeholder="🛡️" maxLength={4} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Couleur</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={formS.color}
-                           onChange={e => setFormS(p => ({ ...p, color: e.target.value }))}
-                           className="w-10 h-10 rounded-lg border border-[#DBCAA8] cursor-pointer" />
-                    <input className="input flex-1 font-mono text-sm" value={formS.color}
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Niveau</label>
+                  <input type="number" className="adm-input" value={formS.level} min={0} max={10}
+                         onChange={e => setFormS(p => ({ ...p, level: parseInt(e.target.value) || 0 }))} />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Couleur</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="color" value={formS.color} onChange={e => setFormS(p => ({ ...p, color: e.target.value }))}
+                           style={{ width: 36, height: 36, borderRadius: 6, border: '1px solid var(--adm-border)', cursor: 'pointer', background: 'none', padding: 2 }} />
+                    <input className="adm-input" style={{ fontFamily: 'monospace', flex: 1 }} value={formS.color}
                            onChange={e => setFormS(p => ({ ...p, color: e.target.value }))} />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Niveau (hiérarchie)</label>
-                  <input type="number" className="input w-full" value={formS.level}
-                         onChange={e => setFormS(p => ({ ...p, level: parseInt(e.target.value) || 0 }))}
-                         min={0} max={10} />
-                  <p className="text-[10px] text-[#9AB09A] mt-1">Plus élevé = plus de droits</p>
                 </div>
               </div>
 
               {/* Permissions */}
-              <div>
-                <p className="text-xs font-semibold text-[#6B8C6A] mb-3">Permissions</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Permissions</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 6 }}>
                   {PERM_LABELS.map(({ key, label }) => (
-                    <label key={key} className="flex items-center gap-2 cursor-pointer p-2.5 rounded-lg
-                                                border border-[#DBCAA8] hover:bg-[#F2E8D5] transition-colors">
-                      <input type="checkbox" className="w-4 h-4 accent-[#1A3D2B]"
+                    <label key={key} className="adm-card"
+                           style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                      <input type="checkbox" style={{ accentColor: 'var(--adm-accent)', width: 13, height: 13 }}
                              checked={!!(formS as Record<string, unknown>)[key]}
                              onChange={e => setFormS(p => ({ ...p, [key]: e.target.checked }))} />
-                      <span className="text-xs text-[#1A3D2B]">{label}</span>
+                      <span style={{ fontSize: 12, color: 'var(--adm-text-1)' }}>{label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <button onClick={saveStaffRank} disabled={saving}
-                        className="btn-primary flex items-center gap-2 text-sm">
-                  <Check size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={saveStaffRank} disabled={saving} className="adm-btn adm-btn-primary">
+                  <Check size={12} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
-                <button onClick={() => { setEditingS(null); setFormS(STAFF_INIT) }}
-                        className="btn-secondary flex items-center gap-2 text-sm">
-                  <X size={14} /> Annuler
+                <button onClick={() => { setEditingS(null); setFormS(STAFF_INIT) }} className="adm-btn adm-btn-ghost">
+                  <X size={12} /> Annuler
                 </button>
               </div>
             </div>
           )}
 
-          <div className="space-y-2">
-            {ranks.map(r => (
-              <div key={r.id}
-                   className="bg-white border border-[#DBCAA8] rounded-xl px-5 py-4 flex items-center gap-4"
-                   style={{ borderLeft: `4px solid ${r.color}` }}>
-                <div className="text-2xl flex-shrink-0">{r.badge ?? '👤'}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm text-[#1A3D2B]">{r.name}</span>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: `${r.color}15`, color: r.color }}>
-                      Niveau {r.level}
-                    </span>
+          {ranks.length === 0 && !editingS ? (
+            <AdminEmptyState icon="🛡️" title="Aucun rang staff" action={{ label: 'Créer un rang', onClick: () => startEditStaff() }} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {ranks.map(r => {
+                const permCount = PERM_LABELS.filter(({ key }) => !!(r as Record<string, unknown>)[key]).length
+                return (
+                  <div key={r.id} className="adm-card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderLeft: `3px solid ${r.color}` }}>
+                    <div style={{ fontSize: 20, flexShrink: 0 }}>{r.badge ?? '👤'}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                        <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--adm-text-1)' }}>{r.name}</span>
+                        <span className="adm-badge" style={{ background: `${r.color}20`, color: r.color, fontSize: 10 }}>
+                          Niveau {r.level}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--adm-text-3)', display: 'flex', gap: 10 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Users size={9} /> {r._count.users} admin{r._count.users !== 1 ? 's' : ''}</span>
+                        <span>{permCount} permission{permCount !== 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => startEditStaff(r)} className="adm-btn adm-btn-ghost adm-btn-sm"><Pencil size={12} /></button>
+                      <button onClick={() => deleteRank(r.id, 'staff')} className="adm-btn adm-btn-danger adm-btn-sm"><Trash2 size={12} /></button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-[#9AB09A] mt-0.5">
-                    <span className="flex items-center gap-1"><Users size={10} /> {r._count.users} admin{r._count.users !== 1 ? 's' : ''}</span>
-                    <span>{Object.entries(r).filter(([k, v]) => k.startsWith('can') && v).length} permission{Object.entries(r).filter(([k, v]) => k.startsWith('can') && v).length !== 1 ? 's' : ''}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => startEditStaff(r)}
-                          className="p-1.5 hover:bg-[#F2E8D5] rounded-lg text-[#6B8C6A] hover:text-[#1A3D2B]">
-                    <Pencil size={14} />
-                  </button>
-                  <button onClick={() => deleteRank(r.id, 'staff')}
-                          className="p-1.5 hover:bg-red-50 rounded-lg text-[#9AB09A] hover:text-red-500">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── Rangs In-game ── */}
+      {/* ── PLAYER RANKS ── */}
       {tab === 'ingame' && (
-        <div className="space-y-4">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {editingP && (
-            <div className="bg-white border border-[#DBCAA8] rounded-xl p-6 space-y-4">
-              <h2 className="font-display font-bold text-[#1A3D2B] text-base">
+            <div className="adm-card" style={{ padding: 20 }}>
+              <div style={{ fontWeight: 600, color: 'var(--adm-text-1)', marginBottom: 16 }}>
                 {editingP === 'new' ? 'Nouveau rang in-game' : 'Modifier le rang'}
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Nom *</label>
-                  <input className="input w-full" value={formP.name}
-                         onChange={e => setFormP(p => ({ ...p, name: e.target.value }))}
-                         placeholder="VIP, Vétéran, Fondateur…" />
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Nom *</label>
+                  <input className="adm-input" value={formP.name} onChange={e => setFormP(p => ({ ...p, name: e.target.value }))} placeholder="VIP, Vétéran…" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Badge emoji</label>
-                  <input className="input w-full text-xl" value={formP.badge}
-                         onChange={e => setFormP(p => ({ ...p, badge: e.target.value }))}
-                         placeholder="⭐" maxLength={4} />
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Badge emoji</label>
+                  <input className="adm-input" style={{ fontSize: 18 }} value={formP.badge} onChange={e => setFormP(p => ({ ...p, badge: e.target.value }))} placeholder="⭐" maxLength={4} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Couleur</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={formP.color}
-                           onChange={e => setFormP(p => ({ ...p, color: e.target.value }))}
-                           className="w-10 h-10 rounded-lg border border-[#DBCAA8] cursor-pointer" />
-                    <input className="input flex-1 font-mono text-sm" value={formP.color}
-                           onChange={e => setFormP(p => ({ ...p, color: e.target.value }))} />
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Couleur</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input type="color" value={formP.color} onChange={e => setFormP(p => ({ ...p, color: e.target.value }))}
+                           style={{ width: 36, height: 36, borderRadius: 6, border: '1px solid var(--adm-border)', cursor: 'pointer', background: 'none', padding: 2 }} />
+                    <input className="adm-input" style={{ fontFamily: 'monospace', flex: 1 }} value={formP.color} onChange={e => setFormP(p => ({ ...p, color: e.target.value }))} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Ordre</label>
-                  <input type="number" className="input w-full" value={formP.order}
-                         onChange={e => setFormP(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} min={0} />
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Ordre</label>
+                  <input type="number" className="adm-input" value={formP.order} min={0}
+                         onChange={e => setFormP(p => ({ ...p, order: parseInt(e.target.value) || 0 }))} />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Description</label>
-                  <input className="input w-full" value={formP.description}
-                         onChange={e => setFormP(p => ({ ...p, description: e.target.value }))}
-                         placeholder="Description affichée sur le profil" />
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Description</label>
+                  <input className="adm-input" value={formP.description} onChange={e => setFormP(p => ({ ...p, description: e.target.value }))} placeholder="Affiché sur le profil joueur" />
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <button onClick={savePlayerRank} disabled={saving}
-                        className="btn-primary flex items-center gap-2 text-sm">
-                  <Check size={14} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={savePlayerRank} disabled={saving} className="adm-btn adm-btn-primary">
+                  <Check size={12} /> {saving ? 'Enregistrement…' : 'Enregistrer'}
                 </button>
-                <button onClick={() => { setEditingP(null); setFormP(PLAYER_INIT) }}
-                        className="btn-secondary flex items-center gap-2 text-sm">
-                  <X size={14} /> Annuler
+                <button onClick={() => { setEditingP(null); setFormP(PLAYER_INIT) }} className="adm-btn adm-btn-ghost">
+                  <X size={12} /> Annuler
                 </button>
               </div>
             </div>
           )}
 
-          <div className="space-y-2">
-            {playerRanks.map(r => (
-              <div key={r.id}
-                   className="bg-white border border-[#DBCAA8] rounded-xl px-5 py-4 flex items-center gap-4"
-                   style={{ borderLeft: `4px solid ${r.color}` }}>
-                <div className="text-2xl flex-shrink-0">{r.badge ?? '⭐'}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-[#1A3D2B]">{r.name}</span>
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: `${r.color}15`, color: r.color }}>
-                      {r.color}
-                    </span>
+          {playerRanks.length === 0 && !editingP ? (
+            <AdminEmptyState icon="⭐" title="Aucun rang in-game" action={{ label: 'Créer un rang', onClick: () => startEditPlayer() }} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {playerRanks.map(r => (
+                <div key={r.id} className="adm-card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderLeft: `3px solid ${r.color}` }}>
+                  <div style={{ fontSize: 20, flexShrink: 0 }}>{r.badge ?? '⭐'}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                      <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--adm-text-1)' }}>{r.name}</span>
+                      <span className="adm-badge" style={{ background: `${r.color}20`, color: r.color, fontFamily: 'monospace', fontSize: 10 }}>{r.color}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--adm-text-3)', display: 'flex', gap: 10 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Users size={9} /> {r._count.users} joueur{r._count.users !== 1 ? 's' : ''}</span>
+                      {r.description && <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>{r.description}</span>}
+                    </div>
                   </div>
-                  <div className="text-xs text-[#9AB09A] mt-0.5 flex items-center gap-3">
-                    <span className="flex items-center gap-1"><Users size={10} /> {r._count.users} joueur{r._count.users !== 1 ? 's' : ''}</span>
-                    {r.description && <span className="truncate max-w-[200px]">{r.description}</span>}
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button onClick={() => startEditPlayer(r)} className="adm-btn adm-btn-ghost adm-btn-sm"><Pencil size={12} /></button>
+                    <button onClick={() => deleteRank(r.id, 'player')} className="adm-btn adm-btn-danger adm-btn-sm"><Trash2 size={12} /></button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => startEditPlayer(r)}
-                          className="p-1.5 hover:bg-[#F2E8D5] rounded-lg text-[#6B8C6A] hover:text-[#1A3D2B]">
-                    <Pencil size={14} />
-                  </button>
-                  <button onClick={() => deleteRank(r.id, 'player')}
-                          className="p-1.5 hover:bg-red-50 rounded-lg text-[#9AB09A] hover:text-red-500">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

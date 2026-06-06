@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Edit, Trash2, Users } from 'lucide-react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { ActiveBadge } from '@/components/admin/AdminBadge'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 
 interface StaffMember {
   id: string; name: string; role: string; description: string | null
@@ -32,16 +34,19 @@ export default function AdminStaffPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const url = editing ? `/api/staff/${editing}` : '/api/staff'
-    const method = editing ? 'PATCH' : 'POST'
     const res = await fetch(url, {
-      method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form),
+      method: editing ? 'PATCH' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
     })
-    if (res.ok) { toast.success(editing ? 'Mis à jour' : 'Créé'); setShowForm(false); setEditing(null); setForm(INIT); load() }
-    else toast.error('Erreur')
+    if (res.ok) {
+      toast.success(editing ? 'Mis à jour' : 'Créé')
+      setShowForm(false); setEditing(null); setForm(INIT); load()
+    } else toast.error('Erreur')
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Supprimer ?')) return
+    if (!confirm('Supprimer ce membre du staff ?')) return
     await fetch(`/api/staff/${id}`, { method: 'DELETE' })
     toast.success('Supprimé'); load()
   }
@@ -52,83 +57,95 @@ export default function AdminStaffPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display font-bold text-2xl text-[#E8F5EE] flex items-center gap-2">
-          <Users size={22} /> Staff
-        </h1>
+    <div>
+      <div className="adm-page-header">
+        <div>
+          <h1 className="adm-page-title">Staff</h1>
+          <p className="adm-page-subtitle">{members.length} membre{members.length !== 1 ? 's' : ''}</p>
+        </div>
         <button onClick={() => { setShowForm(true); setEditing(null); setForm(INIT) }}
-                className="flex items-center gap-2 bg-[#3A7A52] hover:bg-[#2D6A4F] text-white px-4 py-2 rounded-xl text-sm font-semibold">
-          <Plus size={16} /> Ajouter un membre
+                className="adm-btn adm-btn-primary">
+          <Plus size={13} /> Ajouter un membre
         </button>
       </div>
 
+      {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[#111F18] border border-[rgba(82,183,136,0.15)] rounded-xl p-6 space-y-4">
-          <h2 className="font-semibold text-[#E8F5EE]">{editing ? 'Modifier' : 'Nouveau membre'}</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Pseudo</label>
-              <input className="input w-full" value={form.name} onChange={e => f('name', e.target.value)} required />
-            </div>
-            <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Rôle</label>
-              <input className="input w-full" value={form.role} onChange={e => f('role', e.target.value)} placeholder="Fondateur, Admin…" required />
-            </div>
+        <form onSubmit={handleSubmit} className="adm-card" style={{ padding: 20, marginBottom: 20 }}>
+          <div style={{ fontWeight: 600, color: 'var(--adm-text-1)', marginBottom: 16 }}>
+            {editing ? 'Modifier le membre' : 'Nouveau membre staff'}
           </div>
-          <div>
-            <label className="text-xs text-[#9DC4AD] mb-1 block">Description</label>
-            <textarea className="input w-full" rows={2} value={form.description} onChange={e => f('description', e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Avatar (URL)</label>
-              <input className="input w-full" value={form.avatar} onChange={e => f('avatar', e.target.value)} />
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Pseudo</label>
+              <input className="adm-input" value={form.name} onChange={e => f('name', e.target.value)} required />
             </div>
             <div>
-              <label className="text-xs text-[#9DC4AD] mb-1 block">Discord ID</label>
-              <input className="input w-full font-mono" value={form.discordId} onChange={e => f('discordId', e.target.value)} />
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rôle</label>
+              <input className="adm-input" value={form.role} onChange={e => f('role', e.target.value)} placeholder="Fondateur, Admin…" required />
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="active" checked={form.active} onChange={e => f('active', e.target.checked)} />
-              <label htmlFor="active" className="text-sm text-[#9DC4AD]">Actif</label>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Description</label>
+            <textarea className="adm-input" rows={2} value={form.description} onChange={e => f('description', e.target.value)} style={{ resize: 'vertical' }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Avatar (URL)</label>
+              <input className="adm-input" value={form.avatar} onChange={e => f('avatar', e.target.value)} />
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-[#9DC4AD]">Ordre</label>
-              <input type="number" className="input w-20" value={form.order} onChange={e => f('order', parseInt(e.target.value))} />
+            <div>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discord ID</label>
+              <input className="adm-input" style={{ fontFamily: 'monospace' }} value={form.discordId} onChange={e => f('discordId', e.target.value)} />
             </div>
           </div>
-          <div className="flex gap-3">
-            <button type="submit" className="bg-[#3A7A52] text-white px-6 py-2 rounded-xl text-sm font-semibold">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--adm-text-2)', cursor: 'pointer' }}>
+              <input type="checkbox" checked={form.active} onChange={e => f('active', e.target.checked)}
+                     style={{ accentColor: 'var(--adm-accent)' }} />
+              Actif
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--adm-text-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Ordre</label>
+              <input type="number" className="adm-input" style={{ width: 70 }}
+                     value={form.order} onChange={e => f('order', parseInt(e.target.value))} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" className="adm-btn adm-btn-primary">
               {editing ? 'Mettre à jour' : 'Créer'}
             </button>
             <button type="button" onClick={() => { setShowForm(false); setEditing(null) }}
-                    className="text-[#9DC4AD] hover:text-[#E8F5EE] px-4 py-2 text-sm">Annuler</button>
+                    className="adm-btn adm-btn-ghost">Annuler</button>
           </div>
         </form>
       )}
 
       {loading ? (
-        <div className="text-[#9DC4AD] text-center py-8">Chargement…</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {[1, 2, 3, 4].map(i => <div key={i} className="adm-skeleton" style={{ height: 70, borderRadius: 8 }} />)}
+        </div>
       ) : members.length === 0 ? (
-        <div className="text-center text-[#9DC4AD] py-12">Aucun membre staff.</div>
+        <AdminEmptyState icon="👥" title="Aucun membre staff" desc="Ajoutez les membres de votre équipe." action={{ label: 'Ajouter un membre', onClick: () => setShowForm(true) }} />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
           {members.map(m => (
-            <div key={m.id} className="bg-[#111F18] border border-[rgba(82,183,136,0.1)] rounded-xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[rgba(82,183,136,0.1)] flex items-center justify-center font-bold text-[#52B788] flex-shrink-0">
-                {m.name.charAt(0)}
+            <div key={m.id} className="adm-card" style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%', background: 'var(--adm-surface-2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, fontSize: 14, color: 'var(--adm-accent)', flexShrink: 0,
+              }}>
+                {m.name.charAt(0).toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#E8F5EE]">{m.name}</p>
-                <p className="text-xs text-[#52B788]">{m.role}</p>
-                {!m.active && <span className="text-[10px] text-[#5A8A6A]">Inactif</span>}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--adm-text-1)' }}>{m.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--adm-accent)', marginTop: 1 }}>{m.role}</div>
+                {!m.active && <ActiveBadge active={false} />}
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => startEdit(m)} className="p-2 text-[#5A8A6A] hover:text-[#52B788]"><Edit size={15} /></button>
-                <button onClick={() => handleDelete(m.id)} className="p-2 text-[#5A8A6A] hover:text-red-400"><Trash2 size={15} /></button>
+              <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                <button onClick={() => startEdit(m)} className="adm-btn adm-btn-ghost adm-btn-sm"><Edit size={12} /></button>
+                <button onClick={() => handleDelete(m.id)} className="adm-btn adm-btn-danger adm-btn-sm"><Trash2 size={12} /></button>
               </div>
             </div>
           ))}

@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
-import { Plus, Edit, Trash2, Eye, EyeOff, Pin } from 'lucide-react'
+import { Plus, Edit, Pin } from 'lucide-react'
 import { DeleteButton } from '@/components/admin/DeleteButton'
+import { PublishedBadge, AdminBadge } from '@/components/admin/AdminBadge'
+import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 
 export const revalidate = 0
 
@@ -13,84 +15,68 @@ export default async function AdminArticlesPage() {
   })
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="adm-page-header">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#E8F5EE]">Articles</h1>
-          <p className="text-[#9DC4AD] text-sm">{articles.length} articles au total</p>
+          <h1 className="adm-page-title">Articles</h1>
+          <p className="adm-page-subtitle">{articles.length} article{articles.length !== 1 ? 's' : ''} au total</p>
         </div>
-        <Link href="/admin/articles/new" className="btn-primary">
-          <Plus size={16} />
-          Nouvel article
+        <Link href="/admin/articles/new" className="adm-btn adm-btn-primary" style={{ textDecoration: 'none' }}>
+          <Plus size={14} /> Nouvel article
         </Link>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      {articles.length === 0 ? (
+        <AdminEmptyState
+          icon="📰"
+          title="Aucun article"
+          desc="Rédigez votre premier article pour informer la communauté."
+          action={{ label: 'Nouvel article', href: '/admin/articles/new' }}
+        />
+      ) : (
+        <div className="adm-table-wrap">
+          <table className="adm-table">
             <thead>
-              <tr className="border-b border-[rgba(82,183,136,0.1)] bg-[rgba(82,183,136,0.04)]">
-                <th className="text-left px-5 py-3 text-[#9DC4AD] font-medium text-xs uppercase tracking-wide">Titre</th>
-                <th className="text-left px-5 py-3 text-[#9DC4AD] font-medium text-xs uppercase tracking-wide hidden md:table-cell">Catégorie</th>
-                <th className="text-left px-5 py-3 text-[#9DC4AD] font-medium text-xs uppercase tracking-wide hidden lg:table-cell">Auteur</th>
-                <th className="text-left px-5 py-3 text-[#9DC4AD] font-medium text-xs uppercase tracking-wide hidden lg:table-cell">Date</th>
-                <th className="text-left px-5 py-3 text-[#9DC4AD] font-medium text-xs uppercase tracking-wide">Statut</th>
-                <th className="px-5 py-3" />
+              <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Auteur</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th style={{ width: 80 }} />
               </tr>
             </thead>
             <tbody>
-              {articles.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-10 text-[#5A8A6A]">
-                    Aucun article. Créez votre premier article !
+              {articles.map(article => (
+                <tr key={article.id}>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {article.pinned && (
+                        <Pin size={11} style={{ color: 'var(--adm-gold)', flexShrink: 0 }} />
+                      )}
+                      <span style={{ fontWeight: 500, color: 'var(--adm-text-1)' }}>{article.title}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <AdminBadge variant="blue">{article.category}</AdminBadge>
+                  </td>
+                  <td style={{ color: 'var(--adm-text-2)' }}>{article.author.name}</td>
+                  <td style={{ color: 'var(--adm-text-3)' }}>{formatDate(article.createdAt)}</td>
+                  <td><PublishedBadge published={article.published} /></td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                      <Link href={`/admin/articles/${article.id}`} className="adm-btn adm-btn-ghost adm-btn-sm">
+                        <Edit size={13} />
+                      </Link>
+                      <DeleteButton id={article.id} endpoint="/api/articles" />
+                    </div>
                   </td>
                 </tr>
-              ) : (
-                articles.map((article) => (
-                  <tr
-                    key={article.id}
-                    className="border-b border-[rgba(82,183,136,0.06)] hover:bg-[rgba(82,183,136,0.03)] transition-colors"
-                  >
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2">
-                        {article.pinned && <Pin size={12} className="text-[#D4A017] flex-shrink-0" />}
-                        <span className="text-[#E8F5EE] font-medium line-clamp-1">{article.title}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3.5 hidden md:table-cell">
-                      <span className="badge-green text-[10px]">{article.category}</span>
-                    </td>
-                    <td className="px-5 py-3.5 text-[#9DC4AD] hidden lg:table-cell">{article.author.name}</td>
-                    <td className="px-5 py-3.5 text-[#5A8A6A] hidden lg:table-cell">{formatDate(article.createdAt)}</td>
-                    <td className="px-5 py-3.5">
-                      {article.published ? (
-                        <span className="flex items-center gap-1 text-[#52B788] text-xs font-medium">
-                          <Eye size={12} /> Publié
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-[#5A8A6A] text-xs font-medium">
-                          <EyeOff size={12} /> Brouillon
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-2 justify-end">
-                        <Link
-                          href={`/admin/articles/${article.id}`}
-                          className="p-1.5 rounded-lg text-[#9DC4AD] hover:text-[#52B788] hover:bg-[rgba(82,183,136,0.08)] transition-colors"
-                        >
-                          <Edit size={14} />
-                        </Link>
-                        <DeleteButton id={article.id} endpoint="/api/articles" />
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
     </div>
   )
 }
