@@ -211,7 +211,7 @@ export default function AdminRangsPage() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {ranks.map(r => {
-                const permCount = PERM_LABELS.filter(({ key }) => !!(r as Record<string, unknown>)[key]).length
+                const permCount = PERM_LABELS.filter(({ key }) => !!(r as unknown as Record<string, unknown>)[key]).length
                 return (
                   <div key={r.id} className="adm-card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, borderLeft: `3px solid ${r.color}` }}>
                     <div style={{ fontSize: 20, flexShrink: 0 }}>{r.badge ?? '👤'}</div>
