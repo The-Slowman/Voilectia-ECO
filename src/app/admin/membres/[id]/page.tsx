@@ -67,7 +67,7 @@ function initials(name: string) {
 }
 
 /* ─── Composants ─────────────────────────────────────────── */
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+function InfoRow({ label, value }: { label: React.ReactNode; value: React.ReactNode }) {
   return (
     <div className="adm-info-row">
       <span className="adm-info-key">{label}</span>
