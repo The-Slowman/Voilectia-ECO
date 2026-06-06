@@ -10,9 +10,31 @@ import { formatDate } from '@/lib/utils'
 import { ArticleCard } from '@/components/ui/ArticleCard'
 import { ChangelogCard } from '@/components/ui/ChangelogCard'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://voilectia.fr'
+
 export const metadata: Metadata = {
   title: 'Voilectia ECO — Serveur Semi-RP Chill Français',
   description: 'Rejoignez Voilectia, serveur Eco Semi-RP Chill français — Économie VLC, villes vivantes, coopération et constructions. Communauté mature et bienveillante.',
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    url: SITE_URL,
+    title: 'Voilectia ECO — Serveur Semi-RP Chill Français',
+    description: 'Rejoignez Voilectia, serveur Eco Semi-RP Chill français — Économie VLC, villes vivantes, coopération et constructions.',
+    images: [{ url: `${SITE_URL}/images/og-default.jpg`, width: 1200, height: 630, alt: 'Voilectia ECO' }],
+  },
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Voilectia ECO',
+  url: SITE_URL,
+  description: 'Serveur Eco français Semi-RP Chill — Économie VLC, villes vivantes, coopération et constructions.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/forum/recherche?q={search_term_string}` },
+    'query-input': 'required name=search_term_string',
+  },
 }
 
 export const revalidate = 60
@@ -53,6 +75,11 @@ export default async function HomePage() {
   const { articles, changelogs, events } = await getHomeData()
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     <div>
 
       {/* ══════════════════════════════════════════════════════
@@ -395,5 +422,6 @@ export default async function HomePage() {
       </section>
 
     </div>
+    </>
   )
 }

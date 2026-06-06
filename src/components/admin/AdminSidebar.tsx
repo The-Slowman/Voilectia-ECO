@@ -7,39 +7,45 @@ import {
   LayoutDashboard, FileText, RefreshCw, BookOpen, Calendar,
   Building2, Shield, HelpCircle, Users, Image as ImageIcon,
   Settings, ChevronRight, MessageSquare, Lightbulb, ClipboardList,
-  UserPlus, Award, FileCode, GraduationCap, Briefcase
+  UserPlus, Award, FileCode, GraduationCap, Briefcase, Gift,
+  Server, TrendingUp, ScrollText, Mail
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
   { section: 'Tableau de bord', items: [
     { label: 'Dashboard',     href: '/admin',                icon: <LayoutDashboard size={16} /> },
+    { label: 'Messages',      href: '/admin/messages',       icon: <Mail size={16} /> },
+    { label: 'Journal admin', href: '/admin/audit',          icon: <ScrollText size={16} /> },
   ]},
   { section: 'Contenu', items: [
     { label: 'Articles',      href: '/admin/articles',       icon: <FileText size={16} /> },
     { label: 'Changelog',     href: '/admin/changelog',      icon: <RefreshCw size={16} /> },
     { label: 'Guides',        href: '/admin/guides',         icon: <BookOpen size={16} /> },
     { label: 'Événements',    href: '/admin/evenements',     icon: <Calendar size={16} /> },
+    { label: 'Tutoriels',     href: '/admin/tutoriels',      icon: <GraduationCap size={16} /> },
+    { label: 'FAQ',           href: '/admin/faq',            icon: <HelpCircle size={16} /> },
+    { label: 'Règlement',     href: '/admin/reglement',      icon: <Shield size={16} /> },
+    { label: 'Éditer les pages', href: '/admin/contenus',    icon: <FileText size={16} /> },
   ]},
   { section: 'Communauté', items: [
+    { label: 'Membres',       href: '/admin/membres',        icon: <Users size={16} /> },
     { label: 'Forum',         href: '/admin/forum',          icon: <MessageSquare size={16} /> },
     { label: 'Suggestions',   href: '/admin/suggestions',    icon: <Lightbulb size={16} /> },
-    { label: 'Villes',        href: '/admin/villes',         icon: <Building2 size={16} /> },
-    { label: 'Recrutement',   href: '/admin/recrutement',    icon: <UserPlus size={16} /> },
     { label: 'Sondages',      href: '/admin/sondage',        icon: <ClipboardList size={16} /> },
-    { label: 'Tutoriels',     href: '/admin/tutoriels',      icon: <GraduationCap size={16} /> },
-    { label: 'Membres',       href: '/admin/membres',        icon: <Users size={16} /> },
+    { label: 'Recrutement',   href: '/admin/recrutement',    icon: <UserPlus size={16} /> },
+    { label: 'Giveaways',     href: '/admin/giveaways',      icon: <Gift size={16} /> },
+  ]},
+  { section: 'Jeu & Serveur', items: [
+    { label: 'Config serveur', href: '/admin/serveur',       icon: <Server size={16} /> },
+    { label: 'Progression',   href: '/admin/progression',    icon: <TrendingUp size={16} /> },
+    { label: 'Villes',        href: '/admin/villes',         icon: <Building2 size={16} /> },
+    { label: 'Staff',         href: '/admin/staff',          icon: <Shield size={16} /> },
     { label: 'Métiers',       href: '/admin/jobs',           icon: <Briefcase size={16} /> },
     { label: 'Rangs',         href: '/admin/rangs',          icon: <Award size={16} /> },
-    { label: 'Pages & Nav',   href: '/admin/pages',          icon: <FileCode size={16} /> },
-    { label: 'Règlement',     href: '/admin/reglement',      icon: <Shield size={16} /> },
-    { label: 'FAQ',           href: '/admin/faq',            icon: <HelpCircle size={16} /> },
-    { label: 'Staff',         href: '/admin/staff',          icon: <Users size={16} /> },
-  ]},
-  { section: 'Contenu des pages', items: [
-    { label: 'Éditer les pages',  href: '/admin/contenus',      icon: <FileText size={16} /> },
   ]},
   { section: 'Système', items: [
+    { label: 'Pages & Nav',   href: '/admin/pages',          icon: <FileCode size={16} /> },
     { label: 'Médias',        href: '/admin/medias',         icon: <ImageIcon size={16} /> },
     { label: 'Paramètres',    href: '/admin/parametres',     icon: <Settings size={16} /> },
   ]},

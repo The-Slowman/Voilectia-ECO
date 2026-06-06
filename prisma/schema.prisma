@@ -867,4 +867,96 @@ model PageContent {
   @@map("page_contents")
 }
 
+// ─── Configuration du serveur Eco ────────────────────────────
+
+model ServerConfig {
+  id          String   @id @default("singleton")
+  worldSize   String   @default("4km")        // "4km" | "8km" | "12km"
+  difficulty  String   @default("Normal")     // "Easy" | "Normal" | "Hard"
+  xpRate      String   @default("x1")
+  specialties Int      @default(5)            // nb de spécialités par joueur
+  currency    String   @default("VLC")
+  season      String   @default("S1")
+  serverIp    String?
+  serverPort  String?
+  maxPlayers  Int?
+  modpack     String?
+  description String?  @db.Text
+  startDate   DateTime?
+  endDate     DateTime?
+  updatedAt   DateTime @updatedAt
+
+  progressions JobProgression[]
+
+  @@map("server_config")
+}
+
+model JobProgression {
+  id             String       @id @default(cuid())
+  configId       String
+  config         ServerConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  jobName        String       // "Mécanique", "Industrie", "Pétrole", "Électronique"…
+  unlockDay      Int          // Jour de déblocage
+  description    String?
+  icon           String?      // emoji
+  color          String       @default("#3A7A52")
+  order          Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@map("job_progressions")
+}
+
+// ─── Giveaways ────────────────────────────────────────────────
+
+model Giveaway {
+  id          String          @id @default(cuid())
+  title       String
+  description String          @db.Text
+  prize       String          // Quoi gagner
+  image       String?
+  endDate     DateTime
+  published   Boolean         @default(false)
+  ended       Boolean         @default(false)
+  winnerId    String?
+  winnerName  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  entries     GiveawayEntry[]
+
+  @@map("giveaways")
+}
+
+model GiveawayEntry {
+  id          String   @id @default(cuid())
+  giveawayId  String
+  giveaway    Giveaway @relation(fields: [giveawayId], references: [id], onDelete: Cascade)
+  playerName  String
+  discordTag  String?
+  email       String?
+  createdAt   DateTime @default(now())
+
+  @@unique([giveawayId, email])
+  @@map("giveaway_entries")
+}
+
+// ─── Journal admin (AuditLog) ─────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  userName  String
+  action    String   // "CREATE" | "UPDATE" | "DELETE" | "BAN" | "LOGIN"
+  resource  String   // "article" | "user" | "city"…
+  resourceId String?
+  detail    String?  @db.Text
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
 // Pages personnalisees

@@ -66,11 +66,16 @@ const ALWAYS_ALLOWED = [
 
 // Mapping section → préfixe URL
 const SECTION_PREFIXES: Record<string, string> = {
-  'forum':       '/forum',
-  'tutoriels':   '/tutoriels',
-  'top-serveur': '/top-serveur',
-  'sondage':     '/sondage',
-  'recrutement': '/recrutement',
+  'forum':        '/forum',
+  'tutoriels':    '/tutoriels',
+  'top-serveur':  '/top-serveur',
+  'sondage':      '/sondage',
+  'recrutement':  '/recrutement',
+  'giveaways':    '/giveaways',
+  'guides':       '/guides',
+  'changelog':    '/changelog',
+  'evenements':   '/evenements',
+  'villes':       '/villes',
 }
 
 // ── Limites rate limiting ──────────────────────────────────

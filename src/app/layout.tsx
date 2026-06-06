@@ -9,38 +9,48 @@ const inter = Inter({
   display: 'swap',
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://voilectia.fr'
+const OG_IMAGE = `${SITE_URL}/images/og-default.jpg`
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXTAUTH_URL || 'https://voilectia.fr'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default:  'Voilectia ECO — Serveur Semi-RP Chill',
-    template: '%s | Voilectia ECO',
+    default:  'Voilectia ECO — Serveur Semi-RP Chill Français',
+    template: '%s — Voilectia ECO',
   },
   description:
-    'Serveur Eco français Semi-RP Chill — Économie, Coopération, Villes & Constructions. Rejoignez une communauté mature et bienveillante.',
-  keywords: ['Eco', 'serveur', 'Semi-RP', 'Chill', 'Voilectia', 'VLC', 'coopération', 'économie'],
-  authors: [{ name: 'Voilectia' }],
+    'Serveur Eco français Semi-RP Chill — Économie VLC, villes vivantes, coopération et constructions. Communauté mature et bienveillante.',
+  keywords: [
+    'Eco', 'serveur eco', 'Semi-RP', 'chill', 'Voilectia', 'VLC', 'coopération',
+    'économie', 'villes', 'construction', 'serveur français', 'eco game',
+  ],
+  authors: [{ name: 'Voilectia', url: SITE_URL }],
+  creator:   'Voilectia',
+  publisher: 'Voilectia',
   openGraph: {
     type:        'website',
     locale:      'fr_FR',
+    url:         SITE_URL,
     siteName:    'Voilectia ECO',
-    title:       'Voilectia ECO — Serveur Semi-RP Chill',
-    description: 'Serveur Eco français Semi-RP Chill — Économie, Coopération, Villes & Constructions.',
-    images: [{ url: '/images/og-default.jpg', width: 1200, height: 630 }],
+    title:       'Voilectia ECO — Serveur Semi-RP Chill Français',
+    description: 'Serveur Eco français Semi-RP Chill — Économie VLC, villes vivantes, coopération et constructions.',
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: 'Voilectia ECO' }],
   },
   twitter: {
     card:        'summary_large_image',
-    title:       'Voilectia ECO',
-    description: 'Serveur Eco français Semi-RP Chill',
-    images:      ['/images/og-default.jpg'],
+    site:        '@voilectia',
+    title:       'Voilectia ECO — Serveur Semi-RP Chill',
+    description: 'Serveur Eco français — Économie, coopération, villes vivantes.',
+    images:      [OG_IMAGE],
   },
-  robots: {
-    index:  true,
-    follow: true,
-  },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   icons: {
     icon:  '/images/favicon.ico',
     apple: '/images/apple-touch-icon.png',
+    shortcut: '/images/favicon.ico',
   },
+  alternates: { canonical: SITE_URL },
+  category: 'gaming',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
