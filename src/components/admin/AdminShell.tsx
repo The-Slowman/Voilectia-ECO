@@ -78,9 +78,9 @@ export function AdminShell({ user, children }: AdminShellProps) {
         />
         <main
           className="flex-1 overflow-auto"
-          style={{ background: 'var(--adm-bg)', padding: '24px' }}
+          style={{ background: 'var(--adm-bg)', padding: '28px 28px 40px' }}
         >
-          <div className="max-w-[1400px] mx-auto adm-fade-in">
+          <div className="max-w-[1500px] mx-auto adm-fade-in">
             {children}
           </div>
         </main>

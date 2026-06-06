@@ -115,7 +115,7 @@ export default function RejoindreVillePage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">
-                  Pseudo Minecraft *
+                  Pseudo Eco *
                 </label>
                 <input
                   className="input w-full"

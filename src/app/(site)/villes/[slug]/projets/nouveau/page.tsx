@@ -150,7 +150,7 @@ export default function NouveauProjetPage() {
                     className="input w-full"
                     value={form.authorName}
                     onChange={e => f('authorName', e.target.value)}
-                    placeholder="Pseudo Minecraft"
+                    placeholder="Pseudo Eco"
                     maxLength={24}
                   />
                 </div>

@@ -54,7 +54,7 @@ export function CityCommentForm({ announcementId, accentColor }: Props) {
     <form onSubmit={handleSubmit} className="space-y-2 pt-1">
       <input
         className="input w-full text-sm"
-        placeholder="Votre pseudo Minecraft"
+        placeholder="Votre pseudo Eco"
         value={form.authorName}
         onChange={e => setForm(p => ({ ...p, authorName: e.target.value }))}
         maxLength={48}

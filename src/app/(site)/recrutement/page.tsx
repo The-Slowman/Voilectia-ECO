@@ -257,7 +257,7 @@ export default function RecrutementPage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">
-                      Pseudo Minecraft *
+                      Pseudo Eco *
                     </label>
                     <input className="input w-full" value={form.playerName}
                            onChange={e => f('playerName', e.target.value)}

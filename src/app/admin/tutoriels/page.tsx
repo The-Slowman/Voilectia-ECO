@@ -149,7 +149,7 @@ export default function AdminTutorielsPage() {
             <div>
               <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Auteur</label>
               <input className="input w-full" value={form.authorName}
-                     onChange={e => f('authorName', e.target.value)} placeholder="Pseudo Minecraft" />
+                     onChange={e => f('authorName', e.target.value)} placeholder="Pseudo Eco" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Ordre</label>

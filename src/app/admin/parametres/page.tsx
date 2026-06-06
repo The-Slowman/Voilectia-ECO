@@ -322,7 +322,7 @@ export default function AdminParametresPage() {
                    placeholder="https://discord.gg/voilectia" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">IP du serveur Minecraft</label>
+            <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">IP du serveur Eco</label>
             <input className="input w-full font-mono text-sm" value={settings.siteServerIp}
                    onChange={e => update('siteServerIp', e.target.value)}
                    disabled={!isFounder}
