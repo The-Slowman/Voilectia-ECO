@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { Map, ExternalLink, AlertCircle } from 'lucide-react'
+import { Map, ExternalLink, AlertCircle, Settings } from 'lucide-react'
 
-export const revalidate = 300
+export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
-  const s = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } })
+  const s = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } }).catch(() => null)
   return {
-    title:       s?.ecoMapTitle ?? 'Carte du monde',
+    title:       (s?.ecoMapTitle ?? 'Carte du monde') + ' — Voilectia ECO',
     description: 'Explorez la carte interactive du serveur Voilectia ECO en temps réel.',
   }
 }
@@ -23,74 +23,149 @@ async function getMapSettings() {
 export default async function CartePage() {
   const settings = await getMapSettings()
 
-  const enabled  = settings?.ecoMapEnabled ?? false
-  const mapUrl   = settings?.ecoMapUrl     ?? ''
-  const title    = settings?.ecoMapTitle   ?? 'Carte du monde'
+  const enabled = settings?.ecoMapEnabled ?? false
+  const mapUrl  = settings?.ecoMapUrl?.trim() ?? ''
+  const title   = settings?.ecoMapTitle ?? 'Carte du monde'
+
+  // Normaliser l'URL (ajouter http:// si absent)
+  const normalizedUrl = mapUrl && !mapUrl.startsWith('http')
+    ? `http://${mapUrl}`
+    : mapUrl
+
+  const isConfigured = enabled && normalizedUrl.length > 0
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
 
       {/* Barre supérieure */}
-      <div className="bg-[#1A3D2B] border-b border-[rgba(212,168,32,0.2)] px-4 sm:px-6
-                      flex items-center justify-between h-14 flex-shrink-0 z-10">
-        <div className="flex items-center gap-3">
-          <Map size={18} className="text-[#52B788]" />
+      <div style={{
+        background: '#1A3D2B',
+        borderBottom: '1px solid rgba(212,168,32,0.2)',
+        padding: '0 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        height: 52,
+        flexShrink: 0,
+        zIndex: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Map size={16} color="#52B788" />
           <div>
-            <h1 className="font-display font-bold text-sm text-[#F2E8D5]">{title}</h1>
-            <p className="text-[10px] text-[#5A8A6A]">Voilectia ECO — Carte interactive</p>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#F2E8D5', lineHeight: 1.2 }}>{title}</div>
+            <div style={{ fontSize: 10, color: '#5A8A6A' }}>Voilectia ECO — Carte interactive</div>
           </div>
         </div>
-        {mapUrl && (
-          <a href={mapUrl} target="_blank" rel="noopener noreferrer"
-             className="flex items-center gap-1.5 text-xs text-[#9DC4AD] hover:text-[#F2E8D5] transition-colors">
-            <ExternalLink size={12} /> Ouvrir en plein écran
-          </a>
-        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isConfigured && (
+            <>
+              {/* Indicateur live */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#52B788',
+                  boxShadow: '0 0 0 2px rgba(82,183,136,0.3)',
+                  animation: 'pulse 2s infinite',
+                }} />
+                <span style={{ fontSize: 11, color: '#9DC4AD', fontWeight: 600 }}>En direct</span>
+              </div>
+              {/* Lien plein écran */}
+              <a
+                href={normalizedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  fontSize: 12, color: '#9DC4AD', textDecoration: 'none',
+                  padding: '5px 10px', borderRadius: 6,
+                  border: '1px solid rgba(82,183,136,0.2)',
+                  transition: 'color 0.15s',
+                }}
+              >
+                <ExternalLink size={11} /> Plein écran
+              </a>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Iframe ou placeholder */}
-      <div className="flex-1 relative bg-[#0C1F14]">
-        {!enabled || !mapUrl ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-4">
-            <div className="w-16 h-16 rounded-2xl bg-[rgba(82,183,136,0.1)] border border-[rgba(82,183,136,0.2)]
-                            flex items-center justify-center">
-              <Map size={28} className="text-[#52B788]" />
+      {/* Corps */}
+      <div style={{ flex: 1, position: 'relative', background: '#0C1F14', overflow: 'hidden' }}>
+        {!isConfigured ? (
+          /* ── Placeholder non configuré ── */
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 20, padding: 24, textAlign: 'center',
+          }}>
+            <div style={{
+              width: 64, height: 64, borderRadius: 16,
+              background: 'rgba(82,183,136,0.08)',
+              border: '1px solid rgba(82,183,136,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Map size={28} color="#52B788" />
             </div>
+
             <div>
-              <h2 className="font-display font-bold text-xl text-[#E8F5EE] mb-2">
+              <h2 style={{ fontWeight: 700, fontSize: 20, color: '#E8F5EE', marginBottom: 8 }}>
                 Carte non configurée
               </h2>
-              <p className="text-[#5A8A6A] text-sm max-w-sm">
-                La carte du serveur n'est pas encore disponible. Un fondateur doit configurer l'URL dans{' '}
-                <code className="bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded text-[#52B788]">
-                  Admin → Paramètres → Carte Eco
-                </code>.
+              <p style={{ fontSize: 13, color: '#5A8A6A', maxWidth: 360, lineHeight: 1.6 }}>
+                La carte du serveur n'est pas encore activée. Un fondateur doit renseigner l'IP et le port du serveur Eco dans les paramètres admin.
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-[#5A8A6A] bg-[rgba(255,255,255,0.04)]
-                            border border-[rgba(82,183,136,0.1)] rounded-xl px-4 py-3 max-w-sm">
-              <AlertCircle size={14} className="flex-shrink-0" />
-              Le port 3001 du serveur Eco doit être ouvert publiquement.
+
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+              fontSize: 12, color: '#5A8A6A',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(82,183,136,0.1)',
+              borderRadius: 12, padding: '12px 16px',
+              maxWidth: 380, textAlign: 'left',
+            }}>
+              <Settings size={14} style={{ flexShrink: 0, marginTop: 1, color: '#52B788' }} />
+              <span>
+                <strong style={{ color: '#9DC4AD' }}>Admin → Paramètres → Carte Eco</strong>
+                <br />Activez la carte et entrez l'IP + port de votre serveur Eco (port par défaut : 3001).
+              </span>
+            </div>
+
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              fontSize: 11, color: '#5A8A6A',
+              background: 'rgba(255,200,0,0.04)',
+              border: '1px solid rgba(212,168,32,0.15)',
+              borderRadius: 10, padding: '10px 14px',
+            }}>
+              <AlertCircle size={13} style={{ color: '#D4A820', flexShrink: 0 }} />
+              Le port de la carte Eco doit être ouvert dans le firewall du serveur de jeu.
             </div>
           </div>
         ) : (
-          <>
-            <iframe
-              src={mapUrl}
-              title={title}
-              className="absolute inset-0 w-full h-full border-0"
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            />
-            {/* Overlay info en bas de la carte */}
-            <div className="absolute bottom-4 left-4 bg-[rgba(12,31,20,0.85)] backdrop-blur-sm
-                            border border-[rgba(82,183,136,0.2)] rounded-xl px-3 py-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#52B788] animate-pulse" />
-              <span className="text-[10px] font-semibold text-[#9DC4AD]">Carte en direct</span>
-            </div>
-          </>
+          /* ── Iframe carte ── */
+          <iframe
+            src={normalizedUrl}
+            title={title}
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              border: 'none',
+            }}
+            loading="lazy"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock"
+            allowFullScreen
+          />
         )}
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   )
 }
