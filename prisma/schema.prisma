@@ -474,6 +474,11 @@ model SiteSettings {
   siteDiscordUrl     String?
   siteServerIp       String?
   updatedBy          String?
+  // Contenu éditable
+  announcementEnabled Boolean  @default(false)
+  announcementText    String?  @db.Text
+  homeHeroTitle       String?
+  homeHeroSubtitle    String?  @db.Text
 
   @@map("site_settings")
 }

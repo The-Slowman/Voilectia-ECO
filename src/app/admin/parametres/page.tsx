@@ -1,18 +1,22 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Save, Shield, Settings, AlertTriangle, Check, Power } from 'lucide-react'
+import { Save, Shield, Settings, AlertTriangle, Check, Power, Megaphone, LayoutTemplate } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface SiteSettings {
-  maintenanceActive:  boolean
-  maintenanceTitle:   string
-  maintenanceMessage: string
-  launchDate:         string | null
-  allowedSections:    string[]
-  siteDiscordUrl:     string
-  siteServerIp:       string
-  updatedBy:          string | null
+  maintenanceActive:   boolean
+  maintenanceTitle:    string
+  maintenanceMessage:  string
+  launchDate:          string | null
+  allowedSections:     string[]
+  siteDiscordUrl:      string
+  siteServerIp:        string
+  updatedBy:           string | null
+  announcementEnabled: boolean
+  announcementText:    string
+  homeHeroTitle:       string
+  homeHeroSubtitle:    string
 }
 
 const ALL_SECTIONS = [
@@ -42,7 +46,7 @@ export default function AdminParametresPage() {
   const [loading,  setLoading]    = useState(true)
   const [saving,   setSaving]     = useState(false)
   const [isFounder, setIsFounder] = useState(false)
-  const [tab,      setTab]        = useState<'maintenance' | 'general'>('maintenance')
+  const [tab,      setTab]        = useState<'maintenance' | 'general' | 'contenu'>('maintenance')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -53,9 +57,13 @@ export default function AdminParametresPage() {
     if (settingsRes) {
       setSettings({
         ...settingsRes,
-        launchDate: settingsRes.launchDate
+        launchDate:       settingsRes.launchDate
           ? new Date(settingsRes.launchDate).toISOString().slice(0, 16)
           : '',
+        announcementEnabled: settingsRes.announcementEnabled ?? false,
+        announcementText:    settingsRes.announcementText    ?? '',
+        homeHeroTitle:       settingsRes.homeHeroTitle       ?? '',
+        homeHeroSubtitle:    settingsRes.homeHeroSubtitle    ?? '',
       })
     }
     // Vérifier si SUPER_ADMIN
@@ -131,8 +139,9 @@ export default function AdminParametresPage() {
       {/* Onglets */}
       <div className="flex gap-1 border-b border-[#DBCAA8]">
         {[
-          { key: 'maintenance', label: '⚙️ Maintenance', icon: <AlertTriangle size={14} /> },
-          { key: 'general',     label: '⚙️ Général',     icon: <Settings size={14} /> },
+          { key: 'maintenance', label: '🛠️ Maintenance' },
+          { key: 'general',     label: '⚙️ Général' },
+          { key: 'contenu',     label: '📝 Contenu' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
                   className={`px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
@@ -288,6 +297,85 @@ export default function AdminParametresPage() {
           {settings.updatedBy && (
             <p className="text-[10px] text-[#9AB09A]">Dernière modification par : {settings.updatedBy}</p>
           )}
+        </div>
+      )}
+
+      {/* ── CONTENU ── */}
+      {tab === 'contenu' && settings && (
+        <div className="space-y-5">
+
+          {/* Bandeau d'annonce */}
+          <div className="bg-white border border-[#DBCAA8] rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display font-bold text-[#1A3D2B] text-base flex items-center gap-2">
+                <Megaphone size={16} className={settings.announcementEnabled ? 'text-[#D4A820]' : 'text-[#9AB09A]'} />
+                Bandeau d'annonce
+              </h2>
+              <button
+                disabled={!isFounder}
+                onClick={() => update('announcementEnabled', !settings.announcementEnabled)}
+                className={`relative w-14 h-7 rounded-full transition-colors disabled:opacity-50 ${
+                  settings.announcementEnabled ? 'bg-[#D4A820]' : 'bg-[#DBCAA8]'
+                }`}
+              >
+                <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                  settings.announcementEnabled ? 'translate-x-7' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+            <p className="text-xs text-[#9AB09A]">
+              Affiche un bandeau doré en haut de toutes les pages du site public.
+            </p>
+            <div>
+              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Texte du bandeau</label>
+              <textarea
+                className="input w-full resize-none"
+                rows={2}
+                value={settings.announcementText}
+                onChange={e => update('announcementText', e.target.value)}
+                disabled={!isFounder}
+                placeholder="🎉 La Saison 2 commence le 15 juin ! Préparez-vous…"
+              />
+              <p className="text-[10px] text-[#9AB09A] mt-1">Supports les emojis. Laissez vide pour masquer même si activé.</p>
+            </div>
+            {settings.announcementEnabled && settings.announcementText && (
+              <div className="bg-[#FBF0C8] border border-[rgba(212,168,32,0.4)] rounded-lg px-4 py-2.5 text-sm text-[#7A5A10] font-medium">
+                📢 Prévisualisation : {settings.announcementText}
+              </div>
+            )}
+          </div>
+
+          {/* Texte page d'accueil */}
+          <div className="bg-white border border-[#DBCAA8] rounded-xl p-5 space-y-4">
+            <h2 className="font-display font-bold text-[#1A3D2B] text-base flex items-center gap-2">
+              <LayoutTemplate size={16} /> Texte page d'accueil
+            </h2>
+            <p className="text-xs text-[#9AB09A]">
+              Personnalise le titre et le sous-titre du hero de la page d'accueil. Laissez vide pour utiliser le texte par défaut.
+            </p>
+            <div>
+              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Titre principal (hero)</label>
+              <input
+                className="input w-full"
+                value={settings.homeHeroTitle}
+                onChange={e => update('homeHeroTitle', e.target.value)}
+                disabled={!isFounder}
+                placeholder="Voilectia ECO — Saison 2"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Sous-titre / accroche</label>
+              <textarea
+                className="input w-full resize-none"
+                rows={3}
+                value={settings.homeHeroSubtitle}
+                onChange={e => update('homeHeroSubtitle', e.target.value)}
+                disabled={!isFounder}
+                placeholder="Rejoignez la communauté la plus chill du jeu Eco. Construisez, coopérez, prospérez."
+              />
+            </div>
+          </div>
+
         </div>
       )}
     </div>

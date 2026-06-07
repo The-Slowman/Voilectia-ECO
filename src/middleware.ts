@@ -63,8 +63,12 @@ const ALWAYS_ALLOWED = [
   '/maintenance',   // La page de maintenance elle-même
   '/admin',         // Panel admin (protégé séparément)
   '/api/',          // APIs (nécessaires au fonctionnement)
-  '/connexion',     // Page de connexion (admins doivent pouvoir se connecter)
+  '/connexion',     // Page de connexion
   '/inscription',   // Page d'inscription
+  '/federation',    // Page statique (toujours accessible)
+  '/soutenir',      // Page statique
+  '/contact',       // Page de contact
+  '/p/',            // Pages CMS custom
 ]
 
 // ── Mapping section admin → préfixes URL publics ───────────

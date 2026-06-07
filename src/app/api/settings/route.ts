@@ -4,18 +4,22 @@ import { getAdminFromRequest } from '@/lib/admin-auth'
 
 // Paramètres par défaut si la table est vide
 const DEFAULTS = {
-  id:                 'singleton',
-  maintenanceActive:  false,
-  maintenanceTitle:   'Saison 2 — Bientôt disponible',
-  maintenanceMessage: 'Le serveur se prépare pour une nouvelle aventure. Restez connectés !',
-  launchDate:         null,
-  allowedSections:    JSON.stringify(['forum', 'tutoriels', 'top-serveur']),
-  ecoMapEnabled:      false,
-  ecoMapUrl:          '',
-  ecoMapTitle:        'Carte du monde',
-  siteDiscordUrl:     process.env.NEXT_PUBLIC_DISCORD_URL ?? 'https://discord.gg/voilectia',
-  siteServerIp:       '',
-  updatedBy:          null,
+  id:                  'singleton',
+  maintenanceActive:   false,
+  maintenanceTitle:    'Saison 2 — Bientôt disponible',
+  maintenanceMessage:  'Le serveur se prépare pour une nouvelle aventure. Restez connectés !',
+  launchDate:          null,
+  allowedSections:     JSON.stringify(['forum', 'tutoriels', 'top-serveur']),
+  ecoMapEnabled:       false,
+  ecoMapUrl:           '',
+  ecoMapTitle:         'Carte du monde',
+  siteDiscordUrl:      process.env.NEXT_PUBLIC_DISCORD_URL ?? 'https://discord.gg/voilectia',
+  siteServerIp:        '',
+  updatedBy:           null,
+  announcementEnabled: false,
+  announcementText:    null,
+  homeHeroTitle:       null,
+  homeHeroSubtitle:    null,
 }
 
 // GET — public (pour le middleware et la page maintenance)
@@ -49,8 +53,12 @@ export async function PATCH(req: NextRequest) {
   if ('maintenanceMessage' in body) data.maintenanceMessage = body.maintenanceMessage
   if ('launchDate'         in body) data.launchDate = body.launchDate ? new Date(body.launchDate) : null
   if ('allowedSections'    in body) data.allowedSections = JSON.stringify(body.allowedSections)
-  if ('siteDiscordUrl'     in body) data.siteDiscordUrl = body.siteDiscordUrl
-  if ('siteServerIp'       in body) data.siteServerIp = body.siteServerIp
+  if ('siteDiscordUrl'      in body) data.siteDiscordUrl      = body.siteDiscordUrl
+  if ('siteServerIp'        in body) data.siteServerIp        = body.siteServerIp
+  if ('announcementEnabled' in body) data.announcementEnabled = body.announcementEnabled
+  if ('announcementText'    in body) data.announcementText    = body.announcementText || null
+  if ('homeHeroTitle'       in body) data.homeHeroTitle       = body.homeHeroTitle    || null
+  if ('homeHeroSubtitle'    in body) data.homeHeroSubtitle    = body.homeHeroSubtitle || null
 
   data.updatedBy = admin.name
 
