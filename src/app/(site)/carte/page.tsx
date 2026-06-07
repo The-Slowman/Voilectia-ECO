@@ -7,8 +7,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   const s = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } }).catch(() => null)
   return {
-    title:       (s?.ecoMapTitle ?? 'Carte du monde') + ' — Voilectia ECO',
-    description: 'Explorez la carte interactive du serveur Voilectia ECO en temps réel.',
+    title:       (s?.ecoMapTitle ?? 'Site interne serveur') + ' — Voilectia ECO',
+    description: 'Accédez au site interne du serveur Voilectia ECO directement depuis le site.',
   }
 }
 
@@ -25,7 +25,7 @@ export default async function CartePage() {
 
   const enabled = settings?.ecoMapEnabled ?? false
   const mapUrl  = settings?.ecoMapUrl?.trim() ?? ''
-  const title   = settings?.ecoMapTitle ?? 'Carte du monde'
+  const title   = settings?.ecoMapTitle ?? 'Site interne serveur'
 
   // Normaliser l'URL (ajouter http:// si absent)
   const normalizedUrl = mapUrl && !mapUrl.startsWith('http')
@@ -53,7 +53,7 @@ export default async function CartePage() {
           <Map size={16} color="#52B788" />
           <div>
             <div style={{ fontWeight: 700, fontSize: 13, color: '#F2E8D5', lineHeight: 1.2 }}>{title}</div>
-            <div style={{ fontSize: 10, color: '#5A8A6A' }}>Voilectia ECO — Carte interactive</div>
+            <div style={{ fontSize: 10, color: '#5A8A6A' }}>Voilectia ECO — Site interne</div>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default async function CartePage() {
                 Carte non configurée
               </h2>
               <p style={{ fontSize: 13, color: '#5A8A6A', maxWidth: 360, lineHeight: 1.6 }}>
-                La carte du serveur n'est pas encore activée. Un fondateur doit renseigner l'IP et le port du serveur Eco dans les paramètres admin.
+                Le site interne du serveur n'est pas encore configuré. Un fondateur doit renseigner l'URL dans les paramètres admin.
               </p>
             </div>
 
@@ -127,8 +127,8 @@ export default async function CartePage() {
             }}>
               <Settings size={14} style={{ flexShrink: 0, marginTop: 1, color: '#52B788' }} />
               <span>
-                <strong style={{ color: '#9DC4AD' }}>Admin → Paramètres → Carte Eco</strong>
-                <br />Activez la carte et entrez l'IP + port de votre serveur Eco (port par défaut : 3001).
+                <strong style={{ color: '#9DC4AD' }}>Admin → Paramètres → Site interne</strong>
+                <br />Activez et entrez l'URL complète du site interne du serveur.
               </span>
             </div>
 

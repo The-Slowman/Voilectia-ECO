@@ -255,98 +255,63 @@ export default function AdminParametresPage() {
         </div>
       )}
 
-      {/* ── MAP ECO ── */}
-      {tab === 'map' && settings && (() => {
-        // Extraire IP et port depuis l'URL stockée (ex: http://1.2.3.4:3001)
-        let parsedIp   = ''
-        let parsedPort = '3001'
-        try {
-          const u = new URL(settings.ecoMapUrl)
-          parsedIp   = u.hostname
-          parsedPort = u.port || '3001'
-        } catch { /* URL vide ou invalide */ }
-
-        function setMapIpPort(ip: string, port: string) {
-          const clean = ip.trim()
-          const p     = port.trim() || '3001'
-          const url   = clean ? `http://${clean}:${p}` : ''
-          update('ecoMapUrl', url)
-        }
-
-        return (
-          <div className="space-y-5">
-            <div className="bg-white border border-[#DBCAA8] rounded-xl p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="font-display font-bold text-[#1A3D2B] text-base flex items-center gap-2">
-                    <Map size={16} className="text-[#4A9EC4]" /> Carte Eco interactive
-                  </h2>
-                  <p className="text-xs text-[#6B8C6A] mt-1">
-                    Intègre la carte de votre serveur Eco dans la page <code className="bg-[#F2E8D5] px-1 rounded">/carte</code>.
-                  </p>
-                </div>
-                <button
-                  disabled={!isFounder}
-                  onClick={() => update('ecoMapEnabled', !settings.ecoMapEnabled)}
-                  className={`relative w-14 h-7 rounded-full transition-colors disabled:opacity-50 ${
-                    settings.ecoMapEnabled ? 'bg-[#3A7A52]' : 'bg-[#DBCAA8]'
-                  }`}
-                >
-                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                    settings.ecoMapEnabled ? 'translate-x-7' : 'translate-x-1'
-                  }`} />
-                </button>
-              </div>
-
-              <div className="bg-[#F2E8D5] border border-[#DBCAA8] rounded-xl p-4 text-xs text-[#6B8C6A]">
-                <p className="font-bold text-[#1A3D2B] mb-1">ℹ️ Comment ça fonctionne ?</p>
-                <p>Le serveur Eco expose une carte web intégrée. Entrez l'IP et le port de votre serveur Eco pour l'intégrer dans le site.</p>
-                <p className="mt-2">Le port par défaut de la carte Eco est <strong>3001</strong>. Assurez-vous qu'il est ouvert sur votre firewall.</p>
-              </div>
-
-              {/* IP + Port séparés */}
-              <div className="grid grid-cols-[1fr_140px] gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">IP du serveur Eco</label>
-                  <input
-                    className="input w-full font-mono text-sm"
-                    value={parsedIp}
-                    onChange={e => setMapIpPort(e.target.value, parsedPort)}
-                    disabled={!isFounder}
-                    placeholder="123.456.78.9"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Port</label>
-                  <input
-                    className="input w-full font-mono text-sm"
-                    value={parsedPort}
-                    onChange={e => setMapIpPort(parsedIp, e.target.value)}
-                    disabled={!isFounder}
-                    placeholder="3001"
-                  />
-                </div>
-              </div>
-
-              {/* Aperçu URL construite */}
-              {settings.ecoMapUrl && (
-                <div className="flex items-center gap-2 text-xs text-[#6B8C6A] bg-[#F2E8D5] rounded-lg px-3 py-2">
-                  <span className="text-[#9AB09A]">URL générée :</span>
-                  <code className="text-[#1A3D2B] font-mono">{settings.ecoMapUrl}</code>
-                </div>
-              )}
-
+      {/* ── SITE INTERNE SERVEUR ── */}
+      {tab === 'map' && settings && (
+        <div className="space-y-5">
+          <div className="bg-white border border-[#DBCAA8] rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Titre de la page carte</label>
-                <input className="input w-full" value={settings.ecoMapTitle}
-                       onChange={e => update('ecoMapTitle', e.target.value)}
-                       disabled={!isFounder}
-                       placeholder="Carte du monde" />
+                <h2 className="font-display font-bold text-[#1A3D2B] text-base flex items-center gap-2">
+                  <Map size={16} className="text-[#4A9EC4]" /> Site interne du serveur
+                </h2>
+                <p className="text-xs text-[#6B8C6A] mt-1">
+                  Intègre le site interne du serveur Eco dans la page{' '}
+                  <code className="bg-[#F2E8D5] px-1 rounded">/carte</code>.
+                </p>
               </div>
+              <button
+                disabled={!isFounder}
+                onClick={() => update('ecoMapEnabled', !settings.ecoMapEnabled)}
+                className={`relative w-14 h-7 rounded-full transition-colors disabled:opacity-50 ${
+                  settings.ecoMapEnabled ? 'bg-[#3A7A52]' : 'bg-[#DBCAA8]'
+                }`}
+              >
+                <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                  settings.ecoMapEnabled ? 'translate-x-7' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+
+            <div className="bg-[#F2E8D5] border border-[#DBCAA8] rounded-xl p-4 text-xs text-[#6B8C6A]">
+              <p className="font-bold text-[#1A3D2B] mb-1">ℹ️ Comment ça fonctionne ?</p>
+              <p>Entrez l'URL complète du site interne de votre serveur Eco (ex : <code>http://51.68.66.74:3001</code>). Le site s'affichera intégré dans voilectia.fr/carte.</p>
+              <p className="mt-2">⚠️ Le port utilisé doit être ouvert et accessible publiquement.</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">URL du site interne</label>
+              <input
+                className="input w-full font-mono text-sm"
+                value={settings.ecoMapUrl}
+                onChange={e => update('ecoMapUrl', e.target.value)}
+                disabled={!isFounder}
+                placeholder="http://51.68.66.74:3001"
+              />
+              <p className="text-[10px] text-[#9AB09A] mt-1">
+                Inclure le protocole (http:// ou https://) et le port si nécessaire.
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Titre de la page</label>
+              <input className="input w-full" value={settings.ecoMapTitle}
+                     onChange={e => update('ecoMapTitle', e.target.value)}
+                     disabled={!isFounder}
+                     placeholder="Site interne serveur" />
             </div>
           </div>
-        )
-      })()}
+        </div>
+      )}
 
       {/* ── GÉNÉRAL ── */}
       {tab === 'general' && settings && (
