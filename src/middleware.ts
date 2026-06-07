@@ -69,6 +69,7 @@ const ALWAYS_ALLOWED = [
   '/soutenir',      // Page statique
   '/contact',       // Page de contact
   '/p/',            // Pages CMS custom
+  '/actualites/',   // Articles/annonces (toujours accessibles)
 ]
 
 // ── Mapping section admin → préfixes URL publics ───────────
