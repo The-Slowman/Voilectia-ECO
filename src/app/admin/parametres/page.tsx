@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Save, Shield, Map, Settings, AlertTriangle, Check, Power } from 'lucide-react'
+import { Save, Shield, Settings, AlertTriangle, Check, Power } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface SiteSettings {
@@ -10,9 +10,6 @@ interface SiteSettings {
   maintenanceMessage: string
   launchDate:         string | null
   allowedSections:    string[]
-  ecoMapEnabled:      boolean
-  ecoMapUrl:          string
-  ecoMapTitle:        string
   siteDiscordUrl:     string
   siteServerIp:       string
   updatedBy:          string | null
@@ -31,7 +28,7 @@ export default function AdminParametresPage() {
   const [loading,  setLoading]    = useState(true)
   const [saving,   setSaving]     = useState(false)
   const [isFounder, setIsFounder] = useState(false)
-  const [tab,      setTab]        = useState<'maintenance' | 'map' | 'general'>('maintenance')
+  const [tab,      setTab]        = useState<'maintenance' | 'general'>('maintenance')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -121,7 +118,6 @@ export default function AdminParametresPage() {
       <div className="flex gap-1 border-b border-[#DBCAA8]">
         {[
           { key: 'maintenance', label: '⚙️ Maintenance', icon: <AlertTriangle size={14} /> },
-          { key: 'map',         label: '🗺️ Carte Eco',   icon: <Map size={14} /> },
           { key: 'general',     label: '⚙️ Général',     icon: <Settings size={14} /> },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as typeof tab)}
@@ -139,7 +135,7 @@ export default function AdminParametresPage() {
           <div>
             <p className="font-semibold text-sm text-[#A07810]">Accès Fondateur requis</p>
             <p className="text-xs text-[#6B8C6A] mt-0.5">
-              Les paramètres de maintenance et de carte sont modifiables uniquement par les comptes de niveau SUPER_ADMIN.
+              Les paramètres de maintenance sont modifiables uniquement par les comptes de niveau SUPER_ADMIN.
             </p>
           </div>
         </div>
@@ -251,64 +247,6 @@ export default function AdminParametresPage() {
                className="inline-flex items-center gap-2 text-sm text-[#3A7A52] hover:underline font-semibold">
               → Ouvrir /maintenance dans un nouvel onglet
             </a>
-          </div>
-        </div>
-      )}
-
-      {/* ── SITE INTERNE SERVEUR ── */}
-      {tab === 'map' && settings && (
-        <div className="space-y-5">
-          <div className="bg-white border border-[#DBCAA8] rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-display font-bold text-[#1A3D2B] text-base flex items-center gap-2">
-                  <Map size={16} className="text-[#4A9EC4]" /> Site interne du serveur
-                </h2>
-                <p className="text-xs text-[#6B8C6A] mt-1">
-                  Intègre le site interne du serveur Eco dans la page{' '}
-                  <code className="bg-[#F2E8D5] px-1 rounded">/carte</code>.
-                </p>
-              </div>
-              <button
-                disabled={!isFounder}
-                onClick={() => update('ecoMapEnabled', !settings.ecoMapEnabled)}
-                className={`relative w-14 h-7 rounded-full transition-colors disabled:opacity-50 ${
-                  settings.ecoMapEnabled ? 'bg-[#3A7A52]' : 'bg-[#DBCAA8]'
-                }`}
-              >
-                <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-                  settings.ecoMapEnabled ? 'translate-x-7' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-
-            <div className="bg-[#F2E8D5] border border-[#DBCAA8] rounded-xl p-4 text-xs text-[#6B8C6A]">
-              <p className="font-bold text-[#1A3D2B] mb-1">ℹ️ Comment ça fonctionne ?</p>
-              <p>Entrez l'URL complète du site interne de votre serveur Eco (ex : <code>http://51.68.66.74:3001</code>). Le site s'affichera intégré dans voilectia.fr/carte.</p>
-              <p className="mt-2">⚠️ Le port utilisé doit être ouvert et accessible publiquement.</p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">URL du site interne</label>
-              <input
-                className="input w-full font-mono text-sm"
-                value={settings.ecoMapUrl}
-                onChange={e => update('ecoMapUrl', e.target.value)}
-                disabled={!isFounder}
-                placeholder="http://51.68.66.74:3001"
-              />
-              <p className="text-[10px] text-[#9AB09A] mt-1">
-                Inclure le protocole (http:// ou https://) et le port si nécessaire.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#6B8C6A] mb-1.5">Titre de la page</label>
-              <input className="input w-full" value={settings.ecoMapTitle}
-                     onChange={e => update('ecoMapTitle', e.target.value)}
-                     disabled={!isFounder}
-                     placeholder="Site interne serveur" />
-            </div>
           </div>
         </div>
       )}

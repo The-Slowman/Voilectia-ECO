@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PlayerAuthButton } from '@/components/ui/PlayerAuthButton'
+import { AdminAccessButton } from '@/components/ui/AdminAccessButton'
 
 const NAV_LINKS = [
   { label: 'Accueil',      href: '/' },
@@ -20,7 +21,6 @@ const NAV_LINKS = [
       { label: 'Économie',        href: '/economie',     icon: '💰' },
       { label: 'Fédération',      href: '/federation',   icon: '🏛️' },
       { label: 'Règlement',       href: '/reglement',    icon: '📜' },
-      { label: 'Carte',           href: '/carte',        icon: '🗺️' },
     ],
   },
   {
@@ -181,7 +181,8 @@ export function Header() {
           </nav>
 
           {/* CTA + Mobile toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <AdminAccessButton />
             <div className="hidden md:block">
               <PlayerAuthButton />
             </div>
