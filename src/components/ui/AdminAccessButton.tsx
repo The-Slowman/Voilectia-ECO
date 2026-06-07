@@ -4,13 +4,17 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ShieldCheck } from 'lucide-react'
 
+// Rôles qui donnent accès au panel admin
 const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'MODERATOR', 'ANIMATOR', 'DEVELOPER', 'EDITOR']
 
 export function AdminAccessButton() {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    fetch('/api/admin/auth/me')
+    // Vérifie la SESSION JOUEUR (cookie voilectia_session) — pas le cookie admin
+    // Le bouton ne s'affiche que si l'utilisateur est connecté sur le site public
+    // et que son rôle est un rôle staff (pas PLAYER)
+    fetch('/api/player/auth/me')
       .then(r => r.json())
       .then(d => {
         if (d?.role && ADMIN_ROLES.includes(d.role)) setIsAdmin(true)

@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
       id: user.id,
       username: user.name,
       email: user.email,
+      role: user.role,
       avatar: user.avatar,
       ecoName: user.ecoName,
       discordTag: user.discordTag,

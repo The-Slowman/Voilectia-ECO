@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 // Paramètres par défaut si la table est vide
 const DEFAULTS = {
@@ -35,10 +35,8 @@ export async function GET() {
 
 // PATCH — Fondateur (SUPER_ADMIN) uniquement
 export async function PATCH(req: NextRequest) {
-  const session = await auth()
-  const userRole = (session?.user as { role?: string } | undefined)?.role ?? ''
-
-  if (!session?.user || userRole !== 'SUPER_ADMIN') {
+  const admin = await getAdminFromRequest(req, 'SUPER_ADMIN')
+  if (!admin) {
     return NextResponse.json({ error: 'Réservé aux fondateurs' }, { status: 403 })
   }
 
@@ -51,13 +49,10 @@ export async function PATCH(req: NextRequest) {
   if ('maintenanceMessage' in body) data.maintenanceMessage = body.maintenanceMessage
   if ('launchDate'         in body) data.launchDate = body.launchDate ? new Date(body.launchDate) : null
   if ('allowedSections'    in body) data.allowedSections = JSON.stringify(body.allowedSections)
-  if ('ecoMapEnabled'      in body) data.ecoMapEnabled = body.ecoMapEnabled
-  if ('ecoMapUrl'          in body) data.ecoMapUrl = body.ecoMapUrl
-  if ('ecoMapTitle'        in body) data.ecoMapTitle = body.ecoMapTitle
   if ('siteDiscordUrl'     in body) data.siteDiscordUrl = body.siteDiscordUrl
   if ('siteServerIp'       in body) data.siteServerIp = body.siteServerIp
 
-  data.updatedBy = (session.user as { name?: string }).name ?? 'Admin'
+  data.updatedBy = admin.name
 
   const settings = await prisma.siteSettings.upsert({
     where:  { id: 'singleton' },
