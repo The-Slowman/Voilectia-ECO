@@ -16,11 +16,25 @@ interface SiteSettings {
 }
 
 const ALL_SECTIONS = [
-  { key: 'forum',       label: '💬 Forum' },
-  { key: 'tutoriels',   label: '📖 Tutoriels & Astuces' },
-  { key: 'top-serveur', label: '🏆 Vote Top-Serveur' },
-  { key: 'sondage',     label: '📋 Sondages' },
-  { key: 'recrutement', label: '🛡️ Recrutement' },
+  { key: 'accueil',      label: '🏠 Accueil' },
+  { key: 'presentation', label: '📋 Présentation' },
+  { key: 'forum',        label: '💬 Forum' },
+  { key: 'tutoriels',    label: '📖 Tutoriels & Astuces' },
+  { key: 'guides',       label: '📗 Guides' },
+  { key: 'changelog',    label: '🔄 Changelog' },
+  { key: 'faq',          label: '❓ FAQ' },
+  { key: 'top-serveur',  label: '🏆 Vote Top-Serveur' },
+  { key: 'sondage',      label: '📋 Sondages' },
+  { key: 'recrutement',  label: '🛡️ Recrutement' },
+  { key: 'giveaways',    label: '🎁 Giveaways' },
+  { key: 'suggestions',  label: '💡 Suggestions' },
+  { key: 'evenements',   label: '🎉 Événements' },
+  { key: 'villes',       label: '🏙️ Villes' },
+  { key: 'staff',        label: '👥 Staff' },
+  { key: 'reglement',    label: '📜 Règlement' },
+  { key: 'economie',     label: '💰 Économie / Serveur' },
+  { key: 'messagerie',   label: '✉️ Messagerie' },
+  { key: 'profil',       label: '👤 Profil joueur' },
 ]
 
 export default function AdminParametresPage() {

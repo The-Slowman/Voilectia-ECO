@@ -25,14 +25,14 @@ if (typeof setInterval !== 'undefined') {
   }, 5 * 60 * 1000)
 }
 
-// ── Cache paramètres maintenance (évite un appel DB par requête) ──
+// ── Cache paramètres maintenance ───────────────────────────
 let maintenanceCache: {
   active:   boolean
   allowed:  string[]
   cachedAt: number
 } | null = null
 
-const CACHE_TTL = 30_000 // 30 secondes
+const CACHE_TTL = 15_000 // 15 secondes
 
 async function getMaintenanceStatus(baseUrl: string): Promise<{ active: boolean; allowed: string[] }> {
   const now = Date.now()
@@ -49,39 +49,49 @@ async function getMaintenanceStatus(baseUrl: string): Promise<{ active: boolean;
     }
     return { active: maintenanceCache.active, allowed: maintenanceCache.allowed }
   } catch {
+    // En cas d'erreur : conserver le dernier état connu (fail-safe = maintenance active si déjà active)
+    if (maintenanceCache) {
+      return { active: maintenanceCache.active, allowed: maintenanceCache.allowed }
+    }
     return { active: false, allowed: [] }
   }
 }
 
-// Routes TOUJOURS accessibles (quelle que soit la maintenance)
+// ── Routes toujours accessibles quoi qu'il arrive ──────────
+// NB : /profil et les pages publiques NE sont PAS ici → soumises à la maintenance
 const ALWAYS_ALLOWED = [
-  '/maintenance',
-  '/admin',
-  '/api/',
-  '/profil',
-  '/_next',
-  '/images',
-  '/favicon',
+  '/maintenance',   // La page de maintenance elle-même
+  '/admin',         // Panel admin (protégé séparément)
+  '/api/',          // APIs (nécessaires au fonctionnement)
+  '/connexion',     // Page de connexion (admins doivent pouvoir se connecter)
+  '/inscription',   // Page d'inscription
 ]
 
-// Mapping section → préfixe URL
-const SECTION_PREFIXES: Record<string, string> = {
-  'forum':        '/forum',
-  'tutoriels':    '/tutoriels',
-  'top-serveur':  '/top-serveur',
-  'sondage':      '/sondage',
-  'recrutement':  '/recrutement',
-  'giveaways':    '/giveaways',
-  'guides':       '/guides',
-  'changelog':    '/changelog',
-  'evenements':   '/evenements',
-  'villes':       '/villes',
+// ── Mapping section admin → préfixes URL publics ───────────
+const SECTION_PREFIXES: Record<string, string[]> = {
+  'accueil':       ['/'],
+  'presentation':  ['/presentation'],
+  'forum':         ['/forum'],
+  'tutoriels':     ['/tutoriels'],
+  'guides':        ['/guides'],
+  'changelog':     ['/changelog'],
+  'faq':           ['/faq'],
+  'top-serveur':   ['/top-serveur'],
+  'sondage':       ['/sondage'],
+  'recrutement':   ['/recrutement'],
+  'giveaways':     ['/giveaways'],
+  'suggestions':   ['/suggestions'],
+  'evenements':    ['/evenements'],
+  'villes':        ['/villes'],
+  'staff':         ['/staff'],
+  'reglement':     ['/reglement'],
+  'economie':      ['/economie', '/serveur', '/progression'],
+  'messagerie':    ['/messagerie'],
+  'profil':        ['/profil'],
 }
 
 // ── Limites rate limiting ──────────────────────────────────
-const API_RATE_LIMIT   = { limit: 60, windowMs: 60_000 }
-const AUTH_RATE_LIMIT  = { limit: 10, windowMs: 60_000 }
-const STEAM_RATE_LIMIT = { limit: 20, windowMs: 60_000 }
+const API_RATE_LIMIT  = { limit: 60, windowMs: 60_000 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -90,7 +100,16 @@ export async function middleware(req: NextRequest) {
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
     '127.0.0.1'
 
-  // ── 1. Rate limiting ──────────────────────────────────────
+  // ── Assets statiques — bypass immédiat ───────────────────
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/images') ||
+    pathname.includes('.')
+  ) {
+    return NextResponse.next()
+  }
+
+  // ── 1. Rate limiting API ──────────────────────────────────
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/admin/auth') && !pathname.startsWith('/api/auth')) {
     if (!rateLimit(ip, API_RATE_LIMIT.limit, API_RATE_LIMIT.windowMs)) {
       return new NextResponse('Too Many Requests', { status: 429 })
@@ -108,38 +127,33 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── 3. Mode maintenance ───────────────────────────────────
-  // Ignorer les assets statiques
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/images') ||
-    pathname.includes('.') // fichiers statiques (.png, .ico, .svg…)
-  ) {
-    return NextResponse.next()
-  }
+  // Routes toujours accessibles (admin, api, connexion, maintenance)
+  const isAlwaysAllowed = ALWAYS_ALLOWED.some(p =>
+    p === '/' ? pathname === '/' : pathname.startsWith(p)
+  )
 
-  // Routes toujours accessibles
-  const isAlwaysAllowed = ALWAYS_ALLOWED.some(p => pathname.startsWith(p))
   if (!isAlwaysAllowed) {
     const baseUrl = `${req.nextUrl.protocol}//${req.nextUrl.host}`
     const { active, allowed } = await getMaintenanceStatus(baseUrl)
 
     if (active) {
-      // Vérifier si la section actuelle est dans les autorisées
+      // Vérifier si le chemin est dans une section autorisée
       const isSectionAllowed = allowed.some(section => {
-        const prefix = SECTION_PREFIXES[section]
-        return prefix && pathname.startsWith(prefix)
+        const prefixes = SECTION_PREFIXES[section]
+        if (!prefixes) return false
+        return prefixes.some(prefix =>
+          prefix === '/' ? pathname === '/' : pathname.startsWith(prefix)
+        )
       })
 
-      if (!isSectionAllowed && pathname !== '/maintenance') {
+      if (!isSectionAllowed) {
         return NextResponse.redirect(new URL('/maintenance', req.url))
       }
     }
   }
 
-  // ── 4. Headers sécurité + pathname pour Server Components ──
+  // ── 4. Headers sécurité + pathname pour Server Components ─
   const res = NextResponse.next()
-
-  // Expose le path courant aux Server Components (layout.tsx le lit via headers())
   res.headers.set('x-pathname', pathname)
 
   if (pathname.startsWith('/api/')) {
@@ -151,7 +165,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
