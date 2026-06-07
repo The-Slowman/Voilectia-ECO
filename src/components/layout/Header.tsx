@@ -51,7 +51,12 @@ const NAV_LINKS = [
   { label: 'Top-Serveur', href: '/top-serveur', badge: '🏆' },
 ]
 
-export function Header() {
+interface HeaderProps {
+  /** true quand le bandeau d'annonce est actif — décale le header vers le bas de 40px */
+  hasBanner?: boolean
+}
+
+export function Header({ hasBanner = false }: HeaderProps) {
   const [scrolled,       setScrolled]       = useState(false)
   const [mobileOpen,     setMobileOpen]     = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
@@ -91,7 +96,8 @@ export function Header() {
       {/* ── Header barre fixe ──────────────────────────────── */}
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 bg-[#1A3D2B]',
+          'fixed left-0 right-0 z-50 h-16 transition-all duration-300 bg-[#1A3D2B]',
+          hasBanner ? 'top-10' : 'top-0',
           scrolled && 'border-b-2 border-[#D4A820] shadow-[0_4px_24px_rgba(26,61,43,0.35)]'
         )}
       >
@@ -189,14 +195,14 @@ export function Header() {
       */}
       {mobileOpen && (
         <div className="lg:hidden fixed left-0 right-0 bottom-0 z-[49]"
-             style={{ top: '64px' }}>
+             style={{ top: hasBanner ? '104px' : '64px' }}>
 
           {/* Fond sombre — pointer-events:none pour ne pas bloquer les taps sur le panneau */}
           <div className="absolute inset-0 bg-black/50 pointer-events-none" />
 
           {/* Panneau scrollable — le seul élément qui capte les taps */}
           <div className="absolute top-0 left-0 right-0 bg-[#0C1F14] border-b border-[rgba(82,183,136,0.15)]"
-               style={{ maxHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}>
+               style={{ maxHeight: `calc(100vh - ${hasBanner ? 104 : 64}px)`, overflowY: 'auto' }}>
 
             <nav className="px-4 py-4 space-y-0.5">
               {NAV_LINKS.map((link) =>

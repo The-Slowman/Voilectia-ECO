@@ -151,7 +151,7 @@ export default function MessageriePage() {
     : null
 
   return (
-    <div className="h-screen flex flex-col bg-[#F2E8D5] pt-16 md:pt-20">
+    <div className="h-[calc(100svh-4rem)] flex flex-col bg-[#F2E8D5]">
       <div className="flex flex-1 overflow-hidden max-w-7xl w-full mx-auto">
 
         {/* ── Sidebar ── */}

@@ -17,8 +17,9 @@ export async function AnnouncementBanner() {
 
     return (
       <div
-        className="w-full bg-[#D4A820] text-[#1A3D2B] text-center text-sm font-semibold
-                   px-4 py-2 leading-snug"
+        className="fixed top-0 left-0 right-0 z-[52] h-10 flex items-center justify-center
+                   bg-[#D4A820] text-[#1A3D2B] text-center text-sm font-semibold
+                   px-4 leading-snug"
         role="banner"
       >
         {settings.announcementText}
