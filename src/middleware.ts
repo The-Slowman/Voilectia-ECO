@@ -136,8 +136,12 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // ── 4. Headers sécurité sur les API ──────────────────────
+  // ── 4. Headers sécurité + pathname pour Server Components ──
   const res = NextResponse.next()
+
+  // Expose le path courant aux Server Components (layout.tsx le lit via headers())
+  res.headers.set('x-pathname', pathname)
+
   if (pathname.startsWith('/api/')) {
     res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
     res.headers.set('X-Content-Type-Options', 'nosniff')
