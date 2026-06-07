@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
   const postId = searchParams.get('postId')
@@ -20,10 +18,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { id, status, adminNote } = await req.json()
   const app = await prisma.recruitmentApplication.update({

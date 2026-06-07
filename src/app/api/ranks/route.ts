@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET() {
   const [ranks, playerRanks] = await Promise.all([
@@ -11,10 +11,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { type, ...data } = await req.json()
 

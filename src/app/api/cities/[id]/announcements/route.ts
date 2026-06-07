@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const announcements = await prisma.cityAnnouncement.findMany({
@@ -12,8 +12,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { title, content, authorName, pinned } = await req.json()
   if (!title?.trim() || !content?.trim()) {

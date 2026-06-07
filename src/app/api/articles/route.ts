@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
 import { slugify } from '@/lib/utils'
@@ -40,8 +40,8 @@ export async function GET(req: NextRequest) {
 
 // POST — créer article (admin)
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const body   = await req.json()
   const parsed = schema.safeParse(body)
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       ...data,
       slug,
       coverImage: data.coverImage || null,
-      authorId:   (session.user as { id?: string }).id!,
+      authorId:   admin.id,
     },
   })
 

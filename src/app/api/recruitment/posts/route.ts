@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 // GET public — postes ouverts
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const adminView = searchParams.get('admin') === '1'
 
-  const session = adminView ? await auth() : null
-  const isAdmin = session?.user && hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')
+  const admin = adminView ? await getAdminFromRequest(req) : null
+  const isAdmin = !!admin
 
   const posts = await prisma.recruitmentPost.findMany({
     where:   adminView && isAdmin ? undefined : { open: true },
@@ -22,10 +22,8 @@ export async function GET(req: NextRequest) {
 
 // POST admin — créer un poste
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const data = await req.json()
   const post = await prisma.recruitmentPost.create({

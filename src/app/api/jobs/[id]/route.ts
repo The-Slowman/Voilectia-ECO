@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
-
-async function checkAdmin() {
-  const session = await auth() as { user?: { role?: string } } | null
-  return session?.user && hasRole(session.user.role ?? '', 'ADMIN')
-}
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     const { name, description, icon, color, order, active } = await req.json()
@@ -29,8 +25,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  if (!await checkAdmin()) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     await prisma.user.updateMany({ where: { jobId: params.id }, data: { jobId: null } })

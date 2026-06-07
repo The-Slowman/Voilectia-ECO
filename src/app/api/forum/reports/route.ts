@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const REASONS = ['spam', 'harcelement', 'hors-sujet', 'contenu-inapproprie', 'autre']
 
 // GET — admin : liste des signalements en attente
 export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
   const status = searchParams.get('status') ?? 'pending'
@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
 
 // PATCH — admin : changer le statut d'un signalement
 export async function PATCH(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { id, status } = await req.json()
   const report = await prisma.forumReport.update({

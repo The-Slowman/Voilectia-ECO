@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { getPlayerFromRequest } from '@/lib/player-auth'
 import { z } from 'zod'
 
@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
   const postId  = searchParams.get('postId')
   const pending = searchParams.get('pending') === '1'
 
-  const session = await auth()
-  const isAdmin = !!session?.user
+  const admin = await getAdminFromRequest(req)
+  const isAdmin = !!admin
 
   const comments = await prisma.forumComment.findMany({
     where: {

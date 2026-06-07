@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorise.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorise.' }, { status: 401 })
 
   const days     = parseInt(new URL(req.url).searchParams.get('days') ?? '30')
   const cutoff   = new Date(Date.now() - days * 86400000)

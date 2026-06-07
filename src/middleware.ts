@@ -95,7 +95,13 @@ const SECTION_PREFIXES: Record<string, string[]> = {
 }
 
 // ── Limites rate limiting ──────────────────────────────────
-const API_RATE_LIMIT  = { limit: 60, windowMs: 60_000 }
+const API_RATE_LIMIT   = { limit: 60, windowMs: 60_000 }
+const LOGIN_RATE_LIMIT = { limit: 5,  windowMs: 60_000 }
+
+const LOGIN_ROUTES = [
+  '/api/admin/auth/login',
+  '/api/player/auth/login',
+]
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -114,9 +120,18 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── 1. Rate limiting API ──────────────────────────────────
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/admin/auth') && !pathname.startsWith('/api/auth')) {
-    if (!rateLimit(ip, API_RATE_LIMIT.limit, API_RATE_LIMIT.windowMs)) {
-      return new NextResponse('Too Many Requests', { status: 429 })
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
+    const isLoginRoute = LOGIN_ROUTES.includes(pathname)
+    if (isLoginRoute) {
+      // Rate limit strict pour les routes de login : 5 tentatives/min
+      if (!rateLimit(`login:${ip}`, LOGIN_RATE_LIMIT.limit, LOGIN_RATE_LIMIT.windowMs)) {
+        return new NextResponse('Too Many Requests', { status: 429 })
+      }
+    } else {
+      // Rate limit général : 60 req/min
+      if (!rateLimit(ip, API_RATE_LIMIT.limit, API_RATE_LIMIT.windowMs)) {
+        return new NextResponse('Too Many Requests', { status: 429 })
+      }
     }
   }
 

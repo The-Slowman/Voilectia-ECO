@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { logAudit } from '@/lib/audit'
 
 // POST — tirer un gagnant au sort
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     const giveaway = await prisma.giveaway.findUnique({
@@ -25,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     })
 
     await logAudit({
-      userId: session.user.id, userName: session.user.name,
+      userId: admin.id, userName: admin.name,
       action: 'UPDATE', resource: 'giveaway', resourceId: params.id,
       detail: `Gagnant tiré : ${winner.playerName}`, req,
     })

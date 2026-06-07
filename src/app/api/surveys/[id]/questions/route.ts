@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { text, type, options, required, order } = await req.json()
 
@@ -24,10 +22,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PATCH(req: NextRequest, _ctx: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { questionId, text, ...data } = await req.json()
   if (text !== undefined) data.question = text
@@ -38,10 +34,8 @@ export async function PATCH(req: NextRequest, _ctx: { params: { id: string } }) 
 }
 
 export async function DELETE(req: NextRequest, _ctx: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const { questionId } = await req.json()
   await prisma.surveyQuestion.delete({ where: { id: questionId } })

@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
-
-function requireAdmin(session: { user?: { role?: string } } | null) {
-  return session?.user && hasRole((session.user as { role?: string }).role ?? '', 'ADMIN')
-}
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const survey = await prisma.survey.findUnique({
@@ -23,8 +19,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!requireAdmin(session as { user?: { role?: string } } | null)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   const data = await req.json()
   const survey = await prisma.survey.update({
@@ -37,9 +33,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(survey)
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!requireAdmin(session as { user?: { role?: string } } | null)) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
 
   await prisma.survey.delete({ where: { id: params.id } })
   return NextResponse.json({ success: true })

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 // PATCH — marquer lu/non-lu
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     const { read } = await req.json()
@@ -21,10 +20,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   try {
     await prisma.contactMessage.delete({ where: { id: params.id } })

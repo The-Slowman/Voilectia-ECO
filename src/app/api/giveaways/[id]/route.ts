@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { parseBody, giveawaySchema } from '@/lib/validate'
 import { logAudit } from '@/lib/audit'
 
@@ -25,9 +25,8 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   const { data, error } = await parseBody(req, patchSchema)
   if (error) return error
@@ -40,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         ...(data.endDate ? { endDate: new Date(data.endDate) } : {}),
       },
     })
-    await logAudit({ userId: session.user.id, userName: session.user.name, action: 'UPDATE', resource: 'giveaway', resourceId: g.id, req })
+    await logAudit({ userId: admin.id, userName: admin.name, action: 'UPDATE', resource: 'giveaway', resourceId: g.id, req })
     return NextResponse.json(g)
   } catch (err) {
     console.error('[giveaway PATCH]', err)
@@ -48,14 +47,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'SUPER_ADMIN'))
-    return NextResponse.json({ error: 'Réservé au Super Admin.' }, { status: 403 })
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const admin = await getAdminFromRequest(req, 'SUPER_ADMIN')
+  if (!admin) return NextResponse.json({ error: 'Réservé au Super Admin.' }, { status: 403 })
 
   try {
     await prisma.giveaway.delete({ where: { id: params.id } })
-    await logAudit({ userId: session.user.id, userName: session.user.name, action: 'DELETE', resource: 'giveaway', resourceId: params.id })
+    await logAudit({ userId: admin.id, userName: admin.name, action: 'DELETE', resource: 'giveaway', resourceId: params.id })
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[giveaway DELETE]', err)

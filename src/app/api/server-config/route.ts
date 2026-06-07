@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { parseBody, serverConfigSchema } from '@/lib/validate'
 import { logAudit } from '@/lib/audit'
 
@@ -26,9 +26,8 @@ export async function GET() {
 
 // PATCH — admin
 export async function PATCH(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   const { data, error } = await parseBody(req, serverConfigSchema)
   if (error) return error
@@ -40,7 +39,7 @@ export async function PATCH(req: NextRequest) {
       update: { ...data, startDate: data.startDate ? new Date(data.startDate) : null, endDate: data.endDate ? new Date(data.endDate) : null },
       include: { progressions: { orderBy: { order: 'asc' } } },
     })
-    await logAudit({ userId: session.user.id, userName: session.user.name, action: 'UPDATE', resource: 'server_config', req })
+    await logAudit({ userId: admin.id, userName: admin.name, action: 'UPDATE', resource: 'server_config', req })
     return NextResponse.json(config)
   } catch (err) {
     console.error('[server-config PATCH]', err)

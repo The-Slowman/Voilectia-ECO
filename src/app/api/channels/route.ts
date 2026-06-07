@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 
 export async function GET() {
   const channels = await prisma.channel.findMany({
@@ -12,10 +12,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth() as { user?: { role?: string } } | null
-  if (!session?.user || !hasRole(session.user.role ?? '', 'ADMIN')) {
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
-  }
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   const { name, description, icon, color, order } = await req.json()
   if (!name) return NextResponse.json({ error: 'Nom requis.' }, { status: 400 })

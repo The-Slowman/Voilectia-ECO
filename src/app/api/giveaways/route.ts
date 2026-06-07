@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth, hasRole } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { parseBody, giveawaySchema } from '@/lib/validate'
 import { logAudit } from '@/lib/audit'
 
@@ -21,9 +21,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user || !hasRole(session.user.role, 'ADMIN'))
-    return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   const { data, error } = await parseBody(req, giveawaySchema)
   if (error) return error
@@ -32,7 +31,7 @@ export async function POST(req: NextRequest) {
     const g = await prisma.giveaway.create({
       data: { ...data, endDate: new Date(data.endDate) },
     })
-    await logAudit({ userId: session.user.id, userName: session.user.name, action: 'CREATE', resource: 'giveaway', resourceId: g.id, req })
+    await logAudit({ userId: admin.id, userName: admin.name, action: 'CREATE', resource: 'giveaway', resourceId: g.id, req })
     return NextResponse.json(g, { status: 201 })
   } catch (err) {
     console.error('[giveaways POST]', err)

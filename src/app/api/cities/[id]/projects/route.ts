@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getPlayerFromRequest } from '@/lib/player-auth'
 
 // GET — liste des projets
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
@@ -17,10 +17,13 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json(projects)
 }
 
-// POST — proposer un projet (public ou admin)
+// POST — proposer un projet (joueur authentifié)
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const user = await getPlayerFromRequest(req)
+  if (!user) return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+
   const body = await req.json()
-  const { title, description, budget, startDate, endDate, authorName } = body
+  const { title, description, budget, startDate, endDate } = body
 
   if (!title?.trim() || !description?.trim()) {
     return NextResponse.json({ error: 'Titre et description requis' }, { status: 400 })

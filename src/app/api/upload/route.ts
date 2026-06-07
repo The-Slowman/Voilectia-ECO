@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAdminFromRequest } from '@/lib/admin-auth'
 import { prisma } from '@/lib/db'
 import { writeFile, mkdir } from 'fs/promises'
 import { join, basename } from 'path'
@@ -49,8 +49,8 @@ function detectMimeFromBuffer(buf: Buffer): string | null {
 const ALLOWED_FOLDERS = new Set(['general', 'articles', 'cities', 'events', 'guides', 'staff', 'giveaways', 'avatars'])
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
+  const admin = await getAdminFromRequest(req)
+  if (!admin) return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 })
 
   const formData = await req.formData()
   const file     = formData.get('file') as File | null

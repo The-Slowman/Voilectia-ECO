@@ -953,19 +953,17 @@ model GiveawayEntry {
 // ─── Journal admin (AuditLog) ─────────────────────────────────
 
 model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  userName  String
-  action    String   // "CREATE" | "UPDATE" | "DELETE" | "BAN" | "LOGIN"
-  resource  String   // "article" | "user" | "city"…
+  id         String   @id @default(cuid())
+  userId     String
+  userName   String
+  action     String   // "CREATE" | "UPDATE" | "DELETE" | "BAN" | "LOGIN"
+  resource   String   // "article" | "user" | "city"...
   resourceId String?
-  detail    String?  @db.Text
-  ip        String?
-  createdAt DateTime @default(now())
+  detail     String?  @db.Text
+  ip         String?
+  createdAt  DateTime @default(now())
 
   @@index([userId])
   @@index([createdAt])
   @@map("audit_logs")
 }
-
-// Pages personnalisees
