@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { PageHero } from '@/components/ui/PageHero'
 import { SurveyCard } from '@/components/survey/SurveyCard'
@@ -9,9 +11,14 @@ export const metadata: Metadata = {
   description: 'Donnez votre avis sur les prochaines saisons et l\'avenir de Voilectia ECO.',
 }
 
-export const revalidate = 60
+export const revalidate = 0
 
 export default async function SondagePage() {
+  // Connexion joueur obligatoire
+  const token = cookies().get('voilectia_session')?.value
+  if (!token) redirect('/connexion?callbackUrl=/sondage')
+  const player = await prisma.user.findUnique({ where: { playerToken: token }, select: { id: true } })
+  if (!player) redirect('/connexion?callbackUrl=/sondage')
   const rawSurveys = await prisma.survey.findMany({
     where:   { published: true },
     orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],

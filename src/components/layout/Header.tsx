@@ -238,16 +238,16 @@ export function Header() {
           style={{ top: HEADER_H }}
           aria-label="Menu de navigation mobile"
         >
-          {/* Fond semi-transparent cliquable pour fermer */}
+          {/* Fond semi-transparent — z-0, ne capte pas les taps du panneau */}
           <div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/40 z-0"
             onClick={closeMobile}
             aria-hidden="true"
           />
 
-          {/* Panneau de navigation */}
+          {/* Panneau de navigation — z-10, TOUJOURS au-dessus de l'overlay */}
           <div
-            className="relative bg-[#0C1F14] border-b border-[rgba(82,183,136,0.15)]"
+            className="relative z-10 bg-[#0C1F14] border-b border-[rgba(82,183,136,0.15)]"
             style={{
               maxHeight: `calc(100vh - ${HEADER_H}px)`,
               overflowY: 'auto',
