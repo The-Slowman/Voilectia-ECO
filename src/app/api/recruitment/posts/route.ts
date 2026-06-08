@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getAdminFromRequest } from '@/lib/admin-auth'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 // GET public — postes ouverts
 export async function GET(req: NextRequest) {
@@ -17,7 +18,9 @@ export async function GET(req: NextRequest) {
       _count: { select: { applications: true } },
     },
   })
-  return NextResponse.json(posts)
+  // Sanitisation du HTML riche (description) avant rendu client
+  const safe = posts.map(p => ({ ...p, description: sanitizeHtml(p.description) }))
+  return NextResponse.json(safe)
 }
 
 // POST admin — créer un poste
@@ -29,6 +32,7 @@ export async function POST(req: NextRequest) {
   const post = await prisma.recruitmentPost.create({
     data: {
       ...data,
+      description:  typeof data.description === 'string' ? sanitizeHtml(data.description) : data.description,
       requirements: JSON.stringify(data.requirements ?? []),
       perks:        JSON.stringify(data.perks ?? []),
     },

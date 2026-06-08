@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getAdminFromRequest } from '@/lib/admin-auth'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 // GET by id or slug (public)
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
@@ -23,7 +24,11 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     data:  { views: { increment: 1 } },
   })
 
-  return NextResponse.json(post)
+  // Sanitisation du HTML riche du post avant envoi au client (défense XSS, couvre les données existantes).
+  // Les commentaires sont rendus en texte brut (échappé par React) → pas de sanitisation HTML.
+  const safe = { ...post, content: sanitizeHtml(post.content) }
+
+  return NextResponse.json(safe)
 }
 
 // PATCH — admin : pin, close, approve, move category, edit title/content
@@ -39,6 +44,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   for (const f of fields) {
     if (f in data) allowed[f] = data[f]
   }
+  // Sanitisation du contenu riche à l'écriture
+  if ('content' in allowed) allowed.content = sanitizeHtml(allowed.content as string)
 
   const post = await prisma.forumPost.update({
     where:   { id: params.id },

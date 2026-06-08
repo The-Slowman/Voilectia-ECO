@@ -1,6 +1,7 @@
 import { Calendar } from 'lucide-react'
 import { formatDate, CHANGELOG_TYPES } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 interface ChangelogCardProps {
   entry: {
@@ -64,7 +65,7 @@ export function ChangelogCard({ entry, compact = false }: ChangelogCardProps) {
       {!compact && (
         <div
           className="rich-content text-sm"
-          dangerouslySetInnerHTML={{ __html: entry.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(entry.content) }}
         />
       )}
     </div>

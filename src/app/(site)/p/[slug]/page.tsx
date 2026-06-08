@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 interface Props { params: { slug: string } }
 
@@ -40,7 +41,7 @@ export default async function CustomPageView({ params }: Props) {
         <div className="bg-white border border-[#DBCAA8] rounded-2xl p-8 shadow-sm">
           <div
             className="rich-content prose prose-sm max-w-none text-[#1A3D2B]"
-            dangerouslySetInnerHTML={{ __html: page.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
           />
         </div>
       </div>

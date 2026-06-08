@@ -28,7 +28,6 @@ const NAV_LINKS = [
     href: '#',
     children: [
       { label: 'Forum',       href: '/forum',       icon: '💬' },
-      { label: 'Villes',      href: '/villes',      icon: '🏙️' },
       { label: 'Événements',  href: '/evenements',  icon: '🎉' },
       { label: 'Giveaways',   href: '/giveaways',   icon: '🎁' },
       { label: 'Suggestions', href: '/suggestions', icon: '💡' },

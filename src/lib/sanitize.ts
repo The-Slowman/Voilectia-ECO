@@ -1,67 +1,77 @@
 /**
- * Sanitisation côté serveur — supprime les balises HTML dangereuses
- * sans dépendance externe (DOMPurify est client-only).
+ * Sanitisation HTML — côté serveur uniquement.
+ *
+ * Utilise `sanitize-html` (allowlist stricte) pour nettoyer le contenu riche
+ * produit par l'éditeur Tiptap avant tout rendu via dangerouslySetInnerHTML.
+ *
+ * ⚠️ Ce module ne doit être importé que dans du code serveur
+ * (Server Components, route handlers). Ne pas l'importer dans un composant
+ * 'use client' : `sanitize-html` dépend de modules Node.
  */
+import sanitizeHtmlLib from 'sanitize-html'
 
 // Balises autorisées dans le contenu riche (Tiptap)
-const ALLOWED_TAGS = new Set([
-  'p', 'br', 'strong', 'em', 'u', 's', 'code', 'pre',
-  'h1', 'h2', 'h3', 'h4', 'ul', 'ol', 'li',
-  'a', 'img', 'blockquote', 'hr', 'span', 'div',
-])
+const ALLOWED_TAGS = [
+  'p', 'br', 'hr',
+  'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'del', 'mark', 'sub', 'sup',
+  'code', 'pre',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li',
+  'a', 'img',
+  'blockquote', 'span', 'div',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td',
+]
 
-// Attributs autorisés par balise
-const ALLOWED_ATTRS: Record<string, Set<string>> = {
-  a:   new Set(['href', 'target', 'rel']),
-  img: new Set(['src', 'alt', 'width', 'height']),
-  '*': new Set(['class', 'id']),
+const SANITIZE_OPTIONS: sanitizeHtmlLib.IOptions = {
+  allowedTags: ALLOWED_TAGS,
+  allowedAttributes: {
+    a:   ['href', 'target', 'rel'],
+    img: ['src', 'alt', 'title', 'width', 'height'],
+    '*': ['class'],
+  },
+  // Protocoles autorisés pour les liens et images
+  allowedSchemes: ['http', 'https', 'mailto'],
+  allowedSchemesByTag: {
+    img: ['http', 'https'],
+  },
+  allowProtocolRelative: false,
+  // Force rel="noopener noreferrer" + target sûr sur les liens externes
+  transformTags: {
+    a: sanitizeHtmlLib.simpleTransform('a', {
+      rel: 'noopener noreferrer nofollow',
+    }),
+  },
+  // Supprime totalement le contenu des balises dangereuses
+  disallowedTagsMode: 'discard',
 }
 
 /**
- * Supprime les scripts inline et attributs dangereux d'une chaîne HTML.
- * Utilise des regex — pour une sécurité maximale en production,
- * utiliser DOMPurify côté client ou isomorphic-dompurify.
+ * Nettoie une chaîne HTML riche (issue de Tiptap) pour un rendu sûr.
+ * Supprime scripts, handlers on*, iframes, styles inline et tout schéma
+ * d'URL non autorisé (javascript:, data: sur les liens, etc.).
  */
-export function sanitizeHtml(html: string): string {
+export function sanitizeHtml(html: string | null | undefined): string {
   if (!html) return ''
-
-  return html
-    // Supprimer toutes les balises script
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Supprimer les gestionnaires d'événements (on*)
-    .replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '')
-    // Supprimer javascript: dans les href/src
-    .replace(/href\s*=\s*["']\s*javascript:[^"']*["']/gi, 'href="#"')
-    .replace(/src\s*=\s*["']\s*javascript:[^"']*["']/gi, 'src=""')
-    // Supprimer les balises meta, link, iframe, object, embed
-    .replace(/<(meta|link|iframe|object|embed|form|input|button)[^>]*>/gi, '')
-    // Supprimer les commentaires HTML
-    .replace(/<!--[\s\S]*?-->/g, '')
+  return sanitizeHtmlLib(html, SANITIZE_OPTIONS)
 }
 
 /**
- * Sanitise une chaîne simple (pas de HTML autorisé).
- * Échappe les caractères spéciaux.
+ * Sanitise une chaîne simple : supprime TOUTE balise HTML.
+ * À utiliser pour les titres, noms, champs courts.
  */
-export function sanitizeText(str: string): string {
-  return str
-    .replace(/&/g,  '&amp;')
-    .replace(/</g,  '&lt;')
-    .replace(/>/g,  '&gt;')
-    .replace(/"/g,  '&quot;')
-    .replace(/'/g,  '&#x27;')
-    .trim()
+export function sanitizeText(str: string | null | undefined): string {
+  if (!str) return ''
+  return sanitizeHtmlLib(str, { allowedTags: [], allowedAttributes: {} }).trim()
 }
 
 /**
- * Valide et nettoie un slug.
+ * Valide et nettoie un slug : minuscules, sans accents, alphanumérique + tirets.
  */
 export function sanitizeSlug(str: string): string {
   return str
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[̀-ͯ]/g, '') // diacritiques
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')

@@ -12,7 +12,6 @@ const FOOTER_LINKS = {
   Communauté: [
     { label: 'Forum',         href: '/forum' },
     { label: 'Suggestions',   href: '/suggestions' },
-    { label: 'Villes',        href: '/villes' },
     { label: 'Événements',    href: '/evenements' },
   ],
   Informations: [

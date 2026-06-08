@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { PageHero } from '@/components/ui/PageHero'
 import { Globe, Users, Coins, Building2, Shield, Heart, Leaf } from 'lucide-react'
 import { getPageContent } from '@/lib/page-content'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 export const metadata: Metadata = {
   title: 'Présentation',
@@ -40,7 +41,7 @@ export default async function PresentationPage() {
           </h2>
           {c.history_intro ? (
             <div className="card p-6 md:p-8 text-[#4A6854] leading-relaxed rich-content"
-                 dangerouslySetInnerHTML={{ __html: c.history_intro }} />
+                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(c.history_intro) }} />
           ) : (
             <div className="card p-6 md:p-8 space-y-4 text-[#4A6854] leading-relaxed">
               <p>

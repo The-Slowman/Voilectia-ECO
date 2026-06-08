@@ -164,7 +164,6 @@ async function main() {
 <p>Voilectia est né d'une volonté simple : créer un espace de jeu mature, bienveillant et équilibré où chaque joueur peut s'épanouir à son rythme.</p>
 <ul>
 <li>🌿 <strong>Économie équilibrée</strong> avec la monnaie VLC</li>
-<li>🏙️ <strong>Villes vivantes</strong> dirigées par des maires élus</li>
 <li>🤝 <strong>Fédération</strong> comme gouvernement central</li>
 <li>🛠️ <strong>Métiers variés</strong> pour une progression naturelle</li>
 </ul>

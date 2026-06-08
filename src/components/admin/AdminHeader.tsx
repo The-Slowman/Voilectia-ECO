@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Sun, Moon, Bell, ChevronRight, Plus, FileText, RefreshCw, BookOpen, Building2, Calendar, Gift, FileCode } from 'lucide-react'
+import { Menu, Sun, Moon, Bell, ChevronRight, Plus, FileText, RefreshCw, BookOpen, Calendar, Gift, FileCode } from 'lucide-react'
 import type { AdminTheme } from './AdminShell'
 import { useState } from 'react'
 
@@ -22,7 +22,6 @@ const CRUMBS: Record<string, string> = {
   '/admin/reglement':   'Règlement',
   '/admin/contenus':    'Pages CMS',
   '/admin/pages':       'Pages',
-  '/admin/villes':      'Villes',
   '/admin/progression': 'Progression',
   '/admin/serveur':     'Config Serveur',
   '/admin/parametres':  'Paramètres',
@@ -63,7 +62,6 @@ const QUICK_CREATES = [
   { label: 'Article',    href: '/admin/articles/new',   icon: FileText,   emoji: '📰' },
   { label: 'Changelog',  href: '/admin/changelog',      icon: RefreshCw,  emoji: '📜' },
   { label: 'Guide',      href: '/admin/guides',         icon: BookOpen,   emoji: '📚' },
-  { label: 'Ville',      href: '/admin/villes/nouveau', icon: Building2,  emoji: '🏘️' },
   { label: 'Événement',  href: '/admin/evenements',     icon: Calendar,   emoji: '🎉' },
   { label: 'Giveaway',   href: '/admin/giveaways',      icon: Gift,       emoji: '🎁' },
   { label: 'Page CMS',   href: '/admin/contenus',       icon: FileCode,   emoji: '📄' },

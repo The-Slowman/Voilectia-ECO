@@ -8,7 +8,7 @@ import { AdminEmptyState } from '@/components/admin/AdminEmptyState'
 interface Rank {
   id: string; name: string; color: string; badge: string | null; level: number
   canPublish: boolean; canManageArticles: boolean; canManageForum: boolean
-  canManageVilles: boolean; canManageStaff: boolean; canManageRecruitment: boolean
+  canManageStaff: boolean; canManageRecruitment: boolean
   canManageSurveys: boolean; canManageRanks: boolean; canManageUsers: boolean
   isStaff: boolean; order: number
   _count: { users: number }
@@ -23,7 +23,6 @@ const PERM_LABELS: { key: keyof Rank; label: string }[] = [
   { key: 'canPublish',           label: 'Publier contenu'       },
   { key: 'canManageArticles',    label: 'Articles & Guides'     },
   { key: 'canManageForum',       label: 'Modération forum'      },
-  { key: 'canManageVilles',      label: 'Gestion villes'        },
   { key: 'canManageRecruitment', label: 'Recrutement'           },
   { key: 'canManageSurveys',     label: 'Sondages'              },
   { key: 'canManageStaff',       label: 'Gestion staff'         },
@@ -34,7 +33,7 @@ const PERM_LABELS: { key: keyof Rank; label: string }[] = [
 const STAFF_INIT = {
   name: '', color: '#3FB950', badge: '', level: 1, isStaff: true,
   canPublish: false, canManageArticles: false, canManageForum: false,
-  canManageVilles: false, canManageStaff: false, canManageRecruitment: false,
+  canManageStaff: false, canManageRecruitment: false,
   canManageSurveys: false, canManageRanks: false, canManageUsers: false,
 }
 const PLAYER_INIT = { name: '', color: '#E3B341', badge: '', description: '', order: 0 }
@@ -63,7 +62,7 @@ export default function AdminRangsPage() {
       setFormS({
         name: r.name, color: r.color, badge: r.badge ?? '', level: r.level, isStaff: r.isStaff,
         canPublish: r.canPublish, canManageArticles: r.canManageArticles, canManageForum: r.canManageForum,
-        canManageVilles: r.canManageVilles, canManageStaff: r.canManageStaff,
+        canManageStaff: r.canManageStaff,
         canManageRecruitment: r.canManageRecruitment, canManageSurveys: r.canManageSurveys,
         canManageRanks: r.canManageRanks, canManageUsers: r.canManageUsers,
       })

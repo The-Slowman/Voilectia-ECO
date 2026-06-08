@@ -32,7 +32,6 @@ model User {
   playerRankId  String?
   playerRank    PlayerRank? @relation(fields: [playerRankId], references: [id], onDelete: SetNull)
   playerToken   String?   @unique            // token cookie session joueur
-  adminToken    String?   @unique            // token cookie session admin (séparé)
   lastLoginAt   DateTime?
   banned        Boolean   @default(false)    // compte banni
   createdAt     DateTime  @default(now())
@@ -50,8 +49,26 @@ model User {
   forumPosts     ForumPost[]    @relation("ForumPostAuthor")
   forumComments  ForumComment[] @relation("ForumCommentAuthor")
   suggestions    Suggestion[]   @relation("SuggestionAuthor")
+  adminSessions  AdminSession[]
 
   @@map("users")
+}
+
+// ─── Sessions admin (tokens hashés, expiration) ──────────────
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique            // SHA-256 du token de session (jamais le token brut)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?  @db.Text
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("admin_sessions")
 }
 
 // ─── Rangs staff (permissions) ────────────────────────────
@@ -66,7 +83,6 @@ model Rank {
   canPublish         Boolean @default(false)
   canManageArticles  Boolean @default(false)
   canManageForum     Boolean @default(false)
-  canManageVilles    Boolean @default(false)
   canManageStaff     Boolean @default(false)
   canManageRecruitment Boolean @default(false)
   canManageSurveys   Boolean @default(false)
@@ -264,48 +280,6 @@ model EventImage {
   event    Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@map("event_images")
-}
-
-// ─── Villes ───────────────────────────────────────────────────
-
-model City {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  description   String
-  mayor         String
-  mayorEmail    String?  // pour notifications
-  population    Int?
-  biome         String?
-  coverImage    String?
-  bannerImage   String?
-  coordinates   String?  // "x,y,z"
-  accentColor   String?  // couleur d'accent hex (#3A7A52)
-  motto         String?  // devise de la ville
-  published     Boolean  @default(false)
-  order         Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  images         CityImage[]
-  memberships    CityMembership[]
-  announcements  CityAnnouncement[]
-  projects       CityProject[]
-  collabsAsPartner CityCollaboration[] @relation("CollabPartner")
-  cityVotes      CityVote[]
-
-  @@map("cities")
-}
-
-model CityImage {
-  id     String @id @default(cuid())
-  url    String
-  alt    String?
-  order  Int    @default(0)
-  cityId String
-  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
-
-  @@map("city_images")
 }
 
 // ─── Staff ────────────────────────────────────────────────────
@@ -738,127 +712,6 @@ model SurveyAnswer {
   createdAt    DateTime       @default(now())
 
   @@map("survey_answers")
-}
-
-// Ville - Membres
-
-model CityMembership {
-  id          String    @id @default(cuid())
-  cityId      String
-  city        City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  playerName  String
-  playerEmail String?
-  discordTag  String?
-  message     String?   @db.Text
-  status      String    @default("pending")
-  role        String?
-  joinedAt    DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@map("city_memberships")
-}
-
-// Ville - Annonces
-
-model CityAnnouncement {
-  id         String        @id @default(cuid())
-  cityId     String
-  city       City          @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  title      String
-  content    String        @db.Text
-  authorName String
-  pinned     Boolean       @default(false)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  comments   CityComment[]
-
-  @@map("city_announcements")
-}
-
-model CityComment {
-  id             String           @id @default(cuid())
-  announcementId String
-  announcement   CityAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-  authorName     String
-  content        String           @db.Text
-  createdAt      DateTime         @default(now())
-
-  @@map("city_comments")
-}
-
-// Ville - Projets
-
-model CityProject {
-  id           String                   @id @default(cuid())
-  cityId       String
-  city         City                     @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  title        String
-  description  String                   @db.Text
-  budget       Int?
-  startDate    DateTime?
-  endDate      DateTime?
-  status       String                   @default("proposed")
-  progress     Int                      @default(0)
-  createdAt    DateTime                 @default(now())
-  updatedAt    DateTime                 @updatedAt
-  participants CityProjectParticipant[]
-  collabFrom   CityCollaboration?
-
-  @@map("city_projects")
-}
-
-model CityProjectParticipant {
-  id        String      @id @default(cuid())
-  projectId String
-  project   CityProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  name      String
-  role      String?
-  createdAt DateTime    @default(now())
-
-  @@map("city_project_participants")
-}
-
-model CityCollaboration {
-  id            String      @id @default(cuid())
-  projectId     String      @unique
-  project       CityProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  partnerCityId String
-  partnerCity   City        @relation("CollabPartner", fields: [partnerCityId], references: [id])
-  status        String      @default("accepted") // accepted | pending
-  createdAt     DateTime    @default(now())
-
-  @@map("city_collaborations")
-}
-
-// Ville - Votes
-
-model CityVote {
-  id          String             @id @default(cuid())
-  cityId      String
-  city        City               @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  title       String
-  description String?            @db.Text
-  options     String             @db.Text
-  endDate     DateTime?
-  published   Boolean            @default(false)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  responses   CityVoteResponse[]
-
-  @@map("city_votes")
-}
-
-model CityVoteResponse {
-  id         String   @id @default(cuid())
-  voteId     String
-  vote       CityVote @relation(fields: [voteId], references: [id], onDelete: Cascade)
-  option     String
-  voterToken String
-  createdAt  DateTime @default(now())
-
-  @@unique([voteId, voterToken])
-  @@map("city_vote_responses")
 }
 
 // ─── Contenu éditable des pages statiques ────────────────────

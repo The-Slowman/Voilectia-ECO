@@ -5,7 +5,7 @@ import NextImage from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, UserX, Shield, Award, FileText, RefreshCw,
-  BookOpen, HelpCircle, FileCode, Building2, TrendingUp, Coins,
+  BookOpen, HelpCircle, FileCode, TrendingUp, Coins,
   Settings, Calendar, Gift, MessageSquare, Lightbulb, Mail,
   ScrollText, Image as MediaIcon, Briefcase, GraduationCap,
   ClipboardList, UserPlus, Server, X, LogOut, ExternalLink,
@@ -47,7 +47,6 @@ const NAV_SECTIONS = [
   {
     id: 'server', label: 'Serveur', emoji: '🌍',
     items: [
-      { label: 'Villes',        href: '/admin/villes',      icon: Building2 },
       { label: 'Progression',   href: '/admin/progression', icon: TrendingUp },
       { label: 'Économie',      href: '/admin/serveur',     icon: Coins },
       { label: 'Configuration', href: '/admin/parametres',  icon: Server },
