@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { getPlayerFromRequest } from '@/lib/player-auth'
 import { z } from 'zod'
 import { slugify } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 const schema = z.object({
   title:      z.string().min(5).max(150),
@@ -78,7 +79,8 @@ export async function POST(req: NextRequest) {
 
   const post = await prisma.forumPost.create({
     data: {
-      title, slug, content,
+      title, slug,
+      content:      sanitizeHtml(content),
       excerpt:      excerpt || null,
       authorName:   user.name,
       authorEmail:  user.email,

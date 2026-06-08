@@ -46,7 +46,7 @@ function detectMimeFromBuffer(buf: Buffer): string | null {
 }
 
 // Dossiers autorisés (empêche path traversal)
-const ALLOWED_FOLDERS = new Set(['general', 'articles', 'cities', 'events', 'guides', 'staff', 'giveaways', 'avatars'])
+const ALLOWED_FOLDERS = new Set(['general', 'articles', 'events', 'guides', 'staff', 'giveaways', 'avatars'])
 
 export async function POST(req: NextRequest) {
   const admin = await getAdminFromRequest(req)

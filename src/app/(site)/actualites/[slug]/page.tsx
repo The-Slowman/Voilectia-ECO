@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, User, ArrowLeft, Tag } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 
 interface Props { params: { slug: string } }
 
@@ -110,7 +111,7 @@ export default async function ArticlePage({ params }: Props) {
         {/* Contenu */}
         <div
           className="rich-content text-[#1A3D2B] leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
         />
 
         {/* Pied de page */}

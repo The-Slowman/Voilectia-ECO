@@ -1,6 +1,7 @@
 import './admin.css'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { ADMIN_COOKIE, resolveAdminSession } from '@/lib/admin-auth'
 import { prisma } from '@/lib/db'
 import { AdminShell } from '@/components/admin/AdminShell'
 
@@ -11,18 +12,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const pathname = headers().get('x-pathname') ?? ''
   const isLoginPage = pathname === '/admin/login' || pathname.startsWith('/admin/login')
 
-  const tok = cookies().get('voilectia_admin_session')?.value
+  const tok = cookies().get(ADMIN_COOKIE)?.value
 
   // Pas de token — la page login se rend sans shell, les autres sont protégées par middleware
   if (!tok) {
     return <>{children}</>
   }
 
-  // ⚠️ SÉCURITÉ : Utilise adminToken exclusivement (pas playerToken)
-  const user = await prisma.user.findFirst({
-    where:  { adminToken: tok, role: { not: 'PLAYER' } },
-    select: { name: true, email: true, role: true },
-  }).catch(() => null)
+  // ⚠️ SÉCURITÉ : résolution de session hashée (expiration + rôle admin vérifiés)
+  const admin = await resolveAdminSession(tok)
+  const user = admin
+    ? await prisma.user.findUnique({
+        where:  { id: admin.id },
+        select: { name: true, email: true, role: true },
+      }).catch(() => null)
+    : null
 
   if (!user) {
     // Token présent mais invalide (token périmé, colonne manquante, erreur DB…)

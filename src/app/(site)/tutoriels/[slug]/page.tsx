@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { formatDate } from '@/lib/utils'
+import { sanitizeHtml } from '@/lib/sanitize'
 import { ChevronLeft, Eye, Clock, User } from 'lucide-react'
 
 interface Props { params: { slug: string } }
@@ -85,7 +86,7 @@ export default async function TutorialPage({ params }: Props) {
           )}
           <div
             className="rich-content prose prose-sm max-w-none text-[#1A3D2B]"
-            dangerouslySetInnerHTML={{ __html: tutorial.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(tutorial.content) }}
           />
         </div>
 

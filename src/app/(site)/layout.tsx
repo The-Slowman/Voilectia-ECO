@@ -1,7 +1,10 @@
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AnnouncementBanner } from '@/components/ui/AnnouncementBanner'
 import { prisma } from '@/lib/db'
+import { getMaintenanceStatus, isPathAllowedDuringMaintenance } from '@/lib/settings'
 
 // Force dynamic rendering — prevents SSG from querying DB at build time
 export const dynamic = 'force-dynamic'
@@ -19,6 +22,13 @@ async function getBannerActive(): Promise<boolean> {
 }
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  // ── Maintenance (gérée ici, plus dans le middleware) ──────
+  const pathname = headers().get('x-pathname') ?? ''
+  const { active, allowed } = await getMaintenanceStatus()
+  if (active && pathname && !isPathAllowedDuringMaintenance(pathname, allowed)) {
+    redirect('/maintenance')
+  }
+
   const hasBanner = await getBannerActive()
 
   return (

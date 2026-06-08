@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { prisma } from './db'
+import { ADMIN_COOKIE, resolveAdminSession } from './admin-auth'
 
 // ─── Types ────────────────────────────────────────────────────
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'PLAYER'
@@ -15,23 +15,12 @@ export function hasRole(userRole: string, requiredRole: UserRole): boolean {
   return (ROLES[userRole] ?? 0) >= (ROLES[requiredRole] ?? 0)
 }
 
-// ─── Auth admin — utilise adminToken (séparé du playerToken joueur) ──
-export async function auth(): Promise<{ user: { id: string; name: string; email: string; role: string } } | null> {
-  try {
-    const tok = cookies().get('voilectia_admin_session')?.value
-    if (!tok) return null
-
-    // Recherche uniquement sur adminToken, jamais sur playerToken
-    const user = await prisma.user.findFirst({
-      where: { adminToken: tok, role: { not: 'PLAYER' } },
-      select: { id: true, name: true, email: true, role: true },
-    })
-
-    if (!user) return null
-    return { user }
-  } catch {
-    return null
-  }
+// ─── Auth admin — session hashée en base (voir lib/admin-auth) ──
+export async function auth(): Promise<{ user: { id: string; name: string; role: string } } | null> {
+  const tok = cookies().get(ADMIN_COOKIE)?.value
+  const user = await resolveAdminSession(tok)
+  if (!user) return null
+  return { user }
 }
 
 // ─── Stubs NextAuth pour les imports existants ────────────────

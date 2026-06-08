@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
-  Users, FileText, RefreshCw, BookOpen, Building2, MessageSquare,
+  Users, FileText, RefreshCw, BookOpen, MessageSquare,
   Lightbulb, Gift, ArrowUpRight, ArrowRight, Calendar, Clock,
   Shield, HelpCircle, Mail, AlertTriangle, TrendingUp,
   Zap, Plus,
@@ -13,7 +13,7 @@ export const revalidate = 30
 async function getDashboardData() {
   const [
     playerCount, articleCount, changelogCount, guideCount,
-    cityCount, staffCount, faqCount, messageCount,
+    staffCount, faqCount, messageCount,
     suggestionCount, forumPostCount, giveawayCount, eventCount,
     recentArticles, recentMessages, recentPlayers, pendingForumPosts, recentLogins,
   ] = await Promise.all([
@@ -21,7 +21,6 @@ async function getDashboardData() {
     prisma.article.count({ where: { published: true } }),
     prisma.changelog.count({ where: { published: true } }),
     prisma.guide.count({ where: { published: true } }),
-    prisma.city.count({ where: { published: true } }),
     prisma.staffMember.count({ where: { active: true } }),
     prisma.faqItem.count({ where: { published: true } }),
     prisma.contactMessage.count({ where: { read: false } }),
@@ -51,7 +50,7 @@ async function getDashboardData() {
   return {
     stats: {
       playerCount, articleCount, changelogCount, guideCount,
-      cityCount, staffCount, faqCount, messageCount,
+      staffCount, faqCount, messageCount,
       suggestionCount, forumPostCount, giveawayCount, eventCount,
       pendingForumPosts,
     },
@@ -200,7 +199,6 @@ export default async function AdminDashboard() {
             { label: 'Nouvel article',    href: '/admin/articles',       emoji: '📰' },
             { label: 'Nouveau changelog', href: '/admin/changelog',      emoji: '📜' },
             { label: 'Nouveau guide',     href: '/admin/guides',         emoji: '📚' },
-            { label: 'Nouvelle ville',    href: '/admin/villes/nouveau', emoji: '🌍' },
             { label: 'Nouvel événement',  href: '/admin/evenements',     emoji: '🎉' },
             { label: 'Nouveau giveaway',  href: '/admin/giveaways',      emoji: '🎁' },
             { label: 'Nouveau membre',    href: '/admin/membres',        emoji: '👤' },
@@ -258,11 +256,6 @@ export default async function AdminDashboard() {
             label="Articles publiés" value={stats.articleCount}
             icon={<FileText size={19} />} href="/admin/articles"
             color="var(--adm-blue)" bg="var(--adm-blue-sub)"
-          />
-          <StatCard
-            label="Villes actives" value={stats.cityCount}
-            icon={<Building2 size={19} />} href="/admin/villes"
-            color="var(--adm-cyan)" bg="var(--adm-cyan-sub)"
           />
           <StatCard
             label="Sujets forum" value={stats.forumPostCount}
