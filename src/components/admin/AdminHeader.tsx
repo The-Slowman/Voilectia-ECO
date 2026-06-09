@@ -9,6 +9,7 @@ import { useState } from 'react'
 /* ── Breadcrumb map ─────────────────────────────────────── */
 const CRUMBS: Record<string, string> = {
   '/admin':             'Dashboard',
+  '/admin/equipe':      'Équipe & accès',
   '/admin/staff':       'Staff',
   '/admin/rangs':       'Rôles',
   '/admin/articles':    'Articles',
@@ -29,7 +30,7 @@ const CRUMBS: Record<string, string> = {
 }
 
 const SECTION: Record<string, string> = {
-  staff: 'Staff', rangs: 'Staff',
+  equipe: 'Staff', staff: 'Staff', rangs: 'Staff',
   articles: 'Contenu', changelog: 'Contenu', guides: 'Contenu', tutoriels: 'Contenu', faq: 'Contenu', reglement: 'Contenu', contenus: 'Contenu', pages: 'Contenu',
   progression: 'Serveur', serveur: 'Serveur',
   evenements: 'Événements', giveaways: 'Événements',
