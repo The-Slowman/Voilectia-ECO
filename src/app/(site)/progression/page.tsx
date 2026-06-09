@@ -140,3 +140,5 @@ export default async function ProgressionPage() {
         </div>
       </div>
     </div>
+  )
+}
