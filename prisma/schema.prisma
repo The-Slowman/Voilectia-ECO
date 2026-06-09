@@ -23,17 +23,7 @@ model User {
   // Rang staff personnalisé (optionnel — remplace le rôle si défini)
   rankId        String?
   rank          Rank?     @relation(fields: [rankId], references: [id])
-  // Champs joueur
-  discordTag    String?
-  ecoName       String?                      // pseudo in-game
-  bio           String?   @db.Text
-  jobId         String?
-  job           Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  playerRankId  String?
-  playerRank    PlayerRank? @relation(fields: [playerRankId], references: [id], onDelete: SetNull)
-  playerToken   String?   @unique            // token cookie session joueur
   lastLoginAt   DateTime?
-  banned        Boolean   @default(false)    // compte banni
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -41,15 +31,7 @@ model User {
   changelogs    Changelog[]
   guides        Guide[]
   events        Event[]
-
-  sentMessages      DirectMessage[]  @relation("Sender")
-  receivedMessages  DirectMessage[]  @relation("Receiver")
-  channelMessages   ChannelMessage[]
-
-  forumPosts     ForumPost[]    @relation("ForumPostAuthor")
-  forumComments  ForumComment[] @relation("ForumCommentAuthor")
-  suggestions    Suggestion[]   @relation("SuggestionAuthor")
-  adminSessions  AdminSession[]
+  adminSessions AdminSession[]
 
   @@map("users")
 }
@@ -82,10 +64,7 @@ model Rank {
   // Permissions
   canPublish         Boolean @default(false)
   canManageArticles  Boolean @default(false)
-  canManageForum     Boolean @default(false)
   canManageStaff     Boolean @default(false)
-  canManageRecruitment Boolean @default(false)
-  canManageSurveys   Boolean @default(false)
   canManageRanks     Boolean @default(false)
   canManageUsers     Boolean @default(false)
   isStaff            Boolean @default(true)
@@ -96,84 +75,6 @@ model Rank {
   users       User[]
 
   @@map("ranks")
-}
-
-// ─── Rangs in-game (décoratifs, affichés sur les profils) ─
-
-model PlayerRank {
-  id          String   @id @default(cuid())
-  name        String   @unique        // "VIP", "Vétéran", "Fondateur"
-  color       String   @default("#D4A820")
-  badge       String?                 // emoji ou préfixe
-  description String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  users       User[]
-
-  @@map("player_ranks")
-}
-
-// ─── Métiers in-game ──────────────────────────────────────
-
-model Job {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  icon        String?                 // emoji
-  color       String   @default("#3A7A52")
-  order       Int      @default(0)
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]
-
-  @@map("jobs")
-}
-
-// ─── Messagerie directe ───────────────────────────────────
-
-model DirectMessage {
-  id         String   @id @default(cuid())
-  senderId   String
-  sender     User     @relation("Sender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiverId String
-  receiver   User     @relation("Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
-  content    String   @db.Text
-  read       Boolean  @default(false)
-  createdAt  DateTime @default(now())
-
-  @@map("direct_messages")
-}
-
-// ─── Canaux de discussion ─────────────────────────────────
-
-model Channel {
-  id          String           @id @default(cuid())
-  name        String           @unique
-  description String?
-  icon        String?          // emoji
-  color       String           @default("#3A7A52")
-  isPublic    Boolean          @default(true)
-  order       Int              @default(0)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  messages    ChannelMessage[]
-
-  @@map("channels")
-}
-
-model ChannelMessage {
-  id        String   @id @default(cuid())
-  channelId String
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-
-  @@map("channel_messages")
 }
 
 // ─── Articles / Actualités ────────────────────────────────────
@@ -457,149 +358,6 @@ model SiteSettings {
   @@map("site_settings")
 }
 
-// ─── Messages de contact ──────────────────────────────────────
-
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  subject   String
-  message   String @db.Text
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("contact_messages")
-}
-
-// ─── Forum ────────────────────────────────────────────────────
-
-model ForumCategory {
-  id          String      @id @default(cuid())
-  name        String
-  slug        String      @unique
-  description String?
-  icon        String?     // emoji ou nom d'icône
-  color       String?     // couleur d'accent hex
-  order       Int         @default(0)
-  posts       ForumPost[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  @@map("forum_categories")
-}
-
-model ForumPost {
-  id            String        @id @default(cuid())
-  title         String
-  slug          String        @unique
-  content       String @db.Text
-  excerpt       String? @db.Text
-  authorName    String
-  authorEmail   String?
-  authorUserId  String?
-  authorUser    User?         @relation("ForumPostAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
-  categoryId    String
-  category      ForumCategory @relation(fields: [categoryId], references: [id])
-  pinned        Boolean       @default(false)
-  closed        Boolean       @default(false)  // empêche nouveaux commentaires
-  approved      Boolean       @default(false)
-  views         Int           @default(0)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  comments      ForumComment[]
-  reactions     ForumReaction[]
-  reports       ForumReport[]
-
-  @@map("forum_posts")
-}
-
-model ForumComment {
-  id            String          @id @default(cuid())
-  content       String @db.Text
-  authorName    String
-  authorEmail   String?
-  authorUserId  String?
-  authorUser    User?           @relation("ForumCommentAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
-  postId        String
-  post          ForumPost       @relation(fields: [postId], references: [id], onDelete: Cascade)
-  approved      Boolean         @default(false)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  reactions     ForumReaction[]
-  reports       ForumReport[]
-
-  @@map("forum_comments")
-}
-
-// ─── Réactions forum (likes) ──────────────────────────────
-
-model ForumReaction {
-  id          String        @id @default(cuid())
-  emoji       String        // "👍" | "❤️" | "😂" | "🔥" | "👎"
-  voterToken  String        // token anonyme localStorage
-  // L'une ou l'autre des deux FK (pas les deux en même temps)
-  postId      String?
-  post        ForumPost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  commentId   String?
-  comment     ForumComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-
-  @@unique([postId,    voterToken, emoji])
-  @@unique([commentId, voterToken, emoji])
-  @@map("forum_reactions")
-}
-
-// ─── Signalements forum ───────────────────────────────────
-
-model ForumReport {
-  id          String        @id @default(cuid())
-  reason      String        // "spam" | "harcelement" | "hors-sujet" | "autre"
-  details     String? @db.Text
-  reporterToken String
-  status      String        @default("pending") // pending | reviewed | dismissed
-  // L'une ou l'autre
-  postId      String?
-  post        ForumPost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  commentId   String?
-  comment     ForumComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-
-  @@map("forum_reports")
-}
-
-
-model Suggestion {
-  id            String           @id @default(cuid())
-  title         String
-  content       String @db.Text
-  authorName    String
-  authorEmail   String?
-  authorUserId  String?
-  authorUser    User?            @relation("SuggestionAuthor", fields: [authorUserId], references: [id], onDelete: SetNull)
-  status        String           @default("pending")
-  upvotes       Int              @default(0)
-  downvotes     Int              @default(0)
-  adminNote     String? @db.Text
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  votes         SuggestionVote[]
-
-  @@map("suggestions")
-}
-
-
-model SuggestionVote {
-  id           String     @id @default(cuid())
-  suggestionId String
-  suggestion   Suggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
-  voterToken   String
-  vote         String
-  createdAt    DateTime   @default(now())
-
-  @@unique([suggestionId, voterToken])
-  @@map("suggestion_votes")
-}
-
 // Tutoriels
 
 model Tutorial {
@@ -621,97 +379,6 @@ model Tutorial {
   updatedAt  DateTime @updatedAt
 
   @@map("tutorials")
-}
-
-// Recrutement
-
-model RecruitmentPost {
-  id           String                   @id @default(cuid())
-  title        String
-  subtitle     String?
-  description  String                   @db.Text
-  requirements String                   @db.Text
-  perks        String                   @db.Text
-  icon         String?
-  color        String?                  @default("#3A7A52")
-  slots        Int?
-  minRank      String?
-  open         Boolean                  @default(true)
-  order        Int                      @default(0)
-  createdAt    DateTime                 @default(now())
-  updatedAt    DateTime                 @updatedAt
-  applications RecruitmentApplication[]
-
-  @@map("recruitment_posts")
-}
-
-model RecruitmentApplication {
-  id           String          @id @default(cuid())
-  postId       String
-  post         RecruitmentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  playerName   String
-  discordTag   String
-  email        String?
-  age          Int?
-  experience   String          @db.Text
-  motivation   String          @db.Text
-  availability String?
-  timezone     String?
-  status       String          @default("pending")
-  adminNote    String?         @db.Text
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-
-  @@map("recruitment_applications")
-}
-
-// Sondages
-
-model Survey {
-  id          String           @id @default(cuid())
-  title       String
-  description String?          @db.Text
-  season      String?
-  coverImage  String?
-  endDate     DateTime?
-  published   Boolean          @default(false)
-  open        Boolean          @default(true)
-  order       Int              @default(0)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  questions   SurveyQuestion[]
-  answers     SurveyAnswer[]
-
-  @@map("surveys")
-}
-
-model SurveyQuestion {
-  id        String         @id @default(cuid())
-  surveyId  String
-  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  question  String
-  type      String         @default("text")
-  options   String?        @db.Text
-  order     Int            @default(0)
-  required  Boolean        @default(true)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  answers   SurveyAnswer[]
-
-  @@map("survey_questions")
-}
-
-model SurveyAnswer {
-  id           String         @id @default(cuid())
-  questionId   String
-  question     SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  surveyId     String
-  survey       Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  response     String         @db.Text
-  sessionToken String
-  createdAt    DateTime       @default(now())
-
-  @@map("survey_answers")
 }
 
 // ─── Contenu éditable des pages statiques ────────────────────

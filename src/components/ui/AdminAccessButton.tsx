@@ -11,10 +11,8 @@ export function AdminAccessButton() {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    // Vérifie la SESSION JOUEUR (cookie voilectia_session) — pas le cookie admin
-    // Le bouton ne s'affiche que si l'utilisateur est connecté sur le site public
-    // et que son rôle est un rôle staff (pas PLAYER)
-    fetch('/api/player/auth/me')
+    // Affiche le bouton uniquement si une session admin valide existe.
+    fetch('/api/admin/auth/me')
       .then(r => r.json())
       .then(d => {
         if (d?.role && ADMIN_ROLES.includes(d.role)) setIsAdmin(true)

@@ -56,6 +56,29 @@ const nextConfig = {
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }]
   },
+  async redirects() {
+    // Anciennes routes membre / communauté / villes → accueil (le Discord prend le relais)
+    const toHome = [
+      '/login', '/register', '/connexion', '/inscription',
+      '/profile', '/profil', '/account', '/compte',
+      '/messages', '/messagerie', '/members', '/membres', '/users',
+      '/forum', '/forum/:path*',
+      '/suggestions', '/suggestions/:path*',
+      '/sondage', '/sondages',
+      '/recrutement', '/contact',
+      '/staff', '/federation', '/carte', '/soutenir',
+      '/villes', '/villes/:path*', '/ville', '/cities', '/city', '/settlements',
+    ]
+    // Routes renommées (vitrine)
+    const renamed = [
+      { source: '/serveur',      destination: '/configuration', permanent: true },
+      { source: '/top-serveur',  destination: '/vote',          permanent: true },
+    ]
+    return [
+      ...toHome.map((source) => ({ source, destination: '/', permanent: false })),
+      ...renamed,
+    ]
+  },
   webpack(config) {
     config.resolve.alias['@'] = join(__dirname, 'src')
     return config

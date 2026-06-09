@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({ where: { email }, include: { rank: true } })
 
-    // Bloquer les joueurs et les comptes bannis
-    if (!user || user.role === 'PLAYER' || user.banned)
+    // Seuls les comptes staff/admin peuvent se connecter
+    if (!user || user.role === 'PLAYER')
       return NextResponse.json({ error: 'Identifiants invalides.' }, { status: 401 })
 
     const ok = await bcrypt.compare(password, user.password)

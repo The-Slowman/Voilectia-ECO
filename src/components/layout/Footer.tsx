@@ -10,16 +10,16 @@ const FOOTER_LINKS = {
     { label: 'Guides',        href: '/guides' },
   ],
   Communauté: [
-    { label: 'Forum',         href: '/forum' },
-    { label: 'Suggestions',   href: '/suggestions' },
     { label: 'Événements',    href: '/evenements' },
+    { label: 'Giveaways',     href: '/giveaways' },
+    { label: 'Discord',       href: '/discord' },
   ],
   Informations: [
-    { label: '🏆 Top-Serveur', href: '/top-serveur' },
+    { label: '🏆 Voter',       href: '/vote' },
     { label: 'Économie',       href: '/economie' },
+    { label: 'Progression',    href: '/progression' },
+    { label: 'Configuration',  href: '/configuration' },
     { label: 'FAQ',            href: '/faq' },
-    { label: 'Nous soutenir',  href: '/soutenir' },
-    { label: 'Contact',        href: '/contact' },
   ],
 }
 

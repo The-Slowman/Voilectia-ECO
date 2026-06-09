@@ -7,6 +7,7 @@ import { sanitizeHtml } from '@/lib/sanitize'
 export const metadata: Metadata = {
   title: 'Présentation',
   description: 'Découvrez l\'histoire, la philosophie et les valeurs de Voilectia, serveur Eco Semi-RP Chill français.',
+  alternates: { canonical: "/presentation" },
 }
 
 export const revalidate = 60

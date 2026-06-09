@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db'
 export const metadata: Metadata = {
   title: 'Changelog',
   description: 'Historique complet des mises à jour du serveur Voilectia ECO.',
+  alternates: { canonical: "/changelog" },
 }
 
 export const revalidate = 120

@@ -9,11 +9,11 @@ export const metadata   = { title: 'Voilectia ECO — Bientôt' }
 
 // Sections accessibles avec leurs labels et URL
 const SECTION_MAP: Record<string, { label: string; href: string; icon: string }> = {
-  'forum':        { label: 'Forum',              href: '/forum',        icon: '💬' },
   'tutoriels':    { label: 'Tutoriels',           href: '/tutoriels',    icon: '📖' },
-  'top-serveur':  { label: 'Voter Top-Serveur',   href: '/top-serveur',  icon: '🏆' },
-  'sondage':      { label: 'Sondages',            href: '/sondage',      icon: '📋' },
-  'recrutement':  { label: 'Recrutement',         href: '/recrutement',  icon: '🛡️' },
+  'guides':       { label: 'Guides',              href: '/guides',       icon: '📚' },
+  'top-serveur':  { label: 'Voter Top-Serveur',   href: '/vote',         icon: '🏆' },
+  'changelog':    { label: 'Changelog',           href: '/changelog',    icon: '🔄' },
+  'faq':          { label: 'FAQ',                 href: '/faq',          icon: '❓' },
 }
 
 async function getSettings() {

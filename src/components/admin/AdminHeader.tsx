@@ -9,11 +9,8 @@ import { useState } from 'react'
 /* ── Breadcrumb map ─────────────────────────────────────── */
 const CRUMBS: Record<string, string> = {
   '/admin':             'Dashboard',
-  '/admin/membres':     'Membres',
   '/admin/staff':       'Staff',
   '/admin/rangs':       'Rôles',
-  '/admin/jobs':        'Métiers',
-  '/admin/recrutement': 'Recrutement',
   '/admin/articles':    'Articles',
   '/admin/changelog':   'Changelog',
   '/admin/guides':      'Guides',
@@ -27,20 +24,15 @@ const CRUMBS: Record<string, string> = {
   '/admin/parametres':  'Paramètres',
   '/admin/evenements':  'Événements',
   '/admin/giveaways':   'Giveaways',
-  '/admin/sondage':     'Sondages',
-  '/admin/forum':       'Forum',
-  '/admin/suggestions': 'Suggestions',
-  '/admin/messages':    'Messages',
   '/admin/audit':       'Audit / Logs',
   '/admin/medias':      'Médias',
 }
 
 const SECTION: Record<string, string> = {
-  membres: 'Communauté', staff: 'Communauté', rangs: 'Communauté', jobs: 'Communauté', recrutement: 'Communauté',
+  staff: 'Staff', rangs: 'Staff',
   articles: 'Contenu', changelog: 'Contenu', guides: 'Contenu', tutoriels: 'Contenu', faq: 'Contenu', reglement: 'Contenu', contenus: 'Contenu', pages: 'Contenu',
-  villes: 'Serveur', progression: 'Serveur', serveur: 'Serveur',
-  evenements: 'Animation', giveaways: 'Animation', sondage: 'Animation',
-  forum: 'Communication', suggestions: 'Communication', messages: 'Communication',
+  progression: 'Serveur', serveur: 'Serveur',
+  evenements: 'Événements', giveaways: 'Événements',
   parametres: 'Administration', audit: 'Administration', medias: 'Administration',
 }
 

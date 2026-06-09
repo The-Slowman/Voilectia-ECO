@@ -9,33 +9,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages statiques
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE,               lastModified: now, changeFrequency: 'daily',   priority: 1.0 },
-    { url: `${BASE}/presentation`,  lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE}/economie`,       lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE}/reglement`,      lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE}/federation`,     lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE}/serveur`,        lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE}/presentation`,   lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/reglement`,      lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE}/configuration`,  lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE}/progression`,    lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/staff`,          lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${BASE}/forum`,          lastModified: now, changeFrequency: 'daily',   priority: 0.8 },
+    { url: `${BASE}/economie`,       lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/guides`,         lastModified: now, changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE}/tutoriels`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
     { url: `${BASE}/changelog`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
     { url: `${BASE}/evenements`,     lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
-    { url: `${BASE}/tutoriels`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.7 },
     { url: `${BASE}/giveaways`,      lastModified: now, changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/recrutement`,    lastModified: now, changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${BASE}/sondage`,        lastModified: now, changeFrequency: 'weekly',  priority: 0.5 },
     { url: `${BASE}/faq`,            lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${BASE}/connexion`,      lastModified: now, changeFrequency: 'never',   priority: 0.3 },
-    { url: `${BASE}/inscription`,    lastModified: now, changeFrequency: 'never',   priority: 0.3 },
+    { url: `${BASE}/vote`,           lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE}/discord`,        lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
   ]
 
   try {
-    const [articles, guides, events, tutorials, forumPosts, giveaways] = await Promise.all([
+    const [articles, guides, events, tutorials, giveaways] = await Promise.all([
       prisma.article.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
       prisma.guide.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
       prisma.event.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
       prisma.tutorial.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
-      prisma.forumPost.findMany({ where: { approved: true }, select: { slug: true, updatedAt: true, category: { select: { slug: true } } } }),
       prisma.giveaway.findMany({ where: { published: true }, select: { id: true, updatedAt: true } }),
     ])
 
@@ -44,7 +38,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...guides.map(g => ({ url: `${BASE}/guides/${g.slug}`, lastModified: g.updatedAt, changeFrequency: 'monthly' as const, priority: 0.7 })),
       ...events.map(e => ({ url: `${BASE}/evenements/${e.slug}`, lastModified: e.updatedAt, changeFrequency: 'weekly' as const, priority: 0.6 })),
       ...tutorials.map(t => ({ url: `${BASE}/tutoriels/${t.slug}`, lastModified: t.updatedAt, changeFrequency: 'monthly' as const, priority: 0.6 })),
-      ...forumPosts.map(p => ({ url: `${BASE}/forum/${p.category.slug}/${p.slug}`, lastModified: p.updatedAt, changeFrequency: 'weekly' as const, priority: 0.5 })),
       ...giveaways.map(g => ({ url: `${BASE}/giveaways/${g.id}`, lastModified: g.updatedAt, changeFrequency: 'daily' as const, priority: 0.6 })),
     ]
 

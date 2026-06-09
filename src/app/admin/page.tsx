@@ -1,10 +1,9 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
-  Users, FileText, RefreshCw, BookOpen, MessageSquare,
-  Lightbulb, Gift, ArrowUpRight, ArrowRight, Calendar, Clock,
-  Shield, HelpCircle, Mail, AlertTriangle, TrendingUp,
-  Zap, Plus,
+  FileText, RefreshCw, BookOpen, Gift, ArrowUpRight, ArrowRight,
+  Calendar, HelpCircle, Shield, GraduationCap, FileCode,
+  Zap, Plus, ExternalLink,
 } from 'lucide-react'
 import { formatRelative } from '@/lib/utils'
 
@@ -12,61 +11,46 @@ export const revalidate = 30
 
 async function getDashboardData() {
   const [
-    playerCount, articleCount, changelogCount, guideCount,
-    staffCount, faqCount, messageCount,
-    suggestionCount, forumPostCount, giveawayCount, eventCount,
-    recentArticles, recentMessages, recentPlayers, pendingForumPosts, recentLogins,
+    articleCount, changelogCount, guideCount, tutorialCount,
+    faqCount, staffCount, giveawayCount, eventCount, pageCount,
+    recentArticles, recentChangelogs,
   ] = await Promise.all([
-    prisma.user.count({ where: { role: 'PLAYER' } }),
     prisma.article.count({ where: { published: true } }),
     prisma.changelog.count({ where: { published: true } }),
     prisma.guide.count({ where: { published: true } }),
-    prisma.staffMember.count({ where: { active: true } }),
+    prisma.tutorial.count({ where: { published: true } }),
     prisma.faqItem.count({ where: { published: true } }),
-    prisma.contactMessage.count({ where: { read: false } }),
-    prisma.suggestion.count({ where: { status: 'pending' } }),
-    prisma.forumPost.count({ where: { approved: true } }),
+    prisma.staffMember.count({ where: { active: true } }),
     prisma.giveaway.count({ where: { published: true, ended: false } }),
     prisma.event.count({ where: { published: true } }),
+    prisma.customPage.count({ where: { published: true } }),
     prisma.article.findMany({
-      take: 5, orderBy: { createdAt: 'desc' },
+      take: 6, orderBy: { createdAt: 'desc' },
       include: { author: { select: { name: true } } },
     }),
-    prisma.contactMessage.findMany({
-      take: 5, where: { read: false }, orderBy: { createdAt: 'desc' },
-    }),
-    prisma.user.findMany({
-      take: 6, where: { role: 'PLAYER' }, orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, createdAt: true, email: true },
-    }),
-    prisma.forumPost.count({ where: { approved: false } }),
-    prisma.user.findMany({
-      take: 6, where: { role: 'PLAYER', lastLoginAt: { not: null } },
-      orderBy: { lastLoginAt: 'desc' },
-      select: { id: true, name: true, lastLoginAt: true, banned: true },
+    prisma.changelog.findMany({
+      take: 6, orderBy: { createdAt: 'desc' },
     }),
   ])
 
   return {
     stats: {
-      playerCount, articleCount, changelogCount, guideCount,
-      staffCount, faqCount, messageCount,
-      suggestionCount, forumPostCount, giveawayCount, eventCount,
-      pendingForumPosts,
+      articleCount, changelogCount, guideCount, tutorialCount,
+      faqCount, staffCount, giveawayCount, eventCount, pageCount,
     },
-    recentArticles, recentMessages, recentPlayers, recentLogins,
+    recentArticles, recentChangelogs,
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   STAT CARD COMPONENT
+   STAT CARD
    ═══════════════════════════════════════════════════════════ */
 function StatCard({
-  label, value, icon, href, color, bg, badge, description,
+  label, value, icon, href, color, bg, description,
 }: {
   label: string; value: number; icon: React.ReactNode
   href: string; color: string; bg: string
-  badge?: number; description?: string
+  description?: string
 }) {
   return (
     <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
@@ -80,11 +64,7 @@ function StatCard({
           }}>
             {icon}
           </div>
-          {badge !== undefined && badge > 0 ? (
-            <span className="adm-notif-dot">{badge}</span>
-          ) : (
-            <ArrowUpRight size={13} style={{ color: 'var(--adm-text-4)', marginTop: 2 }} />
-          )}
+          <ArrowUpRight size={13} style={{ color: 'var(--adm-text-4)', marginTop: 2 }} />
         </div>
         <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--adm-text-1)', lineHeight: 1, marginBottom: 5, letterSpacing: '-0.03em' }}>
           {value.toLocaleString()}
@@ -157,13 +137,11 @@ function ActivityCard({
 }
 
 /* ═══════════════════════════════════════════════════════════
-   DASHBOARD PAGE
+   DASHBOARD
    ═══════════════════════════════════════════════════════════ */
 export default async function AdminDashboard() {
-  const { stats, recentArticles, recentMessages, recentPlayers, recentLogins } = await getDashboardData()
-  const hasAlerts = stats.messageCount > 0 || stats.suggestionCount > 0 || stats.pendingForumPosts > 0
-  const now = new Date()
-  const hour = now.getHours()
+  const { stats, recentArticles, recentChangelogs } = await getDashboardData()
+  const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir'
 
   return (
@@ -179,12 +157,12 @@ export default async function AdminDashboard() {
             </h1>
           </div>
           <p style={{ fontSize: 13, color: 'var(--adm-text-3)', marginTop: 4 }}>
-            Vue d'ensemble de <strong style={{ color: 'var(--adm-accent)', fontWeight: 600 }}>Voilectia ECO</strong>
+            Gestion du contenu de <strong style={{ color: 'var(--adm-accent)', fontWeight: 600 }}>Voilectia ECO</strong>
           </p>
         </div>
-        <Link href="/admin/membres" className="adm-btn adm-btn-ghost adm-btn-sm" style={{ textDecoration: 'none' }}>
-          <TrendingUp size={12} />
-          Activité
+        <Link href="/" target="_blank" className="adm-btn adm-btn-ghost adm-btn-sm" style={{ textDecoration: 'none' }}>
+          <ExternalLink size={12} />
+          Voir le site
         </Link>
       </div>
 
@@ -196,13 +174,12 @@ export default async function AdminDashboard() {
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {[
-            { label: 'Nouvel article',    href: '/admin/articles',       emoji: '📰' },
-            { label: 'Nouveau changelog', href: '/admin/changelog',      emoji: '📜' },
-            { label: 'Nouveau guide',     href: '/admin/guides',         emoji: '📚' },
-            { label: 'Nouvel événement',  href: '/admin/evenements',     emoji: '🎉' },
-            { label: 'Nouveau giveaway',  href: '/admin/giveaways',      emoji: '🎁' },
-            { label: 'Nouveau membre',    href: '/admin/membres',        emoji: '👤' },
-            { label: 'Page CMS',          href: '/admin/contenus',       emoji: '📄' },
+            { label: 'Nouvel article',    href: '/admin/articles',   emoji: '📰' },
+            { label: 'Nouveau changelog', href: '/admin/changelog',  emoji: '📜' },
+            { label: 'Nouveau guide',     href: '/admin/guides',     emoji: '📚' },
+            { label: 'Nouvel événement',  href: '/admin/evenements', emoji: '🎉' },
+            { label: 'Nouveau giveaway',  href: '/admin/giveaways',  emoji: '🎁' },
+            { label: 'Page CMS',          href: '/admin/contenus',   emoji: '📄' },
           ].map((a) => (
             <Link key={a.href} href={a.href} className="adm-quick-action">
               <Plus size={11} style={{ opacity: 0.6 }} />
@@ -213,124 +190,47 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Alertes ──────────────────────────────────────── */}
-      {hasAlerts && (
-        <div className="adm-alert adm-alert-warning">
-          <AlertTriangle size={15} style={{ flexShrink: 0, marginTop: 1 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>Actions en attente</div>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              {stats.messageCount > 0 && (
-                <Link href="/admin/messages" style={{ fontSize: 12, color: 'inherit', textDecoration: 'none', opacity: 0.85, fontWeight: 500 }}>
-                  📩 {stats.messageCount} message{stats.messageCount > 1 ? 's' : ''} non lu{stats.messageCount > 1 ? 's' : ''}
-                </Link>
-              )}
-              {stats.suggestionCount > 0 && (
-                <Link href="/admin/suggestions" style={{ fontSize: 12, color: 'inherit', textDecoration: 'none', opacity: 0.85, fontWeight: 500 }}>
-                  💡 {stats.suggestionCount} suggestion{stats.suggestionCount > 1 ? 's' : ''} en attente
-                </Link>
-              )}
-              {stats.pendingForumPosts > 0 && (
-                <Link href="/admin/forum" style={{ fontSize: 12, color: 'inherit', textDecoration: 'none', opacity: 0.85, fontWeight: 500 }}>
-                  💬 {stats.pendingForumPosts} post{stats.pendingForumPosts > 1 ? 's' : ''} forum à modérer
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Stat cards principales (6 cartes) ────────────── */}
+      {/* ── Stat cards principales ───────────────────────── */}
       <div>
         <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--adm-text-4)', marginBottom: 12 }}>
           Vue d'ensemble
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 14 }}>
           <StatCard
-            label="Joueurs inscrits" value={stats.playerCount}
-            icon={<Users size={19} />} href="/admin/membres"
-            color="var(--adm-accent)" bg="var(--adm-accent-sub)"
-            description="Comptes joueurs actifs"
-          />
-          <StatCard
             label="Articles publiés" value={stats.articleCount}
             icon={<FileText size={19} />} href="/admin/articles"
             color="var(--adm-blue)" bg="var(--adm-blue-sub)"
+            description="Actualités du serveur"
           />
           <StatCard
-            label="Sujets forum" value={stats.forumPostCount}
-            icon={<MessageSquare size={19} />} href="/admin/forum"
+            label="Guides" value={stats.guideCount}
+            icon={<BookOpen size={19} />} href="/admin/guides"
+            color="var(--adm-accent)" bg="var(--adm-accent-sub)"
+          />
+          <StatCard
+            label="Entrées changelog" value={stats.changelogCount}
+            icon={<RefreshCw size={19} />} href="/admin/changelog"
             color="var(--adm-purple)" bg="var(--adm-purple-sub)"
-            badge={stats.pendingForumPosts}
           />
           <StatCard
-            label="Messages non lus" value={stats.messageCount}
-            icon={<Mail size={19} />} href="/admin/messages"
-            color="var(--adm-red)" bg="var(--adm-red-sub)"
-            badge={stats.messageCount}
-          />
-          <StatCard
-            label="Suggestions" value={stats.suggestionCount}
-            icon={<Lightbulb size={19} />} href="/admin/suggestions"
+            label="Événements" value={stats.eventCount}
+            icon={<Calendar size={19} />} href="/admin/evenements"
             color="var(--adm-gold)" bg="var(--adm-gold-sub)"
-            badge={stats.suggestionCount}
           />
         </div>
       </div>
 
       {/* ── Mini stats secondaires ────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 10 }}>
-        <MiniStat label="Changelogs"   value={stats.changelogCount} icon={<RefreshCw size={15} />}  href="/admin/changelog"  color="var(--adm-accent)" />
-        <MiniStat label="Guides"       value={stats.guideCount}     icon={<BookOpen size={15} />}   href="/admin/guides"     color="var(--adm-blue)" />
-        <MiniStat label="Événements"   value={stats.eventCount}     icon={<Calendar size={15} />}   href="/admin/evenements" color="var(--adm-gold)" />
-        <MiniStat label="Staff actif"  value={stats.staffCount}     icon={<Shield size={15} />}     href="/admin/staff"      color="var(--adm-red)" />
-        <MiniStat label="FAQ"          value={stats.faqCount}       icon={<HelpCircle size={15} />} href="/admin/faq"        color="var(--adm-purple)" />
-        <MiniStat label="Giveaways"    value={stats.giveawayCount}  icon={<Gift size={15} />}       href="/admin/giveaways"  color="var(--adm-orange)" />
+        <MiniStat label="Tutoriels"  value={stats.tutorialCount}  icon={<GraduationCap size={15} />} href="/admin/tutoriels"  color="var(--adm-blue)" />
+        <MiniStat label="FAQ"        value={stats.faqCount}       icon={<HelpCircle size={15} />}    href="/admin/faq"        color="var(--adm-purple)" />
+        <MiniStat label="Giveaways"  value={stats.giveawayCount}  icon={<Gift size={15} />}          href="/admin/giveaways"  color="var(--adm-orange)" />
+        <MiniStat label="Staff"      value={stats.staffCount}     icon={<Shield size={15} />}        href="/admin/staff"      color="var(--adm-red)" />
+        <MiniStat label="Pages CMS"  value={stats.pageCount}      icon={<FileCode size={15} />}      href="/admin/contenus"   color="var(--adm-accent)" />
       </div>
 
       {/* ── Activity grid ────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: 16 }}>
-
-        {/* Derniers inscrits */}
-        <ActivityCard
-          title="Derniers inscrits"
-          icon={<Users size={14} />} color="var(--adm-accent)"
-          href="/admin/membres" linkLabel="Voir tous"
-        >
-          {recentPlayers.length === 0 ? (
-            <div style={{ padding: '20px 18px', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>
-              Aucun joueur inscrit
-            </div>
-          ) : (
-            <div>
-              {recentPlayers.map((p, i) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '7px 18px',
-                    borderTop: i > 0 ? '1px solid var(--adm-border-muted)' : 'none',
-                  }}
-                >
-                  <div style={{
-                    width: 30, height: 30, borderRadius: 8,
-                    background: 'var(--adm-accent-sub)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, color: 'var(--adm-accent)', flexShrink: 0,
-                  }}>
-                    {p.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {p.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--adm-text-4)', marginTop: 1 }}>{formatRelative(p.createdAt)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ActivityCard>
 
         {/* Articles récents */}
         <ActivityCard
@@ -375,21 +275,21 @@ export default async function AdminDashboard() {
           )}
         </ActivityCard>
 
-        {/* Dernières connexions */}
+        {/* Changelog récent */}
         <ActivityCard
-          title="Dernières connexions"
-          icon={<Clock size={14} />} color="var(--adm-purple)"
-          href="/admin/membres" linkLabel="Voir tous"
+          title="Changelog récent"
+          icon={<RefreshCw size={14} />} color="var(--adm-purple)"
+          href="/admin/changelog" linkLabel="Gérer"
         >
-          {recentLogins.length === 0 ? (
+          {recentChangelogs.length === 0 ? (
             <div style={{ padding: '20px 18px', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>
-              Aucune connexion récente
+              Aucune entrée
             </div>
           ) : (
             <div>
-              {recentLogins.map((p, i) => (
+              {recentChangelogs.map((c, i) => (
                 <div
-                  key={p.id}
+                  key={c.id}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '7px 18px',
@@ -397,56 +297,14 @@ export default async function AdminDashboard() {
                   }}
                 >
                   <div style={{
-                    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                    background: p.banned ? 'var(--adm-red)' : 'var(--adm-accent)',
+                    width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                    background: c.published ? 'var(--adm-accent)' : 'var(--adm-text-4)',
                   }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {p.name}
+                    <div style={{ fontSize: 13, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 450 }}>
+                      {c.version ? `${c.version} — ` : ''}{c.title}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--adm-text-4)', marginTop: 1 }}>
-                      {formatRelative(p.lastLoginAt!)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ActivityCard>
-
-        {/* Messages non lus */}
-        <ActivityCard
-          title={<>Messages {stats.messageCount > 0 && <span className="adm-notif-dot" style={{ fontSize: 9 }}>{stats.messageCount}</span>}</>}
-          icon={<Mail size={14} />} color="var(--adm-red)"
-          href="/admin/messages" linkLabel="Voir tous"
-        >
-          {recentMessages.length === 0 ? (
-            <div style={{ padding: '20px 18px', textAlign: 'center', color: 'var(--adm-text-4)', fontSize: 12 }}>
-              Aucun message non lu ✅
-            </div>
-          ) : (
-            <div>
-              {recentMessages.map((msg, i) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 10,
-                    padding: '7px 18px',
-                    borderTop: i > 0 ? '1px solid var(--adm-border-muted)' : 'none',
-                  }}
-                >
-                  <div style={{
-                    width: 8, height: 8, borderRadius: '50%', background: 'var(--adm-orange)',
-                    flexShrink: 0, marginTop: 5,
-                  }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--adm-text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {msg.name}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--adm-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>
-                      {msg.subject}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--adm-text-4)', marginTop: 1 }}>{formatRelative(msg.createdAt)}</div>
+                    <div style={{ fontSize: 11, color: 'var(--adm-text-4)', marginTop: 1 }}>{formatRelative(c.createdAt)}</div>
                   </div>
                 </div>
               ))}
@@ -454,7 +312,6 @@ export default async function AdminDashboard() {
           )}
         </ActivityCard>
       </div>
-
 
     </div>
   )
