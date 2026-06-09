@@ -8,7 +8,7 @@ import {
   BookOpen, HelpCircle, FileCode, TrendingUp,
   Settings, Calendar, Gift,
   ScrollText, Image as MediaIcon, GraduationCap,
-  Server, X, LogOut, ExternalLink,
+  Server, X, LogOut, ExternalLink, UserCog,
   ChevronDown, ChevronRight,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -50,8 +50,9 @@ const NAV_SECTIONS = [
   {
     id: 'staff', label: 'Staff', emoji: '🛡️',
     items: [
-      { label: 'Staff', href: '/admin/staff', icon: Shield },
-      { label: 'Rôles', href: '/admin/rangs', icon: Award },
+      { label: 'Équipe & accès', href: '/admin/equipe', icon: UserCog },
+      { label: 'Staff (vitrine)', href: '/admin/staff',  icon: Shield },
+      { label: 'Rôles',          href: '/admin/rangs',   icon: Award },
     ],
   },
   {
