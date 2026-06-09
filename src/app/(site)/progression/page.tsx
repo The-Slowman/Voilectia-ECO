@@ -8,6 +8,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: 'Progression des métiers — Voilectia ECO',
   description: 'Découvrez le calendrier de déblocage des métiers et spécialités sur le serveur Voilectia ECO.',
+  alternates: { canonical: "/progression" },
 }
 
 async function getProgressions() {
@@ -134,10 +135,8 @@ export default async function ProgressionPage() {
 
         {/* CTA */}
         <div className="mt-12 text-center">
-          <Link href="/serveur" className="btn-outline mr-4">Configuration du serveur</Link>
+          <Link href="/configuration" className="btn-outline mr-4">Configuration du serveur</Link>
           <Link href="/guides" className="btn-primary">Guides de démarrage</Link>
         </div>
       </div>
     </div>
-  )
-}

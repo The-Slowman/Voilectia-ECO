@@ -87,7 +87,7 @@ export async function resolveAdminSession(
   try {
     const session = await prisma.adminSession.findUnique({
       where:   { tokenHash: hashToken(rawToken) },
-      include: { user: { select: { id: true, name: true, role: true, banned: true } } },
+      include: { user: { select: { id: true, name: true, role: true } } },
     })
 
     if (!session) return null
@@ -99,7 +99,7 @@ export async function resolveAdminSession(
     }
 
     const user = session.user
-    if (!user || user.banned) return null
+    if (!user) return null
     if (!ADMIN_ROLES.includes(user.role as AdminRole)) return null
     if (minRole && user.role !== minRole) return null
 

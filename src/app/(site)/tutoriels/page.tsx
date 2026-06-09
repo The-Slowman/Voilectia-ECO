@@ -8,6 +8,7 @@ import { BookOpen, Eye, Star } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'Tutoriels & Astuces',
   description: 'Guides pratiques et astuces pour progresser sur Voilectia ECO.',
+  alternates: { canonical: "/tutoriels" },
 }
 export const revalidate = 120
 

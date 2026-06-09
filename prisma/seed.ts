@@ -198,64 +198,6 @@ async function main() {
   })
   console.log('✅ Changelog créé')
 
-  // ─── Catégories du forum ───────────────────────────────────
-  const forumCategories = [
-    {
-      id: 'tutoriels',
-      name: 'Tutoriels',
-      slug: 'tutoriels',
-      description: 'Guides pas-à-pas rédigés par la communauté.',
-      icon: '📚',
-      color: '#3A7A52',
-      order: 1,
-    },
-    {
-      id: 'astuces',
-      name: 'Astuces & Conseils',
-      slug: 'astuces',
-      description: 'Partagez vos petits secrets de jeu.',
-      icon: '💡',
-      color: '#D4A820',
-      order: 2,
-    },
-    {
-      id: 'constructions',
-      name: 'Constructions',
-      slug: 'constructions',
-      description: 'Présentez vos créations architecturales.',
-      icon: '🏗️',
-      color: '#4A9EC4',
-      order: 3,
-    },
-    {
-      id: 'economie-forum',
-      name: 'Économie & Commerce',
-      slug: 'economie-commerce',
-      description: 'Stratégies économiques, prix, échanges.',
-      icon: '💰',
-      color: '#C9900A',
-      order: 4,
-    },
-    {
-      id: 'discussions',
-      name: 'Discussions générales',
-      slug: 'discussions',
-      description: 'Tout ce qui ne rentre pas ailleurs.',
-      icon: '💬',
-      color: '#6B8C6A',
-      order: 5,
-    },
-  ]
-
-  for (const cat of forumCategories) {
-    await prisma.forumCategory.upsert({
-      where:  { slug: cat.slug },
-      update: {},
-      create: cat,
-    })
-  }
-  console.log('✅ Catégories forum créées')
-
   console.log('\n✨ Seed terminé avec succès !')
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   console.log('📧 Email admin: admin@voilectia.fr')

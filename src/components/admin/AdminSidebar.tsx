@@ -4,16 +4,16 @@ import Link from 'next/link'
 import NextImage from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  LayoutDashboard, Users, UserX, Shield, Award, FileText, RefreshCw,
-  BookOpen, HelpCircle, FileCode, TrendingUp, Coins,
-  Settings, Calendar, Gift, MessageSquare, Lightbulb, Mail,
-  ScrollText, Image as MediaIcon, Briefcase, GraduationCap,
-  ClipboardList, UserPlus, Server, X, LogOut, ExternalLink,
+  LayoutDashboard, Shield, Award, FileText, RefreshCw,
+  BookOpen, HelpCircle, FileCode, TrendingUp,
+  Settings, Calendar, Gift,
+  ScrollText, Image as MediaIcon, GraduationCap,
+  Server, X, LogOut, ExternalLink,
   ChevronDown, ChevronRight,
 } from 'lucide-react'
 import { useState } from 'react'
 
-/* ── Nav structure ──────────────────────────────────────── */
+/* ── Nav structure (vitrine + admin contenu — sans système membre) ── */
 const NAV_SECTIONS = [
   {
     id: 'dashboard',
@@ -22,34 +22,22 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    id: 'community', label: 'Communauté', emoji: '👥',
-    items: [
-      { label: 'Membres',     href: '/admin/membres',            icon: Users },
-      { label: 'Inactifs',    href: '/admin/membres/inactifs',   icon: UserX },
-      { label: 'Staff',       href: '/admin/staff',              icon: Shield },
-      { label: 'Rôles',       href: '/admin/rangs',              icon: Award },
-      { label: 'Métiers',     href: '/admin/jobs',               icon: Briefcase },
-      { label: 'Recrutement', href: '/admin/recrutement',        icon: UserPlus },
-    ],
-  },
-  {
     id: 'content', label: 'Contenu', emoji: '📰',
     items: [
+      { label: 'Pages CMS',   href: '/admin/contenus',    icon: FileCode },
       { label: 'Articles',    href: '/admin/articles',    icon: FileText },
-      { label: 'Changelog',   href: '/admin/changelog',   icon: RefreshCw },
       { label: 'Guides',      href: '/admin/guides',      icon: BookOpen },
       { label: 'Tutoriels',   href: '/admin/tutoriels',   icon: GraduationCap },
-      { label: 'FAQ',         href: '/admin/faq',         icon: HelpCircle },
+      { label: 'Changelog',   href: '/admin/changelog',   icon: RefreshCw },
       { label: 'Règlement',   href: '/admin/reglement',   icon: Shield },
-      { label: 'Pages CMS',   href: '/admin/contenus',    icon: FileCode },
+      { label: 'FAQ',         href: '/admin/faq',         icon: HelpCircle },
     ],
   },
   {
     id: 'server', label: 'Serveur', emoji: '🌍',
     items: [
+      { label: 'Configuration', href: '/admin/serveur',     icon: Server },
       { label: 'Progression',   href: '/admin/progression', icon: TrendingUp },
-      { label: 'Économie',      href: '/admin/serveur',     icon: Coins },
-      { label: 'Configuration', href: '/admin/parametres',  icon: Server },
     ],
   },
   {
@@ -57,23 +45,21 @@ const NAV_SECTIONS = [
     items: [
       { label: 'Événements', href: '/admin/evenements', icon: Calendar },
       { label: 'Giveaways',  href: '/admin/giveaways',  icon: Gift },
-      { label: 'Sondages',   href: '/admin/sondage',    icon: ClipboardList },
     ],
   },
   {
-    id: 'communication', label: 'Communication', emoji: '💬',
+    id: 'staff', label: 'Staff', emoji: '🛡️',
     items: [
-      { label: 'Forum',       href: '/admin/forum',       icon: MessageSquare },
-      { label: 'Suggestions', href: '/admin/suggestions', icon: Lightbulb },
-      { label: 'Messages',    href: '/admin/messages',    icon: Mail },
+      { label: 'Staff', href: '/admin/staff', icon: Shield },
+      { label: 'Rôles', href: '/admin/rangs', icon: Award },
     ],
   },
   {
     id: 'system', label: 'Administration', emoji: '⚙️',
     items: [
+      { label: 'Médias',       href: '/admin/medias',     icon: MediaIcon },
       { label: 'Paramètres',   href: '/admin/parametres', icon: Settings },
       { label: 'Audit / Logs', href: '/admin/audit',      icon: ScrollText },
-      { label: 'Médias',       href: '/admin/medias',     icon: MediaIcon },
     ],
   },
 ] as const

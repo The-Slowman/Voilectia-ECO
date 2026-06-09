@@ -7,6 +7,7 @@ import { AlertTriangle, Info, XCircle } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'Règlement',
   description: 'Règlement officiel du serveur Voilectia ECO. Lisez et respectez les règles pour une communauté saine.',
+  alternates: { canonical: "/reglement" },
 }
 
 export const revalidate = 300

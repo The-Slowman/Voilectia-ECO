@@ -5,6 +5,7 @@ import { Coins, ShoppingCart, TrendingUp, Scale, Store, Info } from 'lucide-reac
 export const metadata: Metadata = {
   title: 'Économie',
   description: 'Découvrez la monnaie VLC et le système économique EcoGnome sur le serveur Voilectia ECO.',
+  alternates: { canonical: "/economie" },
 }
 
 export default function EconomiePage() {

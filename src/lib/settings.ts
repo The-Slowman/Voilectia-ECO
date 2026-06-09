@@ -19,32 +19,21 @@ export interface MaintenanceStatus {
 const SECTION_PREFIXES: Record<string, string[]> = {
   'accueil':       ['/'],
   'presentation':  ['/presentation'],
-  'forum':         ['/forum'],
   'tutoriels':     ['/tutoriels'],
   'guides':        ['/guides'],
   'changelog':     ['/changelog'],
   'faq':           ['/faq'],
-  'top-serveur':   ['/top-serveur'],
-  'sondage':       ['/sondage'],
-  'recrutement':   ['/recrutement'],
+  'top-serveur':   ['/vote'],
   'giveaways':     ['/giveaways'],
-  'suggestions':   ['/suggestions'],
   'evenements':    ['/evenements'],
-  'staff':         ['/staff'],
   'reglement':     ['/reglement'],
-  'economie':      ['/economie', '/serveur', '/progression'],
-  'messagerie':    ['/messagerie'],
-  'profil':        ['/profil'],
+  'economie':      ['/economie', '/configuration', '/progression'],
 }
 
 // Pages publiques toujours accessibles, même en maintenance
 const ALWAYS_ALLOWED = [
   '/maintenance',
-  '/connexion',
-  '/inscription',
-  '/federation',
-  '/soutenir',
-  '/contact',
+  '/discord',
   '/p/',
   '/actualites/',
 ]

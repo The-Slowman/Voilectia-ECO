@@ -9,6 +9,7 @@ import { Calendar, MapPin, ChevronRight } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'Événements',
   description: 'Événements communautaires, concours de construction et animations sur le serveur Voilectia ECO.',
+  alternates: { canonical: "/evenements" },
 }
 
 export const revalidate = 120

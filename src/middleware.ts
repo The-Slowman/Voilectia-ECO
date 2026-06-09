@@ -7,7 +7,6 @@ const LOGIN_RATE_LIMIT = { limit: 5,  windowMs: 60_000 }
 
 const LOGIN_ROUTES = [
   '/api/admin/auth/login',
-  '/api/player/auth/login',
 ]
 
 /**

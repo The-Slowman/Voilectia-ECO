@@ -6,6 +6,7 @@ import { HelpCircle, ExternalLink } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'FAQ',
   description: 'Foire aux questions — Toutes les réponses aux questions fréquentes sur le serveur Voilectia ECO.',
+  alternates: { canonical: "/faq" },
 }
 
 export const revalidate = 300

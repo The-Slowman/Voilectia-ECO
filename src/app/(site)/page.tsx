@@ -30,11 +30,6 @@ const jsonLd = {
   name: 'Voilectia ECO',
   url: SITE_URL,
   description: 'Serveur Eco français Semi-RP Chill — Économie VLC, villes vivantes, coopération et constructions.',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/forum/recherche?q={search_term_string}` },
-    'query-input': 'required name=search_term_string',
-  },
 }
 
 export const revalidate = 60

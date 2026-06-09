@@ -6,7 +6,6 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { PlayerAuthButton } from '@/components/ui/PlayerAuthButton'
 import { AdminAccessButton } from '@/components/ui/AdminAccessButton'
 
 const NAV_LINKS = [
@@ -16,24 +15,10 @@ const NAV_LINKS = [
     label: 'Serveur',
     href: '#',
     children: [
-      { label: 'Configuration', href: '/serveur',     icon: '🖥️' },
-      { label: 'Progression',   href: '/progression', icon: '📅' },
-      { label: 'Économie',      href: '/economie',    icon: '💰' },
-      { label: 'Fédération',    href: '/federation',  icon: '🏛️' },
-      { label: 'Règlement',     href: '/reglement',   icon: '📜' },
-    ],
-  },
-  {
-    label: 'Communauté',
-    href: '#',
-    children: [
-      { label: 'Forum',       href: '/forum',       icon: '💬' },
-      { label: 'Événements',  href: '/evenements',  icon: '🎉' },
-      { label: 'Giveaways',   href: '/giveaways',   icon: '🎁' },
-      { label: 'Suggestions', href: '/suggestions', icon: '💡' },
-      { label: 'Sondages',    href: '/sondage',     icon: '📋' },
-      { label: 'Recrutement', href: '/recrutement', icon: '🛡️' },
-      { label: 'Staff',       href: '/staff',       icon: '👥' },
+      { label: 'Configuration', href: '/configuration', icon: '🖥️' },
+      { label: 'Progression',   href: '/progression',   icon: '📈' },
+      { label: 'Économie',      href: '/economie',      icon: '💰' },
+      { label: 'Règlement',     href: '/reglement',     icon: '📜' },
     ],
   },
   {
@@ -46,8 +31,16 @@ const NAV_LINKS = [
       { label: 'FAQ',             href: '/faq',       icon: '❓' },
     ],
   },
-  { label: 'Messagerie',  href: '/messagerie' },
-  { label: 'Top-Serveur', href: '/top-serveur', badge: '🏆' },
+  {
+    label: 'Événements',
+    href: '#',
+    children: [
+      { label: 'Événements', href: '/evenements', icon: '🎉' },
+      { label: 'Giveaways',  href: '/giveaways',  icon: '🎁' },
+    ],
+  },
+  { label: 'Vote',    href: '/vote',    badge: '🏆' },
+  { label: 'Discord', href: '/discord' },
 ]
 
 interface HeaderProps {
@@ -166,7 +159,6 @@ export function Header({ hasBanner = false }: HeaderProps) {
           {/* CTA + burger */}
           <div className="flex items-center gap-2">
             <AdminAccessButton />
-            <div className="hidden md:block"><PlayerAuthButton /></div>
             <a href={process.env.NEXT_PUBLIC_DISCORD_URL || 'https://discord.gg/voilectia'}
                target="_blank" rel="noopener noreferrer"
                className="btn-discord hidden sm:flex text-sm px-4 py-2 rounded-lg font-semibold items-center gap-2">
@@ -246,11 +238,8 @@ export function Header({ hasBanner = false }: HeaderProps) {
                 )
               )}
 
-              {/* Connexion + Discord en bas */}
+              {/* Discord en bas */}
               <div className="pt-3 mt-2 border-t border-[rgba(82,183,136,0.12)] space-y-2">
-                <div onClick={() => setMobileOpen(false)}>
-                  <PlayerAuthButton />
-                </div>
                 <a href={process.env.NEXT_PUBLIC_DISCORD_URL || '#'}
                    target="_blank" rel="noopener noreferrer"
                    onClick={() => setMobileOpen(false)}

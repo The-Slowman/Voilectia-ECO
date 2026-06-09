@@ -8,6 +8,7 @@ import { ChevronRight, Clock } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'Guides',
   description: 'Guides débutants, métiers, économie, EcoGnome et villes pour le serveur Voilectia ECO.',
+  alternates: { canonical: "/guides" },
 }
 
 export const revalidate = 300
