@@ -406,10 +406,14 @@ model ServerConfig {
   specialties Int      @default(5)            // nb de spécialités par joueur
   currency    String   @default("VLC")
   season      String   @default("S1")
+  status      String   @default("preparation") // preparation | open | closed | maintenance
   serverIp    String?
   serverPort  String?
+  ecoVersion  String?                           // ex : "0.13.x"
   maxPlayers  Int?
   modpack     String?
+  discordUrl     String?
+  topServeurUrl  String?
   description String?  @db.Text
   startDate   DateTime?
   endDate     DateTime?
@@ -418,6 +422,37 @@ model ServerConfig {
   progressions JobProgression[]
 
   @@map("server_config")
+}
+
+// ─── Configuration serveur — blocs flexibles (groupes + lignes) ──
+
+model ServerConfigGroup {
+  id        String   @id @default(cuid())
+  title     String
+  icon      String?
+  order     Int      @default(0)
+  items     ServerConfigItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("server_config_groups")
+}
+
+model ServerConfigItem {
+  id          String   @id @default(cuid())
+  groupId     String
+  group       ServerConfigGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  label       String
+  value       String
+  description String?  @db.Text
+  icon        String?
+  order       Int      @default(0)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([groupId])
+  @@map("server_config_items")
 }
 
 model JobProgression {
