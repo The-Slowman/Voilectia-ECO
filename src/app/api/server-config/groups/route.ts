@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { getAdminFromRequest } from '@/lib/admin-auth'
+import { ensureServerConfigSchema } from '@/lib/server-config-heal'
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Titre requis').max(80),
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest) {
   const p = schema.safeParse(body)
   if (!p.success) return NextResponse.json({ error: p.error.issues[0]?.message ?? 'Données invalides.' }, { status: 400 })
 
+  await ensureServerConfigSchema()
   const group = await prisma.serverConfigGroup.create({
     data: { title: p.data.title, icon: p.data.icon ?? null, order: p.data.order ?? 0 },
   })

@@ -146,6 +146,20 @@ model Guide {
   @@map("guides")
 }
 
+// ─── Categories de guides (dynamiques) ───────────────────────
+
+model GuideCategory {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  icon      String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("guide_categories")
+}
+
 // ─── Événements ───────────────────────────────────────────────
 
 model Event {

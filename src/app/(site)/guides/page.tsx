@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PageHero } from '@/components/ui/PageHero'
 import { prisma } from '@/lib/db'
-import { GUIDE_CATEGORIES } from '@/lib/utils'
-import { ChevronRight, Clock } from 'lucide-react'
+import { getGuideCategories } from '@/lib/guide-categories'
+import { ChevronRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Guides',
-  description: 'Guides débutants, métiers, économie, EcoGnome et villes pour le serveur Voilectia ECO.',
+  description: 'Guides debutants, metiers, economie et plus pour le serveur Eco Voilectia.',
   alternates: { canonical: "/guides" },
 }
 
@@ -20,16 +20,19 @@ export default async function GuidesPage({
 }) {
   const category = searchParams.category
 
-  const guides = await prisma.guide.findMany({
-    where: {
-      published: true,
-      ...(category ? { category } : {}),
-    },
-    orderBy: [{ category: 'asc' }, { order: 'asc' }],
-    include: { author: { select: { name: true } } },
-  })
+  const [guides, cats] = await Promise.all([
+    prisma.guide.findMany({
+      where: { published: true, ...(category ? { category } : {}) },
+      orderBy: [{ category: 'asc' }, { order: 'asc' }],
+      include: { author: { select: { name: true } } },
+    }),
+    getGuideCategories(),
+  ])
 
-  // Group by category
+  const catMap: Record<string, { label: string; icon: string }> = {}
+  for (const c of cats) catMap[c.slug] = { label: c.name, icon: c.icon ?? '📄' }
+  const info = (slug: string) => catMap[slug] ?? { label: slug, icon: '📄' }
+
   const grouped = guides.reduce<Record<string, typeof guides>>((acc, g) => {
     if (!acc[g.category]) acc[g.category] = []
     acc[g.category].push(g)
@@ -40,13 +43,12 @@ export default async function GuidesPage({
     <div>
       <PageHero
         title="Guides"
-        subtitle="Tout ce que vous devez savoir pour jouer sur Voilectia — du débutant au joueur expérimenté."
+        subtitle="Tout ce que vous devez savoir pour jouer sur Voilectia — du debutant au joueur experimente."
         badge="📖 Documentation"
       />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
 
-        {/* Category filters */}
         <div className="flex flex-wrap gap-2 mb-10">
           <Link
             href="/guides"
@@ -56,28 +58,27 @@ export default async function GuidesPage({
           >
             Tous les guides
           </Link>
-          {Object.entries(GUIDE_CATEGORIES).map(([key, val]) => (
+          {cats.map((c) => (
             <Link
-              key={key}
-              href={`/guides?category=${key}`}
+              key={c.id}
+              href={`/guides?category=${c.slug}`}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                category === key ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
+                category === c.slug ? 'bg-[#2D6A4F] text-[#E8F5EE]' : 'text-[#2D6A4F] border border-[rgba(82,183,136,0.3)] hover:border-[#52B788] hover:text-[#1A3D2B]'
               }`}
             >
-              {val.icon} {val.label}
+              {c.icon} {c.name}
             </Link>
           ))}
         </div>
 
-        {/* Guides grouped */}
         {Object.keys(grouped).length === 0 ? (
           <div className="card p-8 text-center text-[#3D5F4A]">
-            Aucun guide disponible pour le moment. Revenez bientôt !
+            Aucun guide disponible pour le moment. Revenez bientot !
           </div>
         ) : (
           <div className="space-y-12">
             {Object.entries(grouped).map(([cat, items]) => {
-              const catInfo = GUIDE_CATEGORIES[cat] ?? { label: cat, icon: '📄' }
+              const catInfo = info(cat)
               return (
                 <section key={cat}>
                   <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-5 flex items-center gap-3">
