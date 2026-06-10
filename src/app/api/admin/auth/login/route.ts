@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
     return res
   } catch (e) {
     console.error('[admin-login]', e)
-    return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 })
+    const detail = e instanceof Error ? e.message : String(e)
+    // DIAGNOSTIC TEMPORAIRE : affiche la vraie cause. À retirer ensuite.
+    return NextResponse.json({ error: 'Erreur serveur : ' + detail.slice(0, 400) }, { status: 500 })
   }
 }

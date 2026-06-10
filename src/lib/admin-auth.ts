@@ -44,22 +44,52 @@ export function generateSessionToken(): string {
  * Crée une session admin en base et retourne le token brut (à poser en cookie).
  * Seul le hash est persisté.
  */
+/**
+ * Filet de sécurité : crée la table admin_sessions si elle n'existe pas encore
+ * (utile si la migration Prisma n'a pas été appliquée sur l'hébergement).
+ */
+let _ensuredTable = false
+async function ensureAdminSessionTable(): Promise<void> {
+  if (_ensuredTable) return
+  await prisma.$executeRawUnsafe(
+    'CREATE TABLE IF NOT EXISTS `admin_sessions` (' +
+      '`id` VARCHAR(191) NOT NULL,' +
+      '`tokenHash` VARCHAR(191) NOT NULL,' +
+      '`userId` VARCHAR(191) NOT NULL,' +
+      '`ipAddress` VARCHAR(191) NULL,' +
+      '`userAgent` TEXT NULL,' +
+      '`createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),' +
+      '`expiresAt` DATETIME(3) NOT NULL,' +
+      'UNIQUE INDEX `admin_sessions_tokenHash_key`(`tokenHash`),' +
+      'INDEX `admin_sessions_userId_idx`(`userId`),' +
+      'INDEX `admin_sessions_expiresAt_idx`(`expiresAt`),' +
+      'PRIMARY KEY (`id`)' +
+    ') DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+  )
+  _ensuredTable = true
+}
+
 export async function createAdminSession(
   userId: string,
   meta?: { ip?: string | null; userAgent?: string | null },
 ): Promise<string> {
   const raw = generateSessionToken()
   const expiresAt = new Date(Date.now() + ADMIN_SESSION_MAX_AGE * 1000)
+  const data = {
+    tokenHash: hashToken(raw),
+    userId,
+    expiresAt,
+    ipAddress: meta?.ip ?? null,
+    userAgent: meta?.userAgent ?? null,
+  }
 
-  await prisma.adminSession.create({
-    data: {
-      tokenHash: hashToken(raw),
-      userId,
-      expiresAt,
-      ipAddress: meta?.ip ?? null,
-      userAgent: meta?.userAgent ?? null,
-    },
-  })
+  try {
+    await prisma.adminSession.create({ data })
+  } catch {
+    // La table n'existe peut-être pas encore → on la crée puis on réessaie.
+    await ensureAdminSessionTable()
+    await prisma.adminSession.create({ data })
+  }
 
   return raw
 }
