@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Calendar, Plug } from 'lucide-react'
 import { PageHero } from '@/components/ui/PageHero'
 import { CopyButton } from '@/components/ui/CopyButton'
+import { ensureServerConfigSchema } from '@/lib/server-config-heal'
 
 export const revalidate = 120
 
@@ -26,6 +27,7 @@ const STATUS: Record<string, { label: string; color: string; bg: string }> = {
 async function getData() {
   let config: Awaited<ReturnType<typeof prisma.serverConfig.findUnique>> | null = null
   let groups: PGroup[] = []
+  try { await ensureServerConfigSchema() } catch {}
   try {
     config = await prisma.serverConfig.findUnique({ where: { id: 'singleton' } })
   } catch { config = null }

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { getAdminFromRequest } from '@/lib/admin-auth'
 import { parseBody, serverConfigSchema } from '@/lib/validate'
 import { logAudit } from '@/lib/audit'
+import { ensureServerConfigSchema } from '@/lib/server-config-heal'
 
 async function fetchGroups(includePrivate: boolean) {
   try {
@@ -23,6 +24,7 @@ async function fetchGroups(includePrivate: boolean) {
 // GET — public (items non publics renvoyes uniquement a un admin connecte)
 export async function GET(req: NextRequest) {
   try {
+    await ensureServerConfigSchema()
     let config = await prisma.serverConfig.findUnique({
       where:   { id: 'singleton' },
       include: { progressions: { orderBy: { order: 'asc' } } },
