@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { getAdminFromRequest } from '@/lib/admin-auth'
+import { ensureSiteSettingsSchema } from '@/lib/site-settings-heal'
 
 // Champs de base — toujours présents en DB
 const BASE_DEFAULTS = {
@@ -42,6 +43,7 @@ function buildResponse(settings: Record<string, unknown>, extra: typeof NEW_FIEL
 // GET — public (pour le middleware et la page maintenance)
 export async function GET() {
   try {
+    await ensureSiteSettingsSchema()
     // Tentative avec tous les champs (nouveaux + anciens)
     let settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } })
     if (!settings) {
@@ -86,6 +88,8 @@ export async function PATCH(req: NextRequest) {
   if (!admin) {
     return NextResponse.json({ error: 'Réservé aux fondateurs' }, { status: 403 })
   }
+
+  await ensureSiteSettingsSchema()
 
   const body = await req.json()
   const data: Record<string, unknown> = {}
