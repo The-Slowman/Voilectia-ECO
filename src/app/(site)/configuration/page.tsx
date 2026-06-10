@@ -1,145 +1,156 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { Server, Globe, Zap, Users, Coins, Calendar, Cpu } from 'lucide-react'
 import Link from 'next/link'
+import { Calendar, Plug } from 'lucide-react'
+import { PageHero } from '@/components/ui/PageHero'
+import { CopyButton } from '@/components/ui/CopyButton'
 
 export const revalidate = 120
 
 export const metadata: Metadata = {
   title: 'Configuration du serveur — Voilectia ECO',
-  description: 'Découvrez la configuration technique et les paramètres du serveur Eco Voilectia.',
+  description: 'Taille du monde, progression, economie, gameplay et connexion du serveur Eco Voilectia.',
   alternates: { canonical: '/configuration' },
 }
 
-async function getServerConfig() {
-  try {
-    let config = await prisma.serverConfig.findUnique({
-      where: { id: 'singleton' },
-      include: { progressions: { orderBy: { order: 'asc' } } },
-    })
-    if (!config) {
-      config = await prisma.serverConfig.create({
-        data: { id: 'singleton' },
-        include: { progressions: { orderBy: { order: 'asc' } } },
-      })
-    }
-    return config
-  } catch {
-    return null
-  }
+interface PItem { id: string; label: string; value: string; description: string | null; icon: string | null }
+interface PGroup { id: string; title: string; icon: string | null; items: PItem[] }
+
+const STATUS: Record<string, { label: string; color: string; bg: string }> = {
+  preparation: { label: 'En preparation', color: '#B8860B', bg: 'rgba(212,168,32,0.14)' },
+  open:        { label: 'Serveur ouvert', color: '#2D6A4F', bg: 'rgba(82,183,136,0.16)' },
+  closed:      { label: 'Ferme',          color: '#6B7280', bg: 'rgba(120,120,120,0.14)' },
+  maintenance: { label: 'Maintenance',    color: '#C2691F', bg: 'rgba(224,138,74,0.14)' },
 }
 
-export default async function ServeurPage() {
-  const config = await getServerConfig()
+async function getData() {
+  let config: Awaited<ReturnType<typeof prisma.serverConfig.findUnique>> | null = null
+  let groups: PGroup[] = []
+  try {
+    config = await prisma.serverConfig.findUnique({ where: { id: 'singleton' } })
+  } catch { config = null }
+  try {
+    groups = await prisma.serverConfigGroup.findMany({
+      orderBy: { order: 'asc' },
+      include: { items: { where: { isPublic: true }, orderBy: { order: 'asc' } } },
+    }) as unknown as PGroup[]
+  } catch { groups = [] }
+  return { config, groups }
+}
 
-  const SPECS = config ? [
-    { icon: <Globe size={20} />,   label: 'Taille du monde',     value: config.worldSize,   color: 'text-[#4A9EC4]' },
-    { icon: <Zap size={20} />,     label: 'Difficulté',          value: config.difficulty,  color: 'text-orange-400' },
-    { icon: <Cpu size={20} />,     label: "Taux d'XP",           value: config.xpRate,      color: 'text-purple-400' },
-    { icon: <Users size={20} />,   label: 'Spécialités / joueur', value: `${config.specialties}`, color: 'text-[#52B788]' },
-    { icon: <Coins size={20} />,   label: 'Monnaie',             value: config.currency,    color: 'text-[#D4A820]' },
-    { icon: <Calendar size={20} />, label: 'Saison',             value: config.season,      color: 'text-pink-400' },
-  ] : []
+export default async function ConfigurationPage() {
+  const { config, groups } = await getData()
+  const status = STATUS[(config?.status as string) ?? 'preparation'] ?? STATUS.preparation
+  const ip = config?.serverIp ? `${config.serverIp}${config.serverPort ? `:${config.serverPort}` : ''}` : null
+  const filled = groups.filter(g => g.items.length > 0)
 
   return (
     <div className="min-h-screen">
+      <PageHero
+        badge="🖥️ Serveur"
+        title="Configuration"
+        subtitle={config?.description || 'Toute la configuration de Voilectia ECO : monde, progression, economie, gameplay et connexion.'}
+      >
+        <span
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold"
+          style={{ color: status.color, background: status.bg, border: `1px solid ${status.color}40` }}
+        >
+          ● {status.label}{config?.season ? ` · ${config.season}` : ''}
+        </span>
+      </PageHero>
 
-      {/* Hero */}
-      <section className="py-20 bg-forest-texture">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 border border-[rgba(82,183,136,0.3)] bg-[rgba(82,183,136,0.1)] text-[#52B788] text-xs font-semibold tracking-wider uppercase px-4 py-1.5 rounded-full mb-6">
-            🖥️ Serveur
-          </div>
-          <h1 className="font-display text-5xl md:text-6xl font-black text-[#F2E8D5] mb-4">
-            Configuration
-          </h1>
-          <p className="text-[rgba(242,232,213,0.6)] text-base max-w-xl mx-auto leading-relaxed">
-            Tous les paramètres techniques et règles du serveur Voilectia ECO.
-          </p>
-        </div>
-      </section>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 space-y-10">
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 space-y-12">
-
-        {/* Specs */}
-        {config && (
-          <section>
-            <h2 className="font-display text-2xl font-bold text-[#1A3D2B] mb-6 flex items-center gap-2">
-              <Server size={20} /> Paramètres de jeu
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {SPECS.map((spec) => (
-                <div key={spec.label} className="card p-6 text-center group">
-                  <div className={`flex justify-center mb-3 ${spec.color} group-hover:scale-110 transition-transform`}>
-                    {spec.icon}
-                  </div>
-                  <div className="font-display font-bold text-2xl text-[#1A3D2B] mb-1">{spec.value}</div>
-                  <div className="text-xs text-[#6B8C6A] uppercase tracking-wide">{spec.label}</div>
+        {(filled.length > 0 || ip) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {filled.map(g => (
+              <div key={g.id} className="card p-6">
+                <h2 className="font-display text-lg font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
+                  {g.icon && <span className="text-xl">{g.icon}</span>}{g.title}
+                </h2>
+                <div className="divide-y divide-[#EDE3CC]">
+                  {g.items.map(it => (
+                    <div key={it.id} className="py-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[#4A6854] text-sm flex items-center gap-2">
+                          {it.icon && <span>{it.icon}</span>}{it.label}
+                        </span>
+                        <span className="text-[#1A3D2B] font-semibold text-sm text-right">{it.value}</span>
+                      </div>
+                      {it.description && (
+                        <p className="text-xs text-[#6B8C6A] mt-1 leading-snug">{it.description}</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </div>
+            ))}
 
-        {/* Connexion */}
-        {config?.serverIp && (
-          <section className="card p-8">
-            <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
-              🔗 Se connecter
-            </h2>
-            <div className="bg-[#F2E8D5] border border-[#DBCAA8] rounded-xl p-4 inline-flex items-center gap-3">
-              <span className="text-[#6B8C6A] text-sm">IP :</span>
-              <code className="font-mono font-bold text-[#1A3D2B] text-lg">
-                {config.serverIp}{config.serverPort ? `:${config.serverPort}` : ''}
-              </code>
-            </div>
-            {config.maxPlayers && (
-              <p className="text-sm text-[#6B8C6A] mt-3 flex items-center gap-1.5">
-                <Users size={14} /> Capacité : {config.maxPlayers} joueurs maximum
-              </p>
+            {ip && (
+              <div className="card p-6">
+                <h2 className="font-display text-lg font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
+                  <Plug size={18} className="text-[#52B788]" /> Connexion
+                </h2>
+                <div className="bg-[#F7F0DF] border border-[#DBCAA8] rounded-xl p-4 flex items-center justify-between gap-3 mb-3 flex-wrap">
+                  <code className="font-mono font-bold text-[#1A3D2B] text-lg break-all">{ip}</code>
+                  <CopyButton text={ip} />
+                </div>
+                <div className="divide-y divide-[#EDE3CC]">
+                  {config?.ecoVersion && (
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-[#4A6854] text-sm">Version Eco</span>
+                      <span className="text-[#1A3D2B] font-semibold text-sm">{config.ecoVersion}</span>
+                    </div>
+                  )}
+                  {config?.modpack && (
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-[#4A6854] text-sm">Modpack</span>
+                      <span className="text-[#1A3D2B] font-semibold text-sm">{config.modpack}</span>
+                    </div>
+                  )}
+                  {config?.maxPlayers && (
+                    <div className="flex items-center justify-between py-2.5">
+                      <span className="text-[#4A6854] text-sm">Capacite</span>
+                      <span className="text-[#1A3D2B] font-semibold text-sm">{config.maxPlayers} joueurs</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
-          </section>
+          </div>
         )}
 
-        {/* Description */}
-        {config?.description && (
-          <section className="card p-8">
-            <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-4">À propos du serveur</h2>
-            <p className="text-[#2D5A3F] leading-relaxed whitespace-pre-wrap">{config.description}</p>
-          </section>
-        )}
-
-        {/* Dates */}
         {(config?.startDate || config?.endDate) && (
-          <section className="card p-8">
-            <h2 className="font-display text-xl font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
-              <Calendar size={18} /> Dates de la saison
+          <section className="card p-6">
+            <h2 className="font-display text-lg font-bold text-[#1A3D2B] mb-4 flex items-center gap-2">
+              <Calendar size={18} className="text-[#52B788]" /> Saison {config?.season}
             </h2>
-            <div className="flex gap-8">
-              {config.startDate && (
+            <div className="flex gap-10 flex-wrap">
+              {config?.startDate && (
                 <div>
-                  <div className="text-xs text-[#6B8C6A] uppercase tracking-wide mb-1">Début</div>
-                  <div className="font-bold text-[#1A3D2B]">
-                    {new Date(config.startDate).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
-                  </div>
+                  <div className="text-xs text-[#6B8C6A] uppercase tracking-wide mb-1">Ouverture</div>
+                  <div className="font-bold text-[#1A3D2B]">{new Date(config.startDate).toLocaleDateString('fr-FR', { dateStyle: 'long' })}</div>
                 </div>
               )}
-              {config.endDate && (
+              {config?.endDate && (
                 <div>
-                  <div className="text-xs text-[#6B8C6A] uppercase tracking-wide mb-1">Fin estimée</div>
-                  <div className="font-bold text-[#1A3D2B]">
-                    {new Date(config.endDate).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
-                  </div>
+                  <div className="text-xs text-[#6B8C6A] uppercase tracking-wide mb-1">Fin estimee</div>
+                  <div className="font-bold text-[#1A3D2B]">{new Date(config.endDate).toLocaleDateString('fr-FR', { dateStyle: 'long' })}</div>
                 </div>
               )}
             </div>
           </section>
         )}
 
-        {/* CTA */}
-        <div className="text-center">
-          <Link href="/progression" className="btn-primary mr-4">Voir la progression des métiers</Link>
-          <Link href="/presentation" className="btn-outline">Présentation du serveur</Link>
+        {filled.length === 0 && !ip && (
+          <div className="card p-10 text-center text-[#6B8C6A]">
+            La configuration sera bientot disponible.
+          </div>
+        )}
+
+        <div className="text-center pt-2">
+          <Link href="/progression" className="btn-primary mr-3">Progression des metiers</Link>
+          <Link href="/presentation" className="btn-outline">Presentation du serveur</Link>
         </div>
       </div>
     </div>
